@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Axiom tests</title>
+    <style>
+      body {
+        margin: 32px;
+        font: 15px/1.5 ui-monospace, Menlo, Consolas, monospace;
+        color: #1d1d1f;
+        background: #fff;
+      }
+      h1 {
+        font-size: 18px;
+      }
+      ol {
+        padding-left: 24px;
+      }
+      .ok {
+        color: #1a7f37;
+      }
+      .fail {
+        color: #c62828;
+      }
+      pre {
+        margin: 4px 0 12px;
+        white-space: pre-wrap;
+        color: #6e6e73;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Axiom tests</h1>
+    <p id="summary">Running…</p>
+    <ol id="results"></ol>
+    <script type="module">
+      import './all.js';
+      import { run } from './harness.js';
+
+      const list = document.getElementById('results');
+      const { passed, failed, total } = await run(({ name, ok, error }) => {
+        const li = document.createElement('li');
+        li.className = ok ? 'ok' : 'fail';
+        li.textContent = `${ok ? 'ok' : 'FAIL'} ${name}`;
+        if (error) {
+          const pre = document.createElement('pre');
+          pre.textContent = error.stack || error.message;
+          li.append(pre);
+        }
+        list.append(li);
+      });
+      document.getElementById('summary').textContent =
+        `${passed}/${total} passed${failed ? `, ${failed} failed` : ''}`;
+      document.title = `${failed ? 'FAIL' : 'OK'} · Axiom tests`;
+    </script>
+  </body>
+</html>
