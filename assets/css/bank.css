@@ -1,0 +1,425 @@
+/* The question bank: controls beside the question on wide screens, stacked on phones. */
+
+.bank {
+  padding: clamp(40px, 6vw, 72px) 0 clamp(64px, 8vw, 104px);
+}
+
+.bank [hidden] {
+  display: none !important;
+}
+
+.bank-head {
+  max-width: 760px;
+  margin-bottom: clamp(32px, 5vw, 56px);
+}
+
+.bank-head .lead {
+  margin-top: 18px;
+}
+
+.bank-layout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  grid-template-areas: 'controls question';
+  gap: 28px;
+  align-items: start;
+}
+
+/* Stacked, the question comes first: it is the product, and Next question lives in it.
+   The markup puts it first as well, so focus order follows the page. */
+@media (max-width: 860px) {
+  .bank-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'question'
+      'controls';
+  }
+}
+
+/* Controls */
+
+.bank-controls {
+  grid-area: controls;
+  padding: 22px;
+}
+
+.field-error {
+  margin: 6px 0 0;
+  color: var(--bad);
+}
+
+@media (min-width: 861px) {
+  .bank-controls {
+    position: sticky;
+    top: calc(var(--nav-h) + 20px);
+  }
+}
+
+.controls {
+  display: grid;
+  gap: 18px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field label,
+.spr-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.field select,
+.field input,
+.spr-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  /* --ink-3, not --line: a field's edge has to clear 3:1 against the card */
+  border: 1px solid var(--ink-3);
+  border-radius: var(--radius-s);
+  background-color: var(--surface);
+  color: var(--ink);
+  font-size: 16px;
+  transition: border-color var(--dur-1);
+}
+
+.field select:hover,
+.field input:hover,
+.spr-input:hover {
+  border-color: var(--ink-2);
+}
+
+.field select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 40px;
+  /* the chevron's stroke is --ink-2 */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%236e6e73' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6.5l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+}
+
+.field input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.field input::-webkit-outer-spin-button,
+.field input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Stays at 16px: iOS Safari zooms the page when a smaller field takes focus. */
+.field input[readonly] {
+  font-family: var(--mono);
+  color: var(--ink-2);
+  background-color: var(--surface-2);
+}
+
+.actions {
+  display: grid;
+  gap: 10px;
+}
+
+.actions .btn {
+  width: 100%;
+}
+
+.bank .btn:disabled {
+  cursor: default;
+  opacity: 0.5;
+  transform: none;
+  box-shadow: none;
+}
+
+/* The question */
+
+.bank-main {
+  grid-area: question;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.bank-note {
+  margin: 0;
+}
+
+.bank-main .q-card {
+  /* a wide table scrolls inside .q-scroll instead of widening the card */
+  min-width: 0;
+  scroll-margin-top: calc(var(--nav-h) + 20px);
+}
+
+/* The script fills the card on load; only the pre-script and no-script states are empty. */
+.bank-main .q-card:empty {
+  display: none;
+}
+
+.bank-main .q-card:focus-visible {
+  outline-offset: 6px;
+}
+
+.bank-main .q-meta .chip {
+  white-space: normal;
+}
+
+.q-id {
+  margin-left: auto;
+  font-family: var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.q-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.q-answer {
+  display: grid;
+  gap: 12px;
+}
+
+.q-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 12px;
+}
+
+.q-tools-hint {
+  margin: 0;
+}
+
+.eliminator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-2);
+  transition:
+    background-color var(--dur-1),
+    color var(--dur-1),
+    border-color var(--dur-1);
+}
+
+.eliminator:hover {
+  border-color: rgba(0, 0, 0, 0.16);
+}
+
+.eliminator .abc {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-decoration: line-through;
+}
+
+.eliminator[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--accent-ink);
+}
+
+.eliminator:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.choice:disabled {
+  cursor: default;
+}
+
+.choice:disabled:not(.is-correct):not(.is-incorrect):hover {
+  border-color: var(--line);
+}
+
+/* Student-produced response */
+
+.spr {
+  display: grid;
+  gap: 8px;
+}
+
+.spr-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.spr-input {
+  width: 180px;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.spr-input.is-correct {
+  border-color: var(--ok);
+  background-color: var(--ok-soft);
+}
+
+.spr-input.is-incorrect {
+  border-color: var(--bad);
+  background-color: var(--bad-soft);
+}
+
+.spr-input[aria-invalid="true"] {
+  border-color: var(--bad);
+}
+
+.spr .small {
+  margin: 0;
+}
+
+/* Result, explanation and the way on */
+
+.q-outcome {
+  display: grid;
+  gap: 16px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.q-result {
+  margin: 0;
+  font-weight: 600;
+}
+
+.q-result.is-correct {
+  color: var(--ok);
+}
+
+.q-result.is-incorrect {
+  color: var(--bad);
+}
+
+.q-next {
+  display: flex;
+}
+
+/* Bank at a glance */
+
+.glance {
+  margin-top: clamp(56px, 8vw, 96px);
+}
+
+.glance-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-bottom: 20px;
+}
+
+.glance-totals {
+  margin: 0;
+  font-size: 15px;
+}
+
+/* Four domains, so the grid is always 1, 2 + 2 or 4: never 3 + 1. */
+.glance-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .glance-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .glance-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.glance-card {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 22px;
+  cursor: pointer;
+  transition:
+    transform var(--dur-1) var(--ease-out),
+    border-color var(--dur-1),
+    box-shadow var(--dur-1);
+}
+
+.glance-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-m);
+}
+
+/* A domain with no templates is not a target. */
+.glance-card.is-empty {
+  cursor: default;
+}
+
+.glance-card.is-empty:hover {
+  transform: none;
+  border-color: var(--line);
+  box-shadow: var(--shadow-s);
+}
+
+.glance-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.glance-name {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.glance-stats {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.glance-stats strong {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.glance-skills {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.glance-card .btn {
+  justify-self: start;
+  margin-top: 6px;
+}
+
+/* Footer: the same markup as index.html; --ink-2 so 14px text clears 4.5:1. */
+

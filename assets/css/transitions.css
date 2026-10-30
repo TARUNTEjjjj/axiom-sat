@@ -1,0 +1,39 @@
+/* 3D page turns. Every page wraps its content in <main class="page">: it turns in
+   from the right on load, and transitions.js turns it away to the left before
+   following a link. perspective() lives inside the transform so no ancestor
+   needs a perspective of its own. */
+
+.page {
+  transform-origin: 50% 35%;
+  animation: page-enter var(--dur-2) var(--ease-out) both;
+}
+
+html.is-leaving .page {
+  animation: page-leave var(--dur-2) var(--ease-in-out) both;
+  pointer-events: none;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: perspective(1600px) rotateY(10deg) translateZ(-160px) translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes page-leave {
+  to {
+    opacity: 0;
+    transform: perspective(1600px) rotateY(-10deg) translateZ(-160px) translateX(-40px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page,
+  html.is-leaving .page {
+    animation: none;
+  }
+}

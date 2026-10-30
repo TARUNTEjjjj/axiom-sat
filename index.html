@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Axiom — SAT Math practice</title>
+    <meta
+      name="description"
+      content="Axiom is open-source SAT Math practice: more than 10,000 generated questions with worked answers, built for the Digital SAT Math section."
+    />
+    <meta name="theme-color" content="#ffffff" />
+    <script>
+      // The reveal blocks start hidden only where home.js can run; see .js in home.css.
+      if ('noModule' in HTMLScriptElement.prototype) document.documentElement.classList.add('js');
+    </script>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='10' fill='%232563eb'/></svg>"
+    />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/transitions.css" />
+    <link rel="stylesheet" href="assets/css/home.css" />
+  </head>
+  <body>
+    <header class="nav">
+      <div class="container nav-inner">
+        <a class="wordmark" href="index.html"><span class="wordmark-dot" aria-hidden="true"></span>Axiom</a>
+        <nav aria-label="Primary">
+          <ul class="nav-links" role="list">
+            <li><a href="index.html" aria-current="page">Overview</a></li>
+            <li><a href="bank.html">Question Bank</a></li>
+            <li class="nav-github">
+              <a href="https://github.com/TARUNTEjjjj/axiom-sat" rel="noopener">GitHub</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="container hero-grid stage">
+          <div class="hero-copy reveal" style="--i: 0">
+            <p class="eyebrow">SAT Math practice</p>
+            <h1 class="display" id="hero-title">Practice that feels like the real test.</h1>
+            <p class="lead">
+              Over 10,000 generated questions, with timed practice and progress on the way. Open source,
+              and built for the Digital SAT Math section.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="bank.html">Explore the question bank</a>
+              <a class="btn btn-secondary" href="https://github.com/TARUNTEjjjj/axiom-sat" rel="noopener">
+                View on GitHub
+              </a>
+            </div>
+          </div>
+
+          <div class="hero-product reveal" style="--i: 1">
+            <div class="tilt">
+              <article class="q-card hero-card" aria-label="Sample question">
+                <div class="q-meta">
+                  <span class="chip" data-field="domain">Algebra</span>
+                  <span class="chip" data-field="skill">Linear equations in one variable</span>
+                  <span class="chip" data-field="difficulty">Difficulty 2 of 3</span>
+                </div>
+                <p class="q-stem" data-field="stem">If 5x − 18 = 2x − 30, what is the value of x?</p>
+                <ul class="choices" role="list">
+                  <li>
+                    <div class="choice">
+                      <span class="choice-key">A</span>
+                      <span class="choice-text">4</span>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="choice is-correct">
+                      <span class="choice-key">B</span>
+                      <span class="choice-text">−4</span>
+                      <span class="sr-only">Correct answer</span>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="choice">
+                      <span class="choice-key">C</span>
+                      <span class="choice-text">−2</span>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="choice">
+                      <span class="choice-key">D</span>
+                      <span class="choice-text">−16</span>
+                    </div>
+                  </li>
+                </ul>
+                <p class="explanation" data-field="explanation">
+                  Collect the x-terms on one side and the constants on the other: 3x = −12. Divide both sides
+                  by 3: x = −4.
+                </p>
+                <span class="chip chip-ok hero-badge" aria-hidden="true">Correct</span>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="questions-title">
+        <div class="container stage">
+          <div class="section-head reveal">
+            <p class="eyebrow">Question bank</p>
+            <h2 class="title" id="questions-title">More than 10,000 questions, each with a worked answer.</h2>
+            <p class="lead">
+              Every question is built from a template and a seed, and every answer is computed, never typed.
+            </p>
+          </div>
+
+          <ul class="stats reveal" style="--i: 1" role="list">
+            <li class="card stat">
+              <strong class="stat-num" data-stat="templates">19</strong>
+              <span class="stat-label" data-stat-label="templates">Question templates</span>
+            </li>
+            <li class="card stat">
+              <strong class="stat-num" data-stat="space">28M+</strong>
+              <span class="stat-label">Distinct questions</span>
+            </li>
+            <li class="card stat">
+              <strong class="stat-num" data-stat="domains">4</strong>
+              <span class="stat-label">Content domains</span>
+            </li>
+          </ul>
+
+          <div
+            class="fan reveal"
+            style="--i: 2"
+            role="img"
+            aria-label="Three generated question cards fanned out: a linear equation, a percent problem and a triangle angle"
+          >
+            <div class="fan-card" style="--i: 0">
+              <span class="fan-tag">Algebra</span>
+              <p class="fan-stem">If 4x + 9 = 33, what is the value of x?</p>
+              <div class="fan-choices">
+                <span><b>A</b> 4</span>
+                <span class="is-correct"><b>B</b> 6</span>
+                <span><b>C</b> 8</span>
+                <span><b>D</b> 24</span>
+              </div>
+            </div>
+            <div class="fan-card" style="--i: 1">
+              <span class="fan-tag">Problem-Solving and Data Analysis</span>
+              <p class="fan-stem">A jacket that costs $80 is on sale for 35% off. What is the sale price?</p>
+              <div class="fan-choices">
+                <span><b>A</b> $28</span>
+                <span><b>B</b> $45</span>
+                <span class="is-correct"><b>C</b> $52</span>
+                <span><b>D</b> $55</span>
+              </div>
+            </div>
+            <div class="fan-card" style="--i: 2">
+              <span class="fan-tag">Geometry and Trigonometry</span>
+              <p class="fan-stem">
+                Two angles of a triangle measure 48° and 67°. What is the measure of the third angle?
+              </p>
+              <div class="fan-choices">
+                <span><b>A</b> 55°</span>
+                <span class="is-correct"><b>B</b> 65°</span>
+                <span><b>C</b> 75°</span>
+                <span><b>D</b> 115°</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="practice-title">
+        <div class="container stage">
+          <div class="section-head reveal">
+            <div class="kicker">
+              <p class="eyebrow">Practice tests</p>
+              <span class="chip">In development</span>
+            </div>
+            <h2 class="title" id="practice-title">Timed practice, true to the format.</h2>
+            <p class="lead">
+              Two modules, a running clock, a flag for review and an answer eliminator. The same rhythm as the
+              digital test, so the format holds no surprises on test day.
+            </p>
+          </div>
+
+          <div
+            class="card mock reveal"
+            style="--i: 1"
+            role="img"
+            aria-label="Mock-up of a timed practice module: a clock at 32 minutes, question 7 of 22 with four choices, one eliminated and one selected, and a question navigator along the bottom"
+          >
+            <div class="mock-bar">
+              <span>Module 2 · Question 7 of 22</span>
+              <span class="mock-timer">32:00</span>
+              <span class="mock-tools">
+                <span class="mock-tool">
+                  <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+                    <path
+                      d="M3.5 1.5v13M3.5 2.25h8.75l-1.75 3 1.75 3H3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linejoin="round"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Mark for review
+                </span>
+                <span class="mock-tool is-on"><span class="mock-abc">ABC</span></span>
+              </span>
+            </div>
+            <div class="mock-body">
+              <p class="q-stem">
+                A line in the xy-plane passes through the points (2, 5) and (6, 17). What is the slope of the
+                line?
+              </p>
+              <ul class="choices">
+                <li>
+                  <div class="choice">
+                    <span class="choice-key">A</span>
+                    <span class="choice-text">1/3</span>
+                  </div>
+                </li>
+                <li>
+                  <div class="choice">
+                    <span class="choice-key">B</span>
+                    <span class="choice-text">2</span>
+                  </div>
+                </li>
+                <li>
+                  <div class="choice is-selected">
+                    <span class="choice-key">C</span>
+                    <span class="choice-text">3</span>
+                  </div>
+                </li>
+                <li>
+                  <div class="choice is-eliminated">
+                    <span class="choice-key">D</span>
+                    <span class="choice-text">4</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="mock-foot">
+              <span class="mock-nav">
+                <span class="dot is-answered"></span>
+                <span class="dot is-answered"></span>
+                <span class="dot is-answered is-flagged"></span>
+                <span class="dot is-answered"></span>
+                <span class="dot is-answered"></span>
+                <span class="dot is-answered"></span>
+                <span class="dot is-current"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </span>
+              <span class="mock-btns">
+                <span class="mock-btn is-ghost">Back</span>
+                <span class="mock-btn">Next</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="progress-title">
+        <div class="container stage">
+          <div class="section-head reveal">
+            <div class="kicker">
+              <p class="eyebrow">Progress</p>
+              <span class="chip">In development</span>
+            </div>
+            <h2 class="title" id="progress-title">See which skills need work.</h2>
+            <p class="lead">
+              Every answer feeds a mastery estimate for each of the four domains, so the next session starts
+              where it matters.
+            </p>
+          </div>
+
+          <div class="card mastery-card reveal" style="--i: 1">
+            <ul class="mastery" role="list">
+              <li class="mastery-row" style="--i: 0; --w: 72%">
+                <span class="mastery-name">Algebra</span>
+                <span class="mastery-pct">72%</span>
+                <span class="bar" aria-hidden="true"><span class="bar-fill"></span></span>
+              </li>
+              <li class="mastery-row" style="--i: 1; --w: 58%">
+                <span class="mastery-name">Advanced Math</span>
+                <span class="mastery-pct">58%</span>
+                <span class="bar" aria-hidden="true"><span class="bar-fill"></span></span>
+              </li>
+              <li class="mastery-row" style="--i: 2; --w: 81%">
+                <span class="mastery-name">Problem-Solving and Data Analysis</span>
+                <span class="mastery-pct">81%</span>
+                <span class="bar" aria-hidden="true"><span class="bar-fill"></span></span>
+              </li>
+              <li class="mastery-row" style="--i: 3; --w: 46%">
+                <span class="mastery-name">Geometry and Trigonometry</span>
+                <span class="mastery-pct">46%</span>
+                <span class="bar" aria-hidden="true"><span class="bar-fill"></span></span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="videos-title">
+        <div class="container stage">
+          <div class="section-head reveal">
+            <div class="kicker">
+              <p class="eyebrow">Videos</p>
+              <span class="chip">In development</span>
+            </div>
+            <h2 class="title" id="videos-title">Short lessons, one idea each.</h2>
+            <p class="lead">
+              The library will collect free, licensed lessons and pair each one with the skill it teaches.
+            </p>
+          </div>
+
+          <div
+            class="videos reveal"
+            style="--i: 1"
+            role="img"
+            aria-label="Three example lesson tiles, each with a play button, a title and a running time"
+          >
+            <div class="card video">
+              <div class="video-thumb">
+                <svg viewBox="0 0 56 56" width="56" height="56">
+                  <circle class="play-ring" cx="28" cy="28" r="28" />
+                  <path class="play-mark" d="M22 17.5v21l17-10.5z" />
+                </svg>
+              </div>
+              <p class="video-title">Linear equations in 8 minutes</p>
+              <p class="video-meta">8:12</p>
+            </div>
+            <div class="card video">
+              <div class="video-thumb">
+                <svg viewBox="0 0 56 56" width="56" height="56">
+                  <circle class="play-ring" cx="28" cy="28" r="28" />
+                  <path class="play-mark" d="M22 17.5v21l17-10.5z" />
+                </svg>
+              </div>
+              <p class="video-title">Percent change, step by step</p>
+              <p class="video-meta">6:40</p>
+            </div>
+            <div class="card video">
+              <div class="video-thumb">
+                <svg viewBox="0 0 56 56" width="56" height="56">
+                  <circle class="play-ring" cx="28" cy="28" r="28" />
+                  <path class="play-mark" d="M22 17.5v21l17-10.5z" />
+                </svg>
+              </div>
+              <p class="video-title">Angles in triangles and parallel lines</p>
+              <p class="video-meta">9:05</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-last" aria-labelledby="oss-title">
+        <div class="container stage">
+          <div class="section-head reveal">
+            <p class="eyebrow">Open source</p>
+            <h2 class="title" id="oss-title">Built in public.</h2>
+            <p class="lead">
+              Axiom is MIT-licensed, and the whole site is plain HTML, CSS and JavaScript with no build step.
+              Every question generator ships with tests that run it across hundreds of seeds and verify each
+              answer.
+            </p>
+          </div>
+          <div class="oss-actions reveal" style="--i: 1">
+            <a class="btn btn-secondary" href="https://github.com/TARUNTEjjjj/axiom-sat" rel="noopener">
+              View on GitHub
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <p class="footer-copy">© 2026 Tarun Tej</p>
+        <nav class="footer-links" aria-label="Footer">
+          <a href="https://github.com/TARUNTEjjjj/axiom-sat/blob/main/LICENSE" rel="noopener">MIT License</a>
+          <span aria-hidden="true">·</span>
+          <a href="https://github.com/TARUNTEjjjj/axiom-sat" rel="noopener">GitHub</a>
+        </nav>
+      </div>
+    </footer>
+
+    <script type="module" src="assets/js/transitions.js"></script>
+    <script
+      type="module"
+      src="assets/js/home.js"
+      onerror="document.documentElement.classList.remove('js')"
+    ></script>
+  </body>
+</html>
