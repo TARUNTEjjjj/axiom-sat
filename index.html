@@ -7,7 +7,7 @@
     <link rel="canonical" href="https://axiom-sat.pages.dev/" />
     <meta
       name="description"
-      content="Axiom is open-source SAT Math practice: more than 10,000 generated questions with worked answers, built for the Digital SAT Math section."
+      content="Build stronger SAT Math habits with generated questions, timed practice, worked solutions, and private progress tracking. Free and open source."
     />
     <meta name="theme-color" content="#ffffff" />
     <script>
@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="assets/css/home.css" />
   </head>
   <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <header class="nav">
       <div class="container nav-inner">
         <a class="wordmark" href="index.html"><span class="wordmark-dot" aria-hidden="true"></span>Axiom</a>
@@ -30,6 +31,8 @@
           <ul class="nav-links" role="list">
             <li><a href="index.html" aria-current="page">Overview</a></li>
             <li><a href="bank.html">Question Bank</a></li>
+            <li><a href="practice.html">Practice</a></li>
+            <li><a href="progress.html">Progress</a></li>
             <li class="nav-github">
               <a href="https://github.com/TARUNTEjjjj/axiom-sat" rel="noopener">GitHub</a>
             </li>
@@ -38,22 +41,23 @@
       </div>
     </header>
 
-    <main class="page">
+    <main class="page" id="main">
       <section class="hero" aria-labelledby="hero-title">
         <div class="container hero-grid stage">
           <div class="hero-copy reveal" style="--i: 0">
             <p class="eyebrow">SAT Math practice</p>
-            <h1 class="display" id="hero-title">Practice that feels like the real test.</h1>
+            <h1 class="display" id="hero-title">Less guessing.<br />More understanding.</h1>
             <p class="lead">
-              Over 10,000 generated questions, with timed practice and progress on the way. Open source,
-              and built for the Digital SAT Math section.
+              Practice a skill. Put it to the clock. Learn from every miss. A focused workspace for SAT Math,
+              with worked solutions and progress that stays on your device.
             </p>
             <div class="hero-actions">
-              <a class="btn btn-primary" href="bank.html">Explore the question bank</a>
-              <a class="btn btn-secondary" href="https://github.com/TARUNTEjjjj/axiom-sat" rel="noopener">
-                View on GitHub
-              </a>
+              <a class="btn btn-primary" href="practice.html"
+                >Start a practice session <span aria-hidden="true">↗</span></a
+              >
+              <a class="btn btn-secondary" href="bank.html">Explore the bank</a>
             </div>
+            <p class="hero-note">Free to use · No account · Open source</p>
           </div>
 
           <div class="hero-product reveal" style="--i: 1">
@@ -107,9 +111,10 @@
         <div class="container stage">
           <div class="section-head reveal">
             <p class="eyebrow">Question bank</p>
-            <h2 class="title" id="questions-title">More than 10,000 questions, each with a worked answer.</h2>
+            <h2 class="title" id="questions-title">One idea. Many ways to practice it.</h2>
             <p class="lead">
-              Every question is built from a template and a seed, and every answer is computed, never typed.
+              Explore all four Math domains. Each generated question has a reproducible link and a worked
+              explanation, so you can return to the exact problem that challenged you.
             </p>
           </div>
 
@@ -170,202 +175,92 @@
         </div>
       </section>
 
-      <section class="section" aria-labelledby="practice-title">
-        <div class="container stage">
+      <section class="section study-section" aria-labelledby="practice-title">
+        <div class="container">
           <div class="section-head reveal">
-            <div class="kicker">
-              <p class="eyebrow">Practice tests</p>
-              <span class="chip">In development</span>
-            </div>
-            <h2 class="title" id="practice-title">Timed practice, true to the format.</h2>
+            <p class="eyebrow">Your next session</p>
+            <h2 class="title" id="practice-title">A little focus goes a long way.</h2>
             <p class="lead">
-              Two modules, a running clock, a flag for review and an answer eliminator. The same rhythm as the
-              digital test, so the format holds no surprises on test day.
+              Choose your pace. Flag questions, return to your answers, then use the full review to understand
+              what to try differently.
             </p>
           </div>
-
-          <div
-            class="card mock reveal"
-            style="--i: 1"
-            role="img"
-            aria-label="Mock-up of a timed practice module: a clock at 32 minutes, question 7 of 22 with four choices, one eliminated and one selected, and a question navigator along the bottom"
-          >
-            <div class="mock-bar">
-              <span>Module 2 · Question 7 of 22</span>
-              <span class="mock-timer">32:00</span>
-              <span class="mock-tools">
-                <span class="mock-tool">
-                  <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-                    <path
-                      d="M3.5 1.5v13M3.5 2.25h8.75l-1.75 3 1.75 3H3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linejoin="round"
-                      stroke-linecap="round"
-                    />
-                  </svg>
-                  Mark for review
-                </span>
-                <span class="mock-tool is-on"><span class="mock-abc">ABC</span></span>
-              </span>
-            </div>
-            <div class="mock-body">
-              <p class="q-stem">
-                A line in the xy-plane passes through the points (2, 5) and (6, 17). What is the slope of the
-                line?
-              </p>
-              <ul class="choices">
-                <li>
-                  <div class="choice">
-                    <span class="choice-key">A</span>
-                    <span class="choice-text">1/3</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="choice">
-                    <span class="choice-key">B</span>
-                    <span class="choice-text">2</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="choice is-selected">
-                    <span class="choice-key">C</span>
-                    <span class="choice-text">3</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="choice is-eliminated">
-                    <span class="choice-key">D</span>
-                    <span class="choice-text">4</span>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <div class="mock-foot">
-              <span class="mock-nav">
-                <span class="dot is-answered"></span>
-                <span class="dot is-answered"></span>
-                <span class="dot is-answered is-flagged"></span>
-                <span class="dot is-answered"></span>
-                <span class="dot is-answered"></span>
-                <span class="dot is-answered"></span>
-                <span class="dot is-current"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-              </span>
-              <span class="mock-btns">
-                <span class="mock-btn is-ghost">Back</span>
-                <span class="mock-btn">Next</span>
-              </span>
-            </div>
+          <div class="study-grid">
+            <a class="study-card reveal" href="practice.html?mode=sprint">
+              <span class="study-index">01 / BUILD A HABIT</span>
+              <span class="study-number">16<span>min</span></span>
+              <h3>Daily sprint</h3>
+              <p>Ten questions across all four domains. A small session with a clear finish line.</p>
+              <span class="study-cta">Start a sprint <span aria-hidden="true">↗</span></span>
+            </a>
+            <a class="study-card study-card-featured reveal" href="practice.html?mode=module" style="--i: 1">
+              <span class="study-index">02 / FIND YOUR PACE</span>
+              <span class="study-number">35<span>min</span></span>
+              <h3>Module practice</h3>
+              <p>Twenty-two questions, a running clock, and room to revisit your work before you finish.</p>
+              <span class="study-cta">Practice a module <span aria-hidden="true">↗</span></span>
+            </a>
+            <a class="study-card reveal" href="progress.html" style="--i: 2">
+              <span class="study-index">03 / CLOSE THE LOOP</span>
+              <span class="study-number" aria-hidden="true">↗</span>
+              <h3>Your next breakthrough</h3>
+              <p>See first-attempt accuracy, revisit missed questions, and give weaker skills another try.</p>
+              <span class="study-cta">Open your progress <span aria-hidden="true">↗</span></span>
+            </a>
           </div>
+          <p class="section-note">
+            Independent, non-adaptive practice with original questions. Results describe your work here; they
+            are not an SAT score prediction.
+          </p>
         </div>
       </section>
 
-      <section class="section" aria-labelledby="progress-title">
-        <div class="container stage">
+      <section class="section" aria-labelledby="resources-title">
+        <div class="container">
           <div class="section-head reveal">
-            <div class="kicker">
-              <p class="eyebrow">Progress</p>
-              <span class="chip">In development</span>
-            </div>
-            <h2 class="title" id="progress-title">See which skills need work.</h2>
+            <p class="eyebrow">Keep learning</p>
+            <h2 class="title" id="resources-title">The right tool for the next step.</h2>
             <p class="lead">
-              Every answer feeds a mastery estimate for each of the four domains, so the next session starts
-              where it matters.
+              Pair your Axiom practice with trusted resources. These links open the providers’ own sites.
             </p>
           </div>
-
-          <div class="card mastery-card reveal" style="--i: 1">
-            <ul class="mastery" role="list">
-              <li class="mastery-row" style="--i: 0; --w: 72%">
-                <span class="mastery-name">Algebra</span>
-                <span class="mastery-pct">72%</span>
-                <span class="bar" aria-hidden="true"><span class="bar-fill"></span></span>
-              </li>
-              <li class="mastery-row" style="--i: 1; --w: 58%">
-                <span class="mastery-name">Advanced Math</span>
-                <span class="mastery-pct">58%</span>
-                <span class="bar" aria-hidden="true"><span class="bar-fill"></span></span>
-              </li>
-              <li class="mastery-row" style="--i: 2; --w: 81%">
-                <span class="mastery-name">Problem-Solving and Data Analysis</span>
-                <span class="mastery-pct">81%</span>
-                <span class="bar" aria-hidden="true"><span class="bar-fill"></span></span>
-              </li>
-              <li class="mastery-row" style="--i: 3; --w: 46%">
-                <span class="mastery-name">Geometry and Trigonometry</span>
-                <span class="mastery-pct">46%</span>
-                <span class="bar" aria-hidden="true"><span class="bar-fill"></span></span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" aria-labelledby="videos-title">
-        <div class="container stage">
-          <div class="section-head reveal">
-            <div class="kicker">
-              <p class="eyebrow">Videos</p>
-              <span class="chip">In development</span>
-            </div>
-            <h2 class="title" id="videos-title">Short lessons, one idea each.</h2>
-            <p class="lead">
-              The library will collect free, licensed lessons and pair each one with the skill it teaches.
-            </p>
-          </div>
-
-          <div
-            class="videos reveal"
-            style="--i: 1"
-            role="img"
-            aria-label="Three example lesson tiles, each with a play button, a title and a running time"
-          >
-            <div class="card video">
-              <div class="video-thumb">
-                <svg viewBox="0 0 56 56" width="56" height="56">
-                  <circle class="play-ring" cx="28" cy="28" r="28" />
-                  <path class="play-mark" d="M22 17.5v21l17-10.5z" />
-                </svg>
-              </div>
-              <p class="video-title">Linear equations in 8 minutes</p>
-              <p class="video-meta">8:12</p>
-            </div>
-            <div class="card video">
-              <div class="video-thumb">
-                <svg viewBox="0 0 56 56" width="56" height="56">
-                  <circle class="play-ring" cx="28" cy="28" r="28" />
-                  <path class="play-mark" d="M22 17.5v21l17-10.5z" />
-                </svg>
-              </div>
-              <p class="video-title">Percent change, step by step</p>
-              <p class="video-meta">6:40</p>
-            </div>
-            <div class="card video">
-              <div class="video-thumb">
-                <svg viewBox="0 0 56 56" width="56" height="56">
-                  <circle class="play-ring" cx="28" cy="28" r="28" />
-                  <path class="play-mark" d="M22 17.5v21l17-10.5z" />
-                </svg>
-              </div>
-              <p class="video-title">Angles in triangles and parallel lines</p>
-              <p class="video-meta">9:05</p>
-            </div>
+          <div class="resource-list reveal">
+            <a
+              href="https://satsuite.collegeboard.org/practice/practice-tests/bluebook"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="resource-icon" aria-hidden="true">01</span>
+              <span
+                ><strong>Official full-length practice</strong
+                ><span>College Board · Bluebook tests and test-day familiarity</span></span
+              >
+              <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span>
+            </a>
+            <a
+              href="https://satsuite.collegeboard.org/practice/khan-academy"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="resource-icon" aria-hidden="true">02</span>
+              <span
+                ><strong>Build the concepts</strong
+                ><span>Khan Academy · Free SAT lessons and guided practice</span></span
+              >
+              <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span>
+            </a>
+            <a
+              href="https://www.desmos.com/testing/collegeboard/graphing"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="resource-icon" aria-hidden="true">03</span>
+              <span
+                ><strong>Get comfortable with the calculator</strong
+                ><span>Desmos · Explore the SAT graphing calculator</span></span
+              >
+              <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span>
+            </a>
           </div>
         </div>
       </section>
@@ -376,9 +271,8 @@
             <p class="eyebrow">Open source</p>
             <h2 class="title" id="oss-title">Built in public.</h2>
             <p class="lead">
-              Axiom is MIT-licensed, and the whole site is plain HTML, CSS and JavaScript with no build step.
-              Every question generator ships with tests that run it across hundreds of seeds and verify each
-              answer.
+              Axiom is MIT-licensed, dependency-free, and built with plain HTML, CSS and JavaScript. Every
+              question generator ships with tests that run it across hundreds of seeds and verify each answer.
             </p>
           </div>
           <div class="oss-actions reveal" style="--i: 1">
@@ -392,7 +286,10 @@
 
     <footer class="footer">
       <div class="container footer-inner">
-        <p class="footer-copy">© 2026 Tarun Tej</p>
+        <div>
+          <p class="footer-copy">© 2026 Tarun Tej · Built for deliberate practice.</p>
+          <p class="small">Independent project. Not affiliated with or endorsed by College Board.</p>
+        </div>
         <nav class="footer-links" aria-label="Footer">
           <a href="https://github.com/TARUNTEjjjj/axiom-sat/blob/main/LICENSE" rel="noopener">MIT License</a>
           <span aria-hidden="true">·</span>

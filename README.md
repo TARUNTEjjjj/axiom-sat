@@ -1,47 +1,70 @@
-# Axiom
+# Axiom SAT Math
 
-Open-source SAT Math practice, built with plain HTML, CSS and JavaScript. No build step, no dependencies.
+Free, open-source SAT-style math practice with original generated questions, timed sessions, worked review, and progress saved on your device. Plain HTML, CSS, and JavaScript; no runtime dependencies, account, or backend.
 
-Live at https://axiom-sat.pages.dev. Example question: https://axiom-sat.pages.dev/bank?t=algebra.linear-one-var&s=48213
+**[Open Axiom](https://axiom-sat.pages.dev/)** · [Practice](https://axiom-sat.pages.dev/practice) · [Question bank](https://axiom-sat.pages.dev/bank) · [Progress](https://axiom-sat.pages.dev/progress)
 
-## What is here
+## What you can do
 
-- **Home page** (`index.html`): a product-style overview with a question card that tilts in 3D toward the pointer and sections that settle into place as you scroll. Moving between pages is a 3D page turn (`assets/js/transitions.js`).
-- **Question bank** (`bank.html`): pick a domain and a skill and get an SAT-style question built from a seed. Answer it, strike out choices the way the digital test allows, read the worked solution, and share the exact question with its link (`bank.html?t=<template>&s=<seed>`).
-- **Question engine** (`src/questions/`): 19 templates across the four Digital SAT Math domains. A template turns a seed into one complete item (stem, choices or a typed response, answer, explanation), so nothing is stored and every answer is computed. Together the templates can produce more than 28 million distinct questions.
+- Explore 19 seeded question templates across Algebra, Advanced Math, Problem-Solving and Data Analysis, and Geometry and Trigonometry. Share any exact question using its template and seed.
+- Start a **10-question, 16-minute sprint** or a **22-question, 35-minute module**. Turn the timer off when learning at your own pace.
+- Change answers, flag questions, and use the question navigator. Sessions resume after a reload; a timed session keeps counting while the page is closed.
+- Review correct, incorrect, skipped, and flagged questions with the full worked reasoning after finishing.
+- Track first-attempt accuracy by domain, find a skill to practice next, and revisit missed questions. Duplicate attempts do not inflate your numbers.
+- Download and restore a progress backup. History retains the first attempt on each of the latest 500 distinct template/seed pairs.
 
-## Run it
+These are independent, non-adaptive practice sessions, not an official SAT test. Accuracy is not a predicted SAT score or a calibrated mastery estimate. The 35-minute module timing follows [College Board's published structure](https://satsuite.collegeboard.org/sat/whats-on-the-test/structure); questions and difficulty ratings are Axiom's own. Use [Bluebook](https://satsuite.collegeboard.org/practice/practice-tests/bluebook) for official full-length practice.
 
-Any static server works:
+## Run locally
 
-    python3 -m http.server 8787
+Use Node 20 or newer for tests and packaging. No install step is needed.
 
-then open http://localhost:8787/.
+```sh
+npm test
+npm run build
+python3 -m http.server 8787 --directory dist
+```
 
-## Tests
+Open `http://localhost:8787/`. To work directly on the source, use `npm run serve`. Open through an HTTP server, not `file://`, so JavaScript modules can load.
 
-Open `tests/run.html` in a browser, or run `node tests/run.js` (Node 20 or newer). On a Mac without Node, the system JavaScriptCore shell runs the same file:
+## Test and release
 
-    /System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Helpers/jsc -m tests/run.js
+`npm test` runs the same dependency-free test list as `tests/run.html`. The generator suite checks every template over 400 seeds and verifies its answers independently. Tests also cover numeric response rounding, template selection, timed-session restore, grading, corrupted storage, deduplication, and atomic backup import.
 
-Every template is generated over 400 seeds; each item is validated against the schema and re-checked by the template's own `verify()`, which solves the problem a second way. GitHub Actions runs the Node version on every push.
+`npm run build` first runs the tests, then `scripts/build.mjs` packages an explicit public-file list and checks local page/module references. Tests, Git metadata, and local tooling are excluded from `dist/`. GitHub Actions runs this build on every push and pull request.
 
-## Adding a template
+Cloudflare Pages project **axiom-sat** deploys `main` using:
 
-Copy `src/questions/generators/algebra/linear-one-var.js`: choose the answer first and derive the givens from it, build distractors from real student mistakes with `pickDistractors`, write `verify()` so it would catch a wrong answer, and set `space` to an honest lower bound of the distinct stems the template can produce. Register it in the domain's `index.js` and add an invariant test under `tests/`.
+| Setting           | Value           |
+| ----------------- | --------------- |
+| Framework         | None            |
+| Build command     | `npm run build` |
+| Output directory  | `dist`          |
+| Production branch | `main`          |
 
-## Deploy
+A failed test or missing release asset fails the build, keeping the last good deployment live. `_headers` sets basic security headers. Scripts are not fingerprinted, so Cloudflare's default revalidation behavior is retained. `404.html` handles missing paths, including when the site is mirrored under `/axiom-sat/` on GitHub Pages.
 
-Cloudflare Pages builds `main` with no framework preset. The build command is `node tests/run.js && mkdir -p dist && cp -R index.html bank.html 404.html _headers assets src dist/` and the output directory is `dist`, so a failing test fails the build and the last good deploy stays live, and only the site's files are published. `_headers` sets the security headers and deliberately no `Cache-Control`: the modules are not fingerprinted, so revalidating on every visit keeps a deploy from mixing old and new files. `404.html` answers unknown paths. GitHub Pages mirrors the same commit at https://taruntejjjj.github.io/axiom-sat/, which is why `404.html` moves its base on that host.
+## Project map
 
-## Roadmap
+| Path                                     | Purpose                                                   |
+| ---------------------------------------- | --------------------------------------------------------- |
+| `index.html`, `assets/js/home.js`        | Study overview, interactive hero, trusted resource links  |
+| `bank.html`, `assets/js/bank.js`         | Question filters, response checking, elimination, sharing |
+| `practice.html`, `assets/js/practice.js` | Timed/untimed practice and worked review                  |
+| `progress.html`, `assets/js/progress.js` | Learning summary, review queue, backup controls           |
+| `src/questions/`                         | Seeded generators, schema validation, numeric answers     |
+| `src/practice/session.js`                | Pure session generation, validation, timekeeping, grading |
+| `src/learning/progress.js`               | Bounded local history, regraded imports, statistics       |
+| `tests/`                                 | Browser/Node-compatible regression tests                  |
 
-Timed practice tests in the format of the digital test, a progress view, and a video library of free, licensed lessons.
+## Data and privacy
 
-## What I learned
+Practice and progress use `localStorage` on the current origin only. No answer data is sent to an app server, and no third-party analytics are installed. Cloudflare still receives ordinary hosting requests. Local progress does not sync automatically across devices, browser profiles, or domains. Private browsing or storage restrictions can prevent persistence; the UI reports storage failures. Download a backup before clearing browser data. Reset affects progress, not the separately saved practice session. Saved sessions older than 30 days are ignored.
 
-- A seeded PRNG makes generated content reproducible: the same template and seed give the same question forever, which makes permalinks and tests simple.
-- Choosing the answer first and deriving the problem from it keeps every answer exact, with no rounding.
-- CSS 3D needs `perspective` on a parent and `transform-style: preserve-3d` on the element that moves; animating only `transform` and `opacity` keeps it smooth.
-- Cross-document view transitions are not available in every browser yet, so a small script that animates the page out before following a link works everywhere.
-- Cloudflare Pages redirects `bank.html` to `/bank` and keeps the query string, so permalinks written with `.html` keep working after the move.
+Imported backups are size-limited, validated, and regraded from original generated questions instead of trusting stored correctness. Restore merges records and keeps the earliest attempt for duplicates. Corrupted existing storage must be explicitly reset before a backup can be restored.
+
+The site links to College Board, Khan Academy and Desmos; those services have their own terms and privacy policies. No official questions or instructional videos are redistributed.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for generator invariants, useful feature work, and release checks. Original source is [MIT licensed](LICENSE). Axiom is not affiliated with or endorsed by College Board.

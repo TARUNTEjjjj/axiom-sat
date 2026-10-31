@@ -1,12 +1,13 @@
 {
   "name": "axiom-sat",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Open-source SAT Math practice: a generated question bank, timed practice tests, progress and videos. Plain HTML, CSS and JavaScript.",
+  "description": "Open-source SAT Math practice with generated questions, timed sessions, worked review, and local progress.",
   "type": "module",
   "scripts": {
     "test": "node tests/run.js",
-    "serve": "python3 -m http.server 8787"
+    "serve": "python3 -m http.server 8787",
+    "build": "node tests/run.js && node scripts/build.mjs"
   },
   "license": "MIT"
 }

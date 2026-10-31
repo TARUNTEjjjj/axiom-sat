@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="assets/css/bank.css" />
   </head>
   <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <header class="nav">
       <div class="container nav-inner">
         <a class="wordmark" href="index.html"><span class="wordmark-dot" aria-hidden="true"></span>Axiom</a>
@@ -26,6 +27,8 @@
           <ul class="nav-links" role="list">
             <li><a href="index.html">Overview</a></li>
             <li><a href="bank.html" aria-current="page">Question Bank</a></li>
+            <li><a href="practice.html">Practice</a></li>
+            <li><a href="progress.html">Progress</a></li>
             <li class="nav-github">
               <a href="https://github.com/TARUNTEjjjj/axiom-sat" rel="noopener">GitHub</a>
             </li>
@@ -34,14 +37,14 @@
       </div>
     </header>
 
-    <main class="page">
+    <main class="page" id="main">
       <div class="container bank">
         <header class="bank-head">
           <p class="eyebrow">Question Bank</p>
           <h1 class="title">Every question, computed.</h1>
           <p class="lead">
-            Pick a domain and a skill and get a fresh SAT-style question built from a seed. The same seed always
-            gives the same question, so every question has a permanent link.
+            Pick a domain and a skill and get a fresh SAT-style question built from a seed. The same seed
+            always gives the same question, so every question has a permanent link.
           </p>
         </header>
 
@@ -50,7 +53,9 @@
             <p class="small muted bank-note" id="note" hidden>
               That question link was not recognized, so here is a new one.
             </p>
-            <noscript><p class="muted">The question bank needs JavaScript to build its questions.</p></noscript>
+            <noscript
+              ><p class="muted">The question bank needs JavaScript to build its questions.</p></noscript
+            >
             <article class="q-card" id="card" tabindex="-1" aria-labelledby="q-stem"></article>
             <p class="sr-only" id="live" role="status" aria-live="polite"></p>
           </section>
