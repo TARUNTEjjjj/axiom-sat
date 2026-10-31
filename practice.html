@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Practice — Axiom SAT Math</title>
+    <link rel="canonical" href="https://axiom-sat.pages.dev/practice" />
+    <meta
+      name="description"
+      content="Build your SAT Math rhythm with a 10-question sprint or 22-question practice module. Save answers, flag questions and learn from worked solutions."
+    />
+    <meta name="theme-color" content="#ffffff" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='10' fill='%232563eb'/></svg>"
+    />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/practice.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#practice-main">Skip to practice</a>
+    <header class="nav">
+      <div class="container nav-inner">
+        <a class="wordmark" href="index.html"><span class="wordmark-dot" aria-hidden="true"></span>Axiom</a>
+        <nav aria-label="Primary">
+          <ul class="nav-links" role="list">
+            <li><a href="index.html">Overview</a></li>
+            <li><a href="bank.html">Question Bank</a></li>
+            <li><a href="practice.html" aria-current="page">Practice</a></li>
+            <li><a href="progress.html">Progress</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main class="container practice-page" id="practice-main">
+      <div class="practice-heading">
+        <p class="eyebrow">Your next good session</p>
+        <h1 class="title">Find your rhythm.</h1>
+        <p class="lead">A little focus. A real challenge. A clear next step.</p>
+      </div>
+      <p class="storage-note small" id="save-status" role="status">
+        Your session stays on this browser. No account needed.
+      </p>
+      <div id="practice-app"><p>Loading practice…</p></div>
+      <noscript
+        ><p>
+          Practice needs JavaScript to generate and check questions. Enable JavaScript to start.
+        </p></noscript
+      >
+      <p class="practice-disclaimer small muted">
+        Independent SAT-style practice, not an official or adaptive test. Results show raw accuracy, not an
+        SAT score. Module length follows
+        <a href="https://satsuite.collegeboard.org/sat/whats-on-the-test/structure" rel="noopener"
+          >College Board’s published format</a
+        >; question difficulty is not calibrated to the SAT.
+      </p>
+    </main>
+    <footer class="footer">
+      <div class="container footer-inner">
+        <p class="footer-copy">© 2026 Tarun Tej · Built for steady progress.</p>
+        <nav class="footer-links" aria-label="Footer">
+          <a href="bank.html">Question Bank</a
+          ><a href="https://github.com/TARUNTEjjjj/axiom-sat" rel="noopener">GitHub</a>
+        </nav>
+      </div>
+    </footer>
+    <div class="sr-only" id="practice-live" role="status" aria-live="polite"></div>
+    <dialog id="finish-dialog" aria-labelledby="finish-title">
+      <form method="dialog">
+        <p class="eyebrow">Ready to review?</p>
+        <h2 class="subtitle" id="finish-title">Finish this session?</h2>
+        <p id="finish-description"></p>
+        <p class="small muted">Your answers will be locked and the worked solutions will become available.</p>
+        <div class="practice-actions">
+          <button class="btn btn-secondary" value="cancel" autofocus>Keep practicing</button
+          ><button class="btn btn-primary" value="finish">Finish &amp; review</button>
+        </div>
+      </form>
+    </dialog>
+    <script type="module" src="assets/js/practice.js"></script>
+  </body>
+</html>

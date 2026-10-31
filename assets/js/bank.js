@@ -4,6 +4,8 @@
 
 import { parseSpr, sprEquals } from '../../src/questions/spr.js';
 import { MINUS } from '../../src/questions/format.js';
+import { recordAttempt } from '../../src/learning/progress.js';
+import { isSprAnswer } from '../../src/questions/schema.js';
 
 const MAX_SEED = 2 ** 31 - 1;
 const KEYS = ['A', 'B', 'C', 'D'];
@@ -171,13 +173,12 @@ function show(templateId, seed, { focus = false, scroll = false } = {}) {
   writeUrl((params) => {
     params.set('t', templateId);
     params.set('s', String(seed));
+    params.delete('d');
   });
 
   // Announced even when the card takes focus: the card then reads its stem, which
   // this message does not repeat.
-  live.textContent = item
-    ? `New question: ${item.skill}, seed ${seed}`
-    : 'This question could not be built.';
+  live.textContent = item ? `New question: ${item.skill}, seed ${seed}` : 'This question could not be built.';
   revealCard({ focus, scroll });
 }
 
@@ -208,6 +209,7 @@ function showEmpty({ focus = false, scroll = false } = {}) {
   writeUrl((params) => {
     params.delete('t');
     params.delete('s');
+    params.delete('d');
   });
   card.replaceChildren(el('p', { class: 'q-stem', id: 'q-stem', text }));
   live.textContent = text;
@@ -252,8 +254,24 @@ function renderTable({ caption, headers, rows }) {
       caption
         ? el('caption', { text: caption })
         : el('caption', { class: 'sr-only', text: 'Data for this question' }),
-      el('thead', {}, [el('tr', {}, headers.map((h) => el('th', { scope: 'col', text: String(h) })))]),
-      el('tbody', {}, rows.map((row) => el('tr', {}, row.map((c, i) => cell(String(c), i === 0))))),
+      el('thead', {}, [
+        el(
+          'tr',
+          {},
+          headers.map((h) => el('th', { scope: 'col', text: String(h) })),
+        ),
+      ]),
+      el(
+        'tbody',
+        {},
+        rows.map((row) =>
+          el(
+            'tr',
+            {},
+            row.map((c, i) => cell(String(c), i === 0)),
+          ),
+        ),
+      ),
     ]),
   ]);
   scrollObserver.observe(scroller);
@@ -323,7 +341,7 @@ function renderChoices(item) {
     }
     toggle.disabled = true;
     hint.hidden = true;
-    finish(item, picked.dataset.key === item.answer, item.answer);
+    finish(item, picked.dataset.key === item.answer, item.answer, picked.dataset.key);
   });
 
   return el('div', { class: 'q-answer' }, [el('div', { class: 'q-tools' }, [hint, toggle]), list]);
@@ -357,14 +375,15 @@ function renderResponse(item) {
   response.addEventListener('submit', (event) => {
     event.preventDefault();
     if (state.graded) return;
-    const typed = input.value.replace(/\s+/g, '');
+    const typed = input.value.replace(/\s+/g, '').replace(/−/g, '-');
     if (!typed) {
       input.focus();
       return;
     }
     // A typo is not an answer: the box asks again instead of grading it.
-    if (parseSpr(typed) === null) {
-      hint.textContent = 'Use digits, a decimal point or a fraction like 7/2';
+    if (!isSprAnswer(typed) || parseSpr(typed) === null) {
+      hint.textContent =
+        'Use up to 5 characters (6 with a minus sign): digits, a decimal point, or a fraction like 7/2.';
       live.textContent = hint.textContent;
       input.setAttribute('aria-invalid', 'true');
       input.focus();
@@ -374,7 +393,7 @@ function renderResponse(item) {
     input.classList.add(correct ? 'is-correct' : 'is-incorrect');
     input.readOnly = true;
     check.disabled = true;
-    finish(item, correct, item.answer);
+    finish(item, correct, item.answer, typed);
   });
 
   return response;
@@ -388,8 +407,20 @@ function displayAnswer(answer) {
 
 // Both item types end the same way: the result is shown and announced, the
 // explanation appears, and the next question takes focus so the keyboard flow continues.
-function finish(item, correct, answer) {
+function finish(item, correct, answer, response) {
   state.graded = true;
+  const saved = recordAttempt({
+    templateId: item.templateId,
+    seed: item.seed,
+    correct,
+    response,
+    source: 'bank',
+  });
+  const progressMessage = !saved.persisted
+    ? 'Your answer was checked, but progress could not be saved on this browser.'
+    : saved.recorded
+      ? 'First attempt saved on this device.'
+      : 'Already practiced. Your first attempt stays in your progress.';
   const message = correct ? 'Correct' : `Not quite — the answer is ${displayAnswer(answer)}`;
   const next = nextButton();
   // Focus moving to the button can cut the live announcement short, so the button
@@ -397,8 +428,17 @@ function finish(item, correct, answer) {
   next.setAttribute('aria-describedby', 'q-result');
   card.append(
     el('div', { class: 'q-outcome' }, [
-      el('p', { id: 'q-result', class: `q-result ${correct ? 'is-correct' : 'is-incorrect'}`, text: message }),
+      el('p', {
+        id: 'q-result',
+        class: `q-result ${correct ? 'is-correct' : 'is-incorrect'}`,
+        text: message,
+      }),
       el('div', { class: 'explanation', text: item.explanation }),
+      el('p', { class: 'small muted' }, [
+        progressMessage,
+        ' ',
+        el('a', { href: 'progress.html', text: 'View progress →' }),
+      ]),
       el('div', { class: 'q-next' }, [next]),
     ]),
   );
@@ -444,7 +484,11 @@ function renderGlance() {
       ];
       if (!empty) {
         parts.push(
-          el('ul', { class: 'glance-skills', role: 'list' }, skills.map((skill) => el('li', { text: skill }))),
+          el(
+            'ul',
+            { class: 'glance-skills', role: 'list' },
+            skills.map((skill) => el('li', { text: skill })),
+          ),
         );
       }
       parts.push(
@@ -540,6 +584,7 @@ function permalink() {
   const url = new URL(location.href);
   url.searchParams.set('t', state.templateId);
   url.searchParams.set('s', String(state.seed));
+  url.searchParams.delete('d');
   return url.href;
 }
 
@@ -589,12 +634,19 @@ renderGlance();
 const params = new URLSearchParams(location.search);
 const requested = params.get('t');
 const template = requested ? listTemplates().find((t) => t.id === requested) : null;
+const requestedDomain = DOMAINS.find((d) => d.id === params.get('d'));
 if (template) {
   domainSelect.value = template.domain;
   fillSkills(template.domain);
   selectSkillOf(template);
   show(template.id, parseSeed(params.get('s')));
 } else {
+  // A domain landing starts with every skill available. Once drawn, the URL
+  // becomes the exact question permalink; an explicit valid ?t always wins.
+  if (requestedDomain) {
+    domainSelect.value = requestedDomain.id;
+    fillSkills(requestedDomain.id);
+  }
   draw();
   note.hidden = !requested;
 }

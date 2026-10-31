@@ -19,9 +19,10 @@
   --bad-soft: rgba(198, 40, 40, 0.1);
   --warn: #b45309;
 
-  --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter,
-    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
   --radius-s: 10px;
   --radius-m: 18px;
@@ -301,7 +302,7 @@ button {
 }
 
 .nav-links a:hover,
-.nav-links a[aria-current="page"] {
+.nav-links a[aria-current='page'] {
   color: var(--ink);
 }
 
@@ -389,7 +390,7 @@ button {
   font-weight: 600;
 }
 
-.q-table th[scope="row"] {
+.q-table th[scope='row'] {
   text-align: left;
 }
 
@@ -532,5 +533,57 @@ button {
 @media (max-width: 640px) {
   .nav-github {
     display: none;
+  }
+}
+
+/* Keyboard skip link and compact navigation on every study page. */
+[hidden] {
+  display: none !important;
+}
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 16px;
+  z-index: 100;
+  padding: 12px 18px;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 10px;
+  transform: translateY(-150%);
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+@media (max-width: 720px) {
+  :root {
+    --nav-h: 100px;
+  }
+  .nav-inner {
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+    gap: 0;
+  }
+  .nav-inner > .wordmark {
+    width: 100%;
+    justify-content: center;
+    min-height: 40px;
+  }
+  .nav-links {
+    gap: 18px;
+    font-size: 13px;
+  }
+  .nav-links a {
+    padding-inline: 3px;
+    margin-inline: -3px;
+  }
+  .nav-github {
+    display: none;
+  }
+}
+@media (max-width: 360px) {
+  .nav-links {
+    gap: 12px;
+    font-size: 12px;
   }
 }

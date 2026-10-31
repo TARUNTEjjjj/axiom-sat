@@ -9,3 +9,5 @@ import './algebra.test.js';
 import './advanced.test.js';
 import './psda.test.js';
 import './geometry.test.js';
+import './practice.test.js';
+import './progress.test.js';
