@@ -51,12 +51,15 @@ export function generate(templateId, seed) {
 }
 
 // Distinct items spread round-robin over the matching templates.
-export function generateSet({ domain, templateId, count = 10, seed = 1 } = {}) {
+export function generateSet({ domain, templateId, difficulty, count = 10, seed = 1 } = {}) {
   validateSeed(seed);
   if (!Number.isInteger(count) || count < 0 || count > 1000) {
     throw new Error('count must be an integer from 0 to 1000');
   }
   if (domain && !DOMAIN_IDS.includes(domain)) throw new Error(`unknown domain ${domain}`);
+  if (difficulty !== undefined && ![1, 2, 3].includes(difficulty)) {
+    throw new Error('difficulty must be 1, 2 or 3');
+  }
   const pool = templateId ? [getTemplate(templateId)] : listTemplates(domain);
   if (domain && pool.some((template) => template.domain !== domain)) {
     throw new Error('template does not belong to the requested domain');
@@ -66,6 +69,22 @@ export function generateSet({ domain, templateId, count = 10, seed = 1 } = {}) {
   const rng = createRng(seed);
   const items = [];
   const stems = new Set();
+  if (difficulty !== undefined) {
+    // Difficulty belongs to an item, not its template. Rotate through a shuffled
+    // pool so templates with no matching variant cannot starve the other skills.
+    const ordered = rng.shuffle(pool);
+    for (let tries = 0; items.length < count && tries < count * 500; tries++) {
+      const template = ordered[tries % ordered.length];
+      const item = generate(template.id, rng.int(0, 0xffffffff));
+      if (item.difficulty !== difficulty || stems.has(item.stem)) continue;
+      stems.add(item.stem);
+      items.push(item);
+    }
+    if (items.length !== count) {
+      throw new Error('No questions match this difficulty and skill. Try another difficulty or skill.');
+    }
+    return items;
+  }
   for (let tries = 0; items.length < count && tries < count * 20; tries++) {
     // Advance once per accepted item, retrying this template when a stem repeats.
     // Adding `tries` here used to skip every other template in even-sized pools.

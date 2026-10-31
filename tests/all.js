@@ -7,6 +7,8 @@ import './spr.test.js';
 import './registry.test.js';
 import './algebra.test.js';
 import './advanced.test.js';
+import './advanced-expansion.test.js';
+import './math-audit.test.js';
 import './psda.test.js';
 import './geometry.test.js';
 import './practice.test.js';

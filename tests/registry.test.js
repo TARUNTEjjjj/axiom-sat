@@ -72,3 +72,24 @@ test('question generation rejects invalid seeds and unbounded set sizes', () => 
   assertThrows(() => generateSet({ domain: 'unknown' }));
   assertThrows(() => generateSet({ domain: 'geometry', templateId: 'algebra.linear-one-var' }));
 });
+
+test('difficulty-filtered sets honor domain, level, uniqueness and reproducibility', () => {
+  for (const domain of DOMAIN_IDS) {
+    for (const difficulty of [1, 2, 3]) {
+      const options = { domain, difficulty, count: 20, seed: 419 };
+      const items = generateSet(options);
+      assertEqual(items.length, 20);
+      assertEqual(new Set(items.map((item) => item.stem)).size, 20);
+      assert(items.every((item) => item.domain === domain && item.difficulty === difficulty));
+      assertEqual(JSON.stringify(items), JSON.stringify(generateSet(options)));
+    }
+  }
+});
+
+test('difficulty filters reject invalid levels and preserve empty sets', () => {
+  for (const difficulty of [0, 4, -1, '3', null, NaN]) {
+    assertThrows(() => generateSet({ difficulty }));
+  }
+  assertEqual(generateSet({ difficulty: 3, count: 0 }).length, 0);
+  assertThrows(() => generateSet({ templateId: 'advanced.discriminant-parameter', difficulty: 1, count: 1 }));
+});

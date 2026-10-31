@@ -3,5 +3,6 @@ import linearFunctions from './linear-functions.js';
 import lineTwoPoints from './line-two-points.js';
 import systems from './systems.js';
 import inequalities from './inequalities.js';
+import systemParameter from './system-parameter.js';
 
-export default [linearOneVar, linearFunctions, lineTwoPoints, systems, inequalities];
+export default [linearOneVar, linearFunctions, lineTwoPoints, systems, inequalities, systemParameter];
