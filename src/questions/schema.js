@@ -1,4 +1,5 @@
 // The shape of a question item and the four SAT Math content domains.
+import { parseSpr } from './spr.js';
 //
 // {
 //   id: 'algebra.linear-one-var#123',   // templateId#seed, stamped by the registry
@@ -28,7 +29,9 @@ const KEYS = ['A', 'B', 'C', 'D'];
 const SPR = /^-?(\d+\.?\d*|\.\d+|\d+\/\d+)$/;
 
 export function isSprAnswer(text) {
-  return typeof text === 'string' && SPR.test(text) && text.replace('-', '').length <= 5;
+  return (
+    typeof text === 'string' && SPR.test(text) && text.replace('-', '').length <= 5 && parseSpr(text) !== null
+  );
 }
 
 export function answerText(item) {

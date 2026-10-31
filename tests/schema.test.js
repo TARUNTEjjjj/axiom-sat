@@ -49,7 +49,13 @@ test('validateItem rejects malformed items', () => {
 });
 
 test('validateItem checks optional tables', () => {
-  const table = { headers: ['x', 'y'], rows: [[1, 2], [3, 4]] };
+  const table = {
+    headers: ['x', 'y'],
+    rows: [
+      [1, 2],
+      [3, 4],
+    ],
+  };
   assert(validateItem({ ...mc(), table }));
   assertThrows(() => validateItem({ ...mc(), table: { headers: ['x', 'y'], rows: [[1]] } }));
   assertThrows(() => validateItem({ ...mc(), table: { headers: [], rows: [[1]] } }));
@@ -59,7 +65,11 @@ test('isSprAnswer matches what fits in a response box', () => {
   for (const ok of ['12', '-3', '3.5', '.6667', '-.5', '7/2', '-7/2', '12345', '-12345']) {
     assert(isSprAnswer(ok), ok);
   }
-  for (const bad of ['123456', '1/2/3', 'x', '', '3,5', '−3', 12]) {
+  for (const bad of ['123456', '1/2/3', '1/0', '0/0', 'x', '', '3,5', '−3', 12]) {
     assert(!isSprAnswer(bad), String(bad));
   }
+});
+
+test('validateItem rejects undefined fractional answers', () => {
+  assertThrows(() => validateItem({ ...mc(), type: 'spr', choices: undefined, answer: '1/0' }));
 });

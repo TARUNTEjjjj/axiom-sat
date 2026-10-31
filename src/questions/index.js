@@ -37,6 +37,7 @@ export function totalSpace(domain) {
 
 // The same template and seed always give the same item.
 export function generate(templateId, seed) {
+  validateSeed(seed);
   const template = getTemplate(templateId);
   const { item } = template.generate(createRng(seed));
   return validateItem({
@@ -51,20 +52,38 @@ export function generate(templateId, seed) {
 
 // Distinct items spread round-robin over the matching templates.
 export function generateSet({ domain, templateId, count = 10, seed = 1 } = {}) {
+  validateSeed(seed);
+  if (!Number.isInteger(count) || count < 0 || count > 1000) {
+    throw new Error('count must be an integer from 0 to 1000');
+  }
+  if (domain && !DOMAIN_IDS.includes(domain)) throw new Error(`unknown domain ${domain}`);
   const pool = templateId ? [getTemplate(templateId)] : listTemplates(domain);
+  if (domain && pool.some((template) => template.domain !== domain)) {
+    throw new Error('template does not belong to the requested domain');
+  }
   if (!pool.length) throw new Error(`no templates for ${domain}`);
 
   const rng = createRng(seed);
   const items = [];
   const stems = new Set();
   for (let tries = 0; items.length < count && tries < count * 20; tries++) {
-    const template = pool[(items.length + tries) % pool.length];
+    // Advance once per accepted item, retrying this template when a stem repeats.
+    // Adding `tries` here used to skip every other template in even-sized pools.
+    const template = pool[items.length % pool.length];
     const item = generate(template.id, rng.int(0, 2 ** 31 - 1));
     if (stems.has(item.stem)) continue;
     stems.add(item.stem);
     items.push(item);
   }
+  if (items.length !== count)
+    throw new Error('could not generate the requested number of distinct questions');
   return items;
+}
+
+function validateSeed(seed) {
+  if (!Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) {
+    throw new Error('seed must be an unsigned 32-bit integer');
+  }
 }
 
 function validateTemplate(template) {

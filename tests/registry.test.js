@@ -43,3 +43,32 @@ test('generateSet() can be pinned to one template', () => {
   assertEqual(items.length, 5);
   for (const item of items) assertEqual(item.templateId, 'algebra.linear-one-var');
 });
+
+test('generateSet() visits every template, including even-sized domain pools', () => {
+  for (const domain of DOMAIN_IDS) {
+    const pool = listTemplates(domain);
+    const items = generateSet({ domain, count: pool.length * 3, seed: 317 });
+    for (let index = 0; index < items.length; index++) {
+      assertEqual(items[index].templateId, pool[index % pool.length].id);
+    }
+    assertEqual(new Set(items.map((item) => item.stem)).size, items.length);
+  }
+});
+
+test('generateSet() is reproducible and allows an empty set', () => {
+  const options = { count: 22, seed: 0xffffffff };
+  assertEqual(JSON.stringify(generateSet(options)), JSON.stringify(generateSet(options)));
+  assertEqual(generateSet({ count: 0 }).length, 0);
+});
+
+test('question generation rejects invalid seeds and unbounded set sizes', () => {
+  for (const seed of [-1, 0x100000000, 1.2, NaN, Infinity, '12', null, undefined]) {
+    assertThrows(() => generate('algebra.linear-one-var', seed), String(seed));
+    if (seed !== undefined) assertThrows(() => generateSet({ seed }), String(seed));
+  }
+  for (const count of [-1, 0.5, NaN, Infinity, '12', 1001]) {
+    assertThrows(() => generateSet({ count }), String(count));
+  }
+  assertThrows(() => generateSet({ domain: 'unknown' }));
+  assertThrows(() => generateSet({ domain: 'geometry', templateId: 'algebra.linear-one-var' }));
+});
