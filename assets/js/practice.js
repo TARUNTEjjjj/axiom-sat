@@ -4,6 +4,10 @@ import {
   SESSION_KEY,
   MODES,
   createSession,
+  createRetrySession,
+  normalizeCustom,
+  customMinutes,
+  sessionName,
   sessionItems,
   restoreSession,
   remainingSeconds,
@@ -34,7 +38,12 @@ const el = (tag, attrs = {}, children = []) => {
   return node;
 };
 const button = (text, action, attrs = {}) => {
-  const node = el('button', { type: 'button', class: 'btn btn-secondary', text, ...attrs });
+  const node = el('button', {
+    type: 'button',
+    class: 'btn btn-secondary',
+    text,
+    ...attrs,
+  });
   node.addEventListener('click', action);
   return node;
 };
@@ -101,71 +110,212 @@ function complete() {
   document.getElementById('result-heading').focus({ preventScroll: true });
   root.scrollIntoView({ block: 'start' });
 }
+const SETTINGS_KEY = 'axiom.practice.settings.v1';
+const DIFFICULTIES = ['Mixed difficulty', 'Foundation', 'Standard', 'Challenge'];
+function readSetup() {
+  const defaults = { mode: 'sprint', timed: true, custom: normalizeCustom() };
+  try {
+    const stored = JSON.parse(localStorage.getItem(SETTINGS_KEY));
+    if (!stored || !['sprint', 'module', 'custom'].includes(stored.mode) || typeof stored.timed !== 'boolean')
+      return defaults;
+    return {
+      mode: stored.mode,
+      timed: stored.timed,
+      custom: normalizeCustom(stored.custom),
+    };
+  } catch {
+    return defaults;
+  }
+}
+function customDescription(custom) {
+  return `${custom.domain === 'all' ? 'All domains' : DOMAINS.find((domain) => domain.id === custom.domain).name} · ${DIFFICULTIES[custom.difficulty]}`;
+}
 function renderSetup() {
-  const preferredMode = new URLSearchParams(location.search).get('mode');
-  const selectedMode = Object.hasOwn(MODES, preferredMode) ? preferredMode : 'sprint';
+  const saved = readSetup();
+  const params = new URLSearchParams(location.search);
+  const preferredMode = params.get('mode');
+  const selectedMode = ['sprint', 'module', 'custom'].includes(preferredMode) ? preferredMode : saved.mode;
+  let preferredCustom = saved.custom;
+  if (preferredMode === 'custom') {
+    const domain = params.get('domain');
+    const difficulty = params.get('difficulty');
+    const count = params.get('count');
+    preferredCustom = normalizeCustom({
+      domain: ['all', ...DOMAINS.map((d) => d.id)].includes(domain) ? domain : 'all',
+      difficulty: ['0', '1', '2', '3'].includes(difficulty) ? Number(difficulty) : 0,
+      count: ['5', '10', '20'].includes(count) ? Number(count) : 10,
+    });
+  }
   const form = el('form', { class: 'practice-setup' });
   const fieldset = el('fieldset', { class: 'mode-grid' }, [el('legend', { text: 'Choose your session' })]);
-  for (const [id, mode] of Object.entries(MODES)) {
+  const modes = {
+    ...MODES,
+    custom: { name: 'Build your own', count: '5–20', minutes: 'Your pace' },
+  };
+  for (const [id, mode] of Object.entries(modes)) {
     fieldset.append(
       el('label', { class: 'mode-card card' }, [
-        el('input', { type: 'radio', name: 'mode', value: id, checked: id === selectedMode }),
+        el('input', {
+          type: 'radio',
+          name: 'mode',
+          value: id,
+          checked: id === selectedMode,
+        }),
         el('span', { class: 'eyebrow', text: mode.name }),
         el('span', { class: 'mode-number', text: mode.count }),
-        el('span', { class: 'small muted', text: `questions · ${mode.minutes} minutes` }),
+        el('span', {
+          class: 'small muted',
+          text: id === 'custom' ? 'questions · your focus' : `questions · ${mode.minutes} minutes`,
+        }),
         el('p', {
           text:
             id === 'sprint'
               ? 'A compact daily workout across all four math domains. Start small, finish strong.'
-              : 'Practice the length and timing of one math module, with a fresh mix of all four domains.',
+              : id === 'module'
+                ? 'Practice the length and timing of one math module, with a fresh mix of all four domains.'
+                : 'Choose a domain, raise the difficulty, and work on exactly what you need.',
         }),
       ]),
     );
   }
-  const timed = el('input', { type: 'checkbox', checked: true, id: 'use-timer' });
+  function select(id, label, options, value) {
+    const control = el(
+      'select',
+      { id, name: id },
+      options.map(([optionValue, text]) =>
+        el('option', {
+          value: optionValue,
+          text,
+          selected: String(optionValue) === String(value),
+        }),
+      ),
+    );
+    return {
+      control,
+      field: el('div', { class: 'custom-field' }, [el('label', { for: id, text: label }), control]),
+    };
+  }
+  const domain = select(
+    'practice-domain',
+    'Math domain',
+    [['all', 'All domains'], ...DOMAINS.map((d) => [d.id, d.name])],
+    preferredCustom.domain,
+  );
+  const difficulty = select(
+    'practice-difficulty',
+    'Difficulty',
+    DIFFICULTIES.map((name, value) => [value, name]),
+    preferredCustom.difficulty,
+  );
+  const count = select(
+    'practice-count',
+    'Session length',
+    [5, 10, 20].map((n) => [n, `${n} questions`]),
+    preferredCustom.count,
+  );
+  const customPanel = el('fieldset', { class: 'custom-setup card' }, [
+    el('legend', { text: 'Make this session yours' }),
+    el('div', { class: 'custom-fields' }, [domain.field, difficulty.field, count.field]),
+    el('p', {
+      class: 'small muted',
+      text: 'Challenge questions need more steps and deeper reasoning. These difficulty labels describe Axiom practice; they are not calibrated SAT levels.',
+    }),
+  ]);
+  const timed = el('input', {
+    type: 'checkbox',
+    checked: saved.timed,
+    id: 'use-timer',
+  });
+  const timerBudget = el('p', {
+    class: 'timer-budget',
+    id: 'timer-budget',
+    role: 'status',
+  });
+  const setupError = el('p', { class: 'setup-error', role: 'alert' });
+  function selectedCustom() {
+    return normalizeCustom({
+      domain: domain.control.value,
+      difficulty: Number(difficulty.control.value),
+      count: Number(count.control.value),
+    });
+  }
+  function updateSetup() {
+    const mode = new FormData(form).get('mode');
+    const isCustom = mode === 'custom';
+    customPanel.hidden = !isCustom;
+    customPanel.disabled = !isCustom;
+    const minutes = isCustom ? customMinutes(selectedCustom()) : MODES[mode].minutes;
+    timerBudget.textContent = timed.checked
+      ? `${minutes} minutes total${isCustom ? ' · 2 minutes per question' : ''}. The timer keeps running if you leave or reload.`
+      : 'Untimed: work at your own pace, with answers and flags saved as you go.';
+    setupError.textContent = '';
+  }
   form.append(
     fieldset,
+    customPanel,
     el('div', { class: 'setup-options card' }, [
-      el('label', { class: 'timer-option', for: 'use-timer' }, [
-        timed,
-        el('span', {}, [
-          el('strong', { text: 'Practice with a timer' }),
-          el('small', {
-            text: 'Turn this off to work at your own pace. Timed sessions end automatically, even if you leave or reload.',
-          }),
+      el('div', {}, [
+        el('label', { class: 'timer-option', for: 'use-timer' }, [
+          timed,
+          el('span', {}, [
+            el('strong', { text: 'Practice with a timer' }),
+            el('small', {
+              text: 'Turn this off to work at your own pace. Timed sessions end automatically.',
+            }),
+          ]),
         ]),
+        timerBudget,
       ]),
-      el('button', { type: 'submit', class: 'btn btn-primary', text: 'Start practicing →' }),
+      el('button', {
+        type: 'submit',
+        class: 'btn btn-primary',
+        text: 'Start practicing →',
+      }),
     ]),
+    setupError,
     el('p', {
       class: 'setup-tip',
-      text: 'Have paper and your calculator ready. You can change answers and flag questions until you finish. Solutions appear afterward.',
+      text: 'Have paper and your calculator ready. You can change answers and flag questions until you finish. Solutions appear afterward; missed questions can be retried without a timer.',
     }),
   );
+  form.addEventListener('change', updateSetup);
   form.addEventListener('submit', (event) => {
     event.preventDefault();
+    const mode = new FormData(form).get('mode');
+    const custom = selectedCustom();
     try {
       session = createSession({
-        mode: new FormData(form).get('mode'),
+        mode,
+        custom,
         seed: crypto.getRandomValues(new Uint32Array(1))[0],
         timed: timed.checked,
       });
+      try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify({ mode, custom, timed: timed.checked }));
+      } catch {
+        storageWarning();
+      }
       items = sessionItems(session);
       timerWarning = false;
       reviewFilter = 'all';
       persist();
       renderActive(true);
-    } catch {
-      live.textContent = 'This session could not start. Reload and try again.';
-      root.append(el('p', { role: 'alert', text: live.textContent }));
+    } catch (error) {
+      setupError.textContent = error.message || 'This session could not start. Reload and try again.';
     }
   });
   root.replaceChildren(form);
+  updateSetup();
 }
 function renderTable(table) {
   return el(
     'div',
-    { class: 'practice-table-scroll', tabindex: '0', role: 'region', 'aria-label': 'Question data table' },
+    {
+      class: 'practice-table-scroll',
+      tabindex: '0',
+      role: 'region',
+      'aria-label': 'Question data table',
+    },
     [
       el('table', { class: 'q-table' }, [
         el('caption', { text: table.caption || 'Data for this question' }),
@@ -243,19 +393,37 @@ function renderActive(focus = false) {
   );
   const card = el('article', { class: 'q-card practice-card', 'aria-labelledby': 'practice-stem' }, [
     el('div', { class: 'practice-tools' }, [
-      el('span', { class: 'chip', text: `Question ${session.index + 1} of ${items.length}` }),
+      el('span', {
+        class: 'chip',
+        text: `Question ${session.index + 1} of ${items.length}`,
+      }),
       flag,
     ]),
     el('div', { class: 'q-meta' }, [
-      el('span', { text: DOMAINS.find((domain) => domain.id === item.domain).name }),
+      el('span', {
+        text: DOMAINS.find((domain) => domain.id === item.domain).name,
+      }),
       el('span', { 'aria-hidden': true, text: '·' }),
       el('span', { text: item.skill }),
+      el('span', {
+        class: 'difficulty-label',
+        text: DIFFICULTIES[item.difficulty],
+      }),
     ]),
-    el('h2', { class: 'q-stem', id: 'practice-stem', tabindex: '-1', text: item.stem }),
+    el('h2', {
+      class: 'q-stem',
+      id: 'practice-stem',
+      tabindex: '-1',
+      text: item.stem,
+    }),
   ]);
   if (item.table) card.append(renderTable(item.table));
   if (item.type === 'mc') {
-    const list = el('ul', { class: 'choices', role: 'list', 'aria-label': 'Choose one answer' });
+    const list = el('ul', {
+      class: 'choices',
+      role: 'list',
+      'aria-label': 'Choose one answer',
+    });
     for (const choice of item.choices) {
       const option = button(
         '',
@@ -265,7 +433,10 @@ function renderActive(focus = false) {
           for (const candidate of list.querySelectorAll('button'))
             candidate.setAttribute('aria-pressed', String(candidate === option));
         },
-        { class: 'choice', 'aria-pressed': String(session.responses[session.index] === choice.key) },
+        {
+          class: 'choice',
+          'aria-pressed': String(session.responses[session.index] === choice.key),
+        },
       );
       option.append(
         el('span', { class: 'choice-key', text: choice.key }),
@@ -283,7 +454,11 @@ function renderActive(focus = false) {
       'aria-describedby': 'response-hint response-error',
     });
     input.value = session.responses[session.index];
-    const error = el('p', { id: 'response-error', class: 'input-error', 'aria-live': 'polite' });
+    const error = el('p', {
+      id: 'response-error',
+      class: 'input-error',
+      'aria-live': 'polite',
+    });
     const validate = () => {
       const valid = responseIsValid(item, input.value);
       input.setAttribute('aria-invalid', String(!valid));
@@ -320,7 +495,9 @@ function renderActive(focus = false) {
       { class: 'btn btn-secondary btn-small' },
     ),
     el('div', { class: 'practice-controls' }, [
-      button('← Previous', () => navigate(session.index - 1), { disabled: session.index === 0 }),
+      button('← Previous', () => navigate(session.index - 1), {
+        disabled: session.index === 0,
+      }),
       button(
         session.index === items.length - 1 ? 'Finish session' : 'Next question →',
         () => (session.index === items.length - 1 ? askFinish() : navigate(session.index + 1)),
@@ -331,7 +508,15 @@ function renderActive(focus = false) {
   root.replaceChildren(
     el('div', { class: 'practice-toolbar' }, [
       el('div', {}, [
-        el('h2', { text: MODES[session.mode].name }),
+        el('h2', { text: sessionName(session) }),
+        ...(session.custom
+          ? [
+              el('p', {
+                class: 'small muted',
+                text: customDescription(session.custom),
+              }),
+            ]
+          : []),
         el('p', { class: 'small muted', id: 'answer-count' }),
       ]),
       el('div', {
@@ -343,19 +528,26 @@ function renderActive(focus = false) {
     ]),
     el('div', { class: 'practice-grid' }, [
       card,
-      el('aside', { class: 'card practice-navigator', 'aria-label': 'Question navigator' }, [
-        el('h3', { text: 'Your questions' }),
-        el('div', { class: 'number-grid', id: 'question-numbers' }),
-        el('p', {
-          class: 'nav-legend',
-          text: 'Blue = answered · Gold dot = flagged. Select a number to jump to a question.',
-        }),
-        button('Finish & review', askFinish, { class: 'btn btn-primary' }),
-        el('p', {
-          class: 'small muted',
-          text: 'Answers stay editable until you finish. Closing the page does not pause a timed session.',
-        }),
-      ]),
+      el(
+        'aside',
+        {
+          class: 'card practice-navigator',
+          'aria-label': 'Question navigator',
+        },
+        [
+          el('h3', { text: 'Your questions' }),
+          el('div', { class: 'number-grid', id: 'question-numbers' }),
+          el('p', {
+            class: 'nav-legend',
+            text: 'Blue = answered · Gold dot = flagged. Select a number to jump to a question.',
+          }),
+          button('Finish & review', askFinish, { class: 'btn btn-primary' }),
+          el('p', {
+            class: 'small muted',
+            text: 'Answers stay editable until you finish. Closing the page does not pause a timed session.',
+          }),
+        ],
+      ),
     ]),
   );
   updateNavigation();
@@ -411,7 +603,10 @@ function renderResults() {
   saveFinishedProgress(result);
   const elapsed = Math.max(0, Math.round((session.finishedAt - session.startedAt) / 60000));
   const review = el('div', { class: 'review-list', id: 'review-list' });
-  const filters = el('div', { class: 'review-tools', 'aria-label': 'Filter answer review' });
+  const filters = el('div', {
+    class: 'review-tools',
+    'aria-label': 'Filter answer review',
+  });
   const filterNames = {
     all: `All (${result.total})`,
     missed: `To review (${result.incorrect + result.skipped})`,
@@ -484,7 +679,10 @@ function renderResults() {
           node.setAttribute('aria-pressed', String(node === control));
         fillReviews();
       },
-      { class: 'btn btn-secondary btn-small', 'aria-pressed': String(reviewFilter === id) },
+      {
+        class: 'btn btn-secondary btn-small',
+        'aria-pressed': String(reviewFilter === id),
+      },
     );
     filters.append(control);
   }
@@ -498,10 +696,30 @@ function renderResults() {
         }),
         el('p', {
           class: 'muted',
-          text: `${MODES[session.mode].name} · ${session.timed ? 'Timed' : 'Untimed'} · ${elapsed < 1 ? 'Less than a minute' : `${elapsed} minutes`}`,
+          text: `${sessionName(session)} · ${session.timed ? 'Timed' : 'Untimed'} · ${elapsed < 1 ? 'Less than a minute' : `${elapsed} minutes`}`,
         }),
       ]),
       el('div', { class: 'practice-actions' }, [
+        button(
+          `Retry missed (${result.incorrect + result.skipped})`,
+          () => {
+            try {
+              session = createRetrySession(session);
+              items = sessionItems(session);
+              reviewFilter = 'all';
+              timerWarning = false;
+              persist();
+              renderActive(true);
+              live.textContent = `Untimed retry started with ${items.length} questions. First-attempt progress is preserved.`;
+            } catch (error) {
+              live.textContent = error.message;
+            }
+          },
+          {
+            disabled: result.incorrect + result.skipped === 0,
+            class: 'btn btn-primary',
+          },
+        ),
         button('Start a fresh session', () => {
           session = null;
           items = [];
@@ -513,7 +731,11 @@ function renderResults() {
           if (!persistWarning) status.textContent = 'Your session stays on this browser. No account needed.';
           renderSetup();
         }),
-        el('a', { class: 'btn btn-primary', href: 'progress.html', text: 'View my progress →' }),
+        el('a', {
+          class: 'btn btn-primary',
+          href: 'progress.html',
+          text: 'View my progress →',
+        }),
       ]),
     ]),
     el(
@@ -533,7 +755,10 @@ function renderResults() {
     ),
     el('p', {
       class: 'small muted',
-      text: 'Session accuracy includes all questions, including skipped ones. Progress records answered questions only, once per unique question; repeated questions do not inflate it.',
+      text:
+        session.mode === 'retry'
+          ? 'This retry shows how you did on the same questions. Your first-attempt progress stays unchanged for previously answered questions; answering a previously skipped question records its first attempt.'
+          : 'Session accuracy includes skipped questions. Retry missed questions to practice the exact problems again. Progress records only your first answer to each unique question, so retries do not inflate it.',
     }),
     el('h3', { class: 'subtitle', text: 'Review the reasoning' }),
     filters,
@@ -602,6 +827,10 @@ try {
       role: 'alert',
       text: 'Practice could not load. Your question bank is still available; reload this page to try again.',
     }),
-    el('a', { class: 'btn btn-primary', href: 'bank.html', text: 'Open the question bank' }),
+    el('a', {
+      class: 'btn btn-primary',
+      href: 'bank.html',
+      text: 'Open the question bank',
+    }),
   );
 }

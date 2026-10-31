@@ -519,3 +519,86 @@ button:disabled {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
+
+/* Custom sets retain the same spacious visual rhythm as fixed sessions. */
+@media (min-width: 900px) {
+  .mode-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 641px) and (max-width: 899px) {
+  .mode-card:last-child {
+    grid-column: 1 / -1;
+  }
+}
+.custom-setup {
+  padding: 24px;
+  margin: 0;
+  min-width: 0;
+}
+.custom-setup legend {
+  font-size: 18px;
+  font-weight: 650;
+  padding-inline: 8px;
+}
+.custom-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+}
+.custom-field {
+  min-width: 0;
+}
+.custom-field label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.custom-field select {
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  border: 1px solid #b8bdc8;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 14px;
+}
+.custom-setup p {
+  margin-bottom: 0;
+}
+.timer-budget {
+  font-size: 13px;
+  margin: 12px 0 0;
+  color: var(--ink-2);
+}
+.setup-error {
+  color: var(--bad);
+  margin: 0;
+}
+.setup-error:empty {
+  display: none;
+}
+.difficulty-label {
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: 2px 8px;
+  font-size: 12px;
+}
+@media (max-width: 640px) {
+  .custom-fields {
+    grid-template-columns: 1fr;
+  }
+  .custom-setup {
+    padding: 20px;
+  }
+  .practice-actions {
+    align-items: stretch;
+  }
+  .practice-actions .btn {
+    white-space: normal;
+  }
+}

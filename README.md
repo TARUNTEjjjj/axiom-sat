@@ -6,10 +6,13 @@ Free, open-source SAT-style math practice with original generated questions, tim
 
 ## What you can do
 
-- Explore 19 seeded question templates across Algebra, Advanced Math, Problem-Solving and Data Analysis, and Geometry and Trigonometry. Share any exact question using its template and seed.
+- Explore 31 seeded question templates across Algebra, Advanced Math, Problem-Solving and Data Analysis, and Geometry and Trigonometry. Filter by domain, skill, and difficulty; share any exact question using its template and seed.
+- Work through 12 new challenge families: quadratic parameters and root relationships, rational and radical equations, exponential observations, reconstructing quadratics, polynomial identities, nonlinear systems, circle tangency, similar solids, conditional probability, and parameterized linear systems. Each includes a multi-step worked solution.
 - Start a **10-question, 16-minute sprint** or a **22-question, 35-minute module**. Turn the timer off when learning at your own pace.
+- Build a **custom 5-, 10-, or 20-question set** for one domain or all four, with Foundation, Standard, Challenge, or mixed difficulty. The optional custom timer allows two minutes per question. Setup choices are remembered on this browser.
 - Change answers, flag questions, and use the question navigator. Sessions resume after a reload; a timed session keeps counting while the page is closed.
 - Review correct, incorrect, skipped, and flagged questions with the full worked reasoning after finishing.
+- Retry the exact missed and skipped questions in an untimed session. Answers and flags start fresh; prior first-attempt history stays intact. A previously skipped question records its first attempt when answered.
 - Track first-attempt accuracy by domain, find a skill to practice next, and revisit missed questions. Duplicate attempts do not inflate your numbers.
 - Download and restore a progress backup. History retains the first attempt on each of the latest 500 distinct template/seed pairs.
 
@@ -21,6 +24,7 @@ Use Node 20 or newer for tests and packaging. No install step is needed.
 
 ```sh
 npm test
+npm run audit:questions
 npm run build
 python3 -m http.server 8787 --directory dist
 ```
@@ -29,7 +33,9 @@ Open `http://localhost:8787/`. To work directly on the source, use `npm run serv
 
 ## Test and release
 
-`npm test` runs the same dependency-free test list as `tests/run.html`. The generator suite checks every template over 400 seeds and verifies its answers independently. Tests also cover numeric response rounding, template selection, timed-session restore, grading, corrupted storage, deduplication, and atomic backup import.
+`npm test` runs the same dependency-free test list as `tests/run.html`. The generator suite checks every template over 400 seeds. The challenge suite includes separate mathematical audits using enumeration, elimination, interpolation, and geometric relationships. Tests also cover numeric response rounding, difficulty filters, every custom setup combination, legacy-session migration, retries, timed-session restore, grading, corrupted storage, deduplication, and atomic backup import.
+
+`npm run audit:questions` performs the deeper release audit: 5,004 seeds per template, numeric-choice equivalence, schema and deterministic-answer checks, plus fingerprints of 3,800 previously published questions. See [release verification](docs/verification.md) for the tested scope and limits.
 
 `npm run build` first runs the tests, then `scripts/build.mjs` packages an explicit public-file list and checks local page/module references. Tests, Git metadata, and local tooling are excluded from `dist/`. GitHub Actions runs this build on every push and pull request.
 
@@ -62,6 +68,8 @@ A failed test or missing release asset fails the build, keeping the last good de
 Practice and progress use `localStorage` on the current origin only. No answer data is sent to an app server, and no third-party analytics are installed. Cloudflare still receives ordinary hosting requests. Local progress does not sync automatically across devices, browser profiles, or domains. Private browsing or storage restrictions can prevent persistence; the UI reports storage failures. Download a backup before clearing browser data. Reset affects progress, not the separately saved practice session. Saved sessions older than 30 days are ignored.
 
 Imported backups are size-limited, validated, and regraded from original generated questions instead of trusting stored correctness. Restore merges records and keeps the earliest attempt for duplicates. Corrupted existing storage must be explicitly reset before a backup can be restored.
+
+Session schema v2 keeps the original storage key and migrates v1 sessions from their stored question identities. Adding new templates does not reshuffle or replace an unfinished session. Custom settings are stored separately from progress; resetting progress does not clear those settings.
 
 The site links to College Board, Khan Academy and Desmos; those services have their own terms and privacy policies. No official questions or instructional videos are redistributed.
 

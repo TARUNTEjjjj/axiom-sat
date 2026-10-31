@@ -60,6 +60,16 @@
   gap: 18px;
 }
 
+.control-note {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.chip.level-3 {
+  color: #653716;
+  background: #fff1df;
+}
+
 .field {
   display: grid;
   gap: 6px;
@@ -104,7 +114,7 @@
   background-size: 16px;
 }
 
-.field input[type="number"] {
+.field input[type='number'] {
   appearance: textfield;
   -moz-appearance: textfield;
 }
@@ -226,7 +236,7 @@
   text-decoration: line-through;
 }
 
-.eliminator[aria-pressed="true"] {
+.eliminator[aria-pressed='true'] {
   background: var(--ink);
   border-color: var(--ink);
   color: var(--accent-ink);
@@ -274,7 +284,7 @@
   background-color: var(--bad-soft);
 }
 
-.spr-input[aria-invalid="true"] {
+.spr-input[aria-invalid='true'] {
   border-color: var(--bad);
 }
 
@@ -422,4 +432,3 @@
 }
 
 /* Footer: the same markup as index.html; --ink-2 so 14px text clears 4.5:1. */
-

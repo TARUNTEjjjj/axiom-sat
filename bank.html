@@ -43,8 +43,8 @@
           <p class="eyebrow">Question Bank</p>
           <h1 class="title">Every question, computed.</h1>
           <p class="lead">
-            Pick a domain and a skill and get a fresh SAT-style question built from a seed. The same seed
-            always gives the same question, so every question has a permanent link.
+            Pick a domain, skill, and difficulty for a fresh SAT-style question built from a seed. The same
+            seed always gives the same question, so every question has a permanent link.
           </p>
         </header>
 
@@ -71,6 +71,18 @@
                 <select id="skill" name="skill"></select>
               </div>
               <div class="field">
+                <label for="difficulty">Difficulty</label>
+                <select id="difficulty" name="difficulty" aria-describedby="difficulty-note">
+                  <option value="">Mixed difficulty</option>
+                  <option value="1">1 · Foundation</option>
+                  <option value="2">2 · Standard</option>
+                  <option value="3">3 · Challenge</option>
+                </select>
+                <p class="small muted control-note" id="difficulty-note">
+                  Axiom’s own difficulty estimates, not official SAT ratings.
+                </p>
+              </div>
+              <div class="field">
                 <label for="seed">Seed</label>
                 <input
                   id="seed"
@@ -91,6 +103,12 @@
                 <label for="link">Link to this question</label>
                 <input id="link" type="text" readonly />
               </div>
+              <a class="btn btn-secondary" id="practice-filter" href="practice.html?mode=custom"
+                >Build a practice set ↗</a
+              >
+              <p class="small muted control-note">
+                Practice sets use your domain and difficulty. Use the bank to focus on one skill.
+              </p>
             </form>
           </aside>
         </div>

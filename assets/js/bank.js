@@ -19,6 +19,8 @@ const byId = (id) => document.getElementById(id);
 const form = byId('controls');
 const domainSelect = byId('domain');
 const skillSelect = byId('skill');
+const difficultySelect = byId('difficulty');
+const practiceLink = byId('practice-filter');
 const seedInput = byId('seed');
 const seedError = byId('seed-error');
 const copyButton = byId('copy');
@@ -59,7 +61,9 @@ async function loadEngine() {
   }
 }
 
-const { DOMAINS, listTemplates, getTemplate, totalSpace, generate, hashSeed } = await loadEngine();
+const { DOMAINS, listTemplates, getTemplate, totalSpace, generate, generateSet, hashSeed } =
+  await loadEngine();
+const LEVELS = { 1: 'Foundation', 2: 'Standard', 3: 'Challenge' };
 
 function randomBelow(n) {
   return crypto.getRandomValues(new Uint32Array(1))[0] % n;
@@ -136,6 +140,17 @@ function selectSkillOf(template) {
   skillSelect.value = option ? option.value : '';
 }
 
+function updatePracticeLink() {
+  const chosen = skillSelect.value ? getTemplate(skillSelect.value) : null;
+  const params = new URLSearchParams({
+    mode: 'custom',
+    domain: domainSelect.value || chosen?.domain || 'all',
+    difficulty: difficultySelect.value || '0',
+    count: '10',
+  });
+  practiceLink.href = `practice.html?${params}`;
+}
+
 /* The question */
 
 function focusCard() {
@@ -164,6 +179,11 @@ function show(templateId, seed, { focus = false, scroll = false } = {}) {
   let item = null;
   try {
     item = generate(templateId, seed);
+    if (difficultySelect.value && Number(difficultySelect.value) !== item.difficulty) {
+      difficultySelect.value = String(item.difficulty);
+      note.textContent = `This exact seed is a ${LEVELS[item.difficulty].toLowerCase()} question. The difficulty filter now matches it.`;
+      note.hidden = false;
+    }
     renderItem(item);
   } catch (error) {
     renderFailure(error);
@@ -174,7 +194,10 @@ function show(templateId, seed, { focus = false, scroll = false } = {}) {
     params.set('t', templateId);
     params.set('s', String(seed));
     params.delete('d');
+    if (difficultySelect.value) params.set('level', difficultySelect.value);
+    else params.delete('level');
   });
+  updatePracticeLink();
 
   // Announced even when the card takes focus: the card then reads its stem, which
   // this message does not repeat.
@@ -189,14 +212,37 @@ function draw({ focus = false, scroll = false } = {}) {
     showEmpty({ focus, scroll });
     return;
   }
-  show(pool[randomBelow(pool.length)].id, randomSeed(), { focus, scroll });
+  if (!difficultySelect.value) {
+    show(pool[randomBelow(pool.length)].id, randomSeed(), { focus, scroll });
+    return;
+  }
+  // Try every matching template, starting at a random point. Some skills have
+  // no items at a requested level; show that explicitly instead of ignoring it.
+  const start = randomBelow(pool.length);
+  for (let i = 0; i < pool.length; i++) {
+    try {
+      const [item] = generateSet({
+        templateId: pool[(start + i) % pool.length].id,
+        difficulty: Number(difficultySelect.value),
+        count: 1,
+        seed: randomSeed(),
+      });
+      show(item.templateId, item.seed, { focus, scroll });
+      return;
+    } catch (error) {
+      if (!error.message.startsWith('No questions match')) {
+        renderFailure(error);
+        return;
+      }
+    }
+  }
+  showEmpty({ focus, scroll });
 }
 
 // Nothing fits the filters: the card says so and no longer stands for a question,
 // so the seed, the link and the address bar are cleared with it.
 function showEmpty({ focus = false, scroll = false } = {}) {
-  const domain = DOMAINS.find((d) => d.id === domainSelect.value);
-  const text = domain ? `No ${domain.name} templates yet.` : 'No templates yet.';
+  const text = 'No questions match this skill and difficulty. Try mixed difficulty or another skill.';
   state.templateId = null;
   state.seed = null;
   state.graded = false;
@@ -210,7 +256,11 @@ function showEmpty({ focus = false, scroll = false } = {}) {
     params.delete('t');
     params.delete('s');
     params.delete('d');
+    if (domainSelect.value) params.set('d', domainSelect.value);
+    if (difficultySelect.value) params.set('level', difficultySelect.value);
+    else params.delete('level');
   });
+  updatePracticeLink();
   card.replaceChildren(el('p', { class: 'q-stem', id: 'q-stem', text }));
   live.textContent = text;
   revealCard({ focus, scroll });
@@ -223,7 +273,10 @@ function renderItem(item) {
   const meta = el('div', { class: 'q-meta' }, [
     el('span', { class: 'chip', text: domain ? domain.name : item.domain }),
     el('span', { class: 'chip', text: item.skill }),
-    el('span', { class: 'chip', text: `Difficulty ${item.difficulty} of 3` }),
+    el('span', {
+      class: `chip level-${item.difficulty}`,
+      text: `${LEVELS[item.difficulty]} · ${item.difficulty} of 3`,
+    }),
     el('span', { class: 'chip', text: `Seed ${item.seed}` }),
     el('span', { class: 'q-id small muted', text: item.templateId }),
   ]);
@@ -567,7 +620,7 @@ domainSelect.addEventListener('change', () => {
 // Picking a skill keeps the seed: the same seed now shows that skill's question.
 skillSelect.addEventListener('change', () => {
   const pool = matchingTemplates();
-  if (!skillSelect.value || !pool.length) {
+  if (!skillSelect.value || !pool.length || difficultySelect.value) {
     draw({ scroll: stacked.matches });
     return;
   }
@@ -575,6 +628,8 @@ skillSelect.addEventListener('change', () => {
     scroll: stacked.matches,
   });
 });
+
+difficultySelect.addEventListener('change', () => draw({ scroll: stacked.matches }));
 
 byId('new').addEventListener('click', () => draw({ focus: stacked.matches }));
 
@@ -585,6 +640,8 @@ function permalink() {
   url.searchParams.set('t', state.templateId);
   url.searchParams.set('s', String(state.seed));
   url.searchParams.delete('d');
+  if (difficultySelect.value) url.searchParams.set('level', difficultySelect.value);
+  else url.searchParams.delete('level');
   return url.href;
 }
 
@@ -632,6 +689,7 @@ fillSkills('');
 renderGlance();
 
 const params = new URLSearchParams(location.search);
+if (['1', '2', '3'].includes(params.get('level'))) difficultySelect.value = params.get('level');
 const requested = params.get('t');
 const template = requested ? listTemplates().find((t) => t.id === requested) : null;
 const requestedDomain = DOMAINS.find((d) => d.id === params.get('d'));
@@ -648,5 +706,6 @@ if (template) {
     fillSkills(requestedDomain.id);
   }
   draw();
+  note.textContent = 'That question link was not recognized, so here is a new one.';
   note.hidden = !requested;
 }
