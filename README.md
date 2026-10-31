@@ -32,7 +32,7 @@ Copy `src/questions/generators/algebra/linear-one-var.js`: choose the answer fir
 
 ## Deploy
 
-Cloudflare Pages builds `main` with no framework preset, build command `exit 0` and the repository root as the output directory. `_headers` sets the security headers and deliberately no `Cache-Control`: the modules are not fingerprinted, so revalidating on every visit keeps a deploy from mixing old and new files. `404.html` answers unknown paths. GitHub Pages mirrors the same commit at https://taruntejjjj.github.io/axiom-sat/, which is why `404.html` moves its base on that host.
+Cloudflare Pages builds `main` with no framework preset. The build command is `node tests/run.js && mkdir -p dist && cp -R index.html bank.html 404.html _headers assets src dist/` and the output directory is `dist`, so a failing test fails the build and the last good deploy stays live, and only the site's files are published. `_headers` sets the security headers and deliberately no `Cache-Control`: the modules are not fingerprinted, so revalidating on every visit keeps a deploy from mixing old and new files. `404.html` answers unknown paths. GitHub Pages mirrors the same commit at https://taruntejjjj.github.io/axiom-sat/, which is why `404.html` moves its base on that host.
 
 ## Roadmap
 
