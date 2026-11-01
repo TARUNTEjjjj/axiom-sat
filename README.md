@@ -6,7 +6,7 @@ Free, open-source SAT-style math practice with original generated questions, tim
 
 ## Project ownership and development
 
-Axiom is an independent project created and maintained by Tarun Tej. I planned the project and reviewed and tested the work myself. AI coding tools helped automate development.
+Axiom is an independent project created and maintained by Tarun Tej. I planned the project and reviewed and tested the work myself.
 
 The source and Git history are public, and the original code is [MIT licensed](LICENSE).
 
