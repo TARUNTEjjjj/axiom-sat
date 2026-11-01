@@ -4,6 +4,29 @@ Free, open-source SAT-style math practice with original generated questions, tim
 
 **[Open Axiom](https://axiom-sat.pages.dev/)** · [Practice](https://axiom-sat.pages.dev/practice) · [Question bank](https://axiom-sat.pages.dev/bank) · [Progress](https://axiom-sat.pages.dev/progress)
 
+## Project ownership and development
+
+Axiom is an independent project created and maintained by Tarun Tej. I planned the project and reviewed and tested the work myself.
+
+The source and Git history are public, and the original code is [MIT licensed](LICENSE).
+
+## Engineering overview
+
+The application separates question generation, practice-session state, learning history, and browser rendering. A template ID and seed reproduce an exact question; saved sessions preserve those identities, and imported progress is validated and regraded before being stored.
+
+| Layer | Languages and tools |
+| --- | --- |
+| Browser application | HTML, CSS, vanilla JavaScript ES modules and native Web APIs |
+| Local data | Browser `localStorage`, versioned JSON sessions and progress backups |
+| Tests and build | Node.js 20+, npm scripts, a custom JavaScript test harness and packaging script; CI uses Node.js 22 |
+| Local preview | Python 3 standard-library HTTP server |
+| Version control and CI | Git, GitHub and GitHub Actions |
+| Production hosting | Cloudflare Pages, serving the static `dist/` build |
+
+There are no npm package dependencies, frontend frameworks, application servers, databases, or AI model services in the application. JSON, YAML and Markdown provide data, workflow configuration and documentation. The `private: true` field in `package.json` prevents accidental npm-package publication; it does not control GitHub repository visibility.
+
+Read the [engineering notes](docs/engineering.md) for architecture, design tradeoffs, regression examples and proposed next work.
+
 ## What you can do
 
 - Explore 31 seeded question templates across Algebra, Advanced Math, Problem-Solving and Data Analysis, and Geometry and Trigonometry. Filter by domain, skill, and difficulty; share any exact question using its template and seed.
