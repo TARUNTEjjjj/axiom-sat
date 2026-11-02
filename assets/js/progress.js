@@ -202,9 +202,10 @@ function render() {
 $('export').addEventListener('click', () => {
   try {
     const url = URL.createObjectURL(new Blob([exportProgress()], { type: 'application/json' }));
+    const d = new Date();
     const anchor = el('a', {
       href: url,
-      download: `axiom-progress-${new Date().toISOString().slice(0, 10)}.json`,
+      download: `axiom-progress-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}.json`,
     });
     document.body.append(anchor);
     anchor.click();
