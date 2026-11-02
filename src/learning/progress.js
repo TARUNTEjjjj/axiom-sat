@@ -150,7 +150,8 @@ export function summarize(attempts) {
     domain.attempted++;
     domain.correct += Number(attempt.correct);
     correct += Number(attempt.correct);
-    const skill = skills.get(template.id) || {
+    const skillKey = `${template.domain}|${template.skill}`;
+    const skill = skills.get(skillKey) || {
       templateId: template.id,
       name: template.skill,
       domain: template.domain,
@@ -159,7 +160,7 @@ export function summarize(attempts) {
     };
     skill.attempted++;
     skill.correct += Number(attempt.correct);
-    skills.set(template.id, skill);
+    skills.set(skillKey, skill);
   }
   const weakest =
     [...skills.values()]
