@@ -696,7 +696,7 @@ function renderResults() {
         }),
         el('p', {
           class: 'muted',
-          text: `${sessionName(session)} · ${session.timed ? 'Timed' : 'Untimed'} · ${elapsed < 1 ? 'Less than a minute' : `${elapsed} minutes`}`,
+          text: `${sessionName(session)} · ${session.timed ? 'Timed' : 'Untimed'} · ${elapsed < 1 ? 'Less than a minute' : `${elapsed} minute${elapsed === 1 ? '' : 's'}`}`,
         }),
       ]),
       el('div', { class: 'practice-actions' }, [
@@ -710,7 +710,7 @@ function renderResults() {
               timerWarning = false;
               persist();
               renderActive(true);
-              live.textContent = `Untimed retry started with ${items.length} questions. First-attempt progress is preserved.`;
+              live.textContent = `Untimed retry started with ${items.length} question${items.length === 1 ? '' : 's'}. First-attempt progress is preserved.`;
             } catch (error) {
               live.textContent = error.message;
             }

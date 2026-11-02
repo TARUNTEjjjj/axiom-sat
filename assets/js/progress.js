@@ -148,7 +148,7 @@ function render() {
           value: percent,
           'aria-label': `${domain.name} first-attempt accuracy`,
           'aria-valuetext': domain.attempted
-            ? `${percent} percent from ${domain.attempted} attempts`
+            ? `${percent} percent from ${domain.attempted} attempt${domain.attempted === 1 ? '' : 's'}`
             : 'No attempts yet',
         }),
         el('a', {
