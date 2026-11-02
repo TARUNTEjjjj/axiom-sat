@@ -15,6 +15,7 @@ import {
   gradeSession,
   responseIsValid,
 } from '../../src/practice/session.js';
+import { parseSpr } from '../../src/questions/spr.js';
 
 const root = document.getElementById('practice-app');
 const status = document.getElementById('save-status');
@@ -333,7 +334,10 @@ function renderTable(table) {
             el(
               'tr',
               {},
-              row.map((text) => el('td', { text })),
+              // A first cell that is not a number labels its row, as in a two-way table.
+              row.map((text, i) =>
+                i === 0 && parseSpr(String(text)) === null ? el('th', { scope: 'row', text }) : el('td', { text }),
+              ),
             ),
           ),
         ),
@@ -605,6 +609,7 @@ function renderResults() {
   const review = el('div', { class: 'review-list', id: 'review-list' });
   const filters = el('div', {
     class: 'review-tools',
+    role: 'group',
     'aria-label': 'Filter answer review',
   });
   const filterNames = {
