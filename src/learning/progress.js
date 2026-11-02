@@ -66,13 +66,21 @@ export function normalizeAttempts(values, now = Date.now()) {
   return [...unique.values()].sort((a, b) => a.at - b.at).slice(-MAX_ATTEMPTS);
 }
 
-function decode(text, now) {
+// Records the app stored itself were checked when they were written. A device clock
+// that ran fast and was later corrected leaves them in the future, so reads clamp
+// those times to now instead of rejecting the whole history. Backups stay strict.
+function decode(text, now, clampStored = false) {
   if (typeof text !== 'string' || text.length > MAX_BACKUP_BYTES) throw new Error('Backup is too large.');
   const data = JSON.parse(text);
   if (!data || data.version !== 1 || !Array.isArray(data.attempts) || data.attempts.length > MAX_ATTEMPTS) {
     throw new Error('This is not an Axiom progress backup.');
   }
-  const attempts = normalizeAttempts(data.attempts, now);
+  const values = clampStored
+    ? data.attempts.map((value) =>
+        Number.isInteger(value?.at) ? { ...value, at: Math.min(value.at, now) } : value,
+      )
+    : data.attempts;
+  const attempts = normalizeAttempts(values, now);
   if (attempts.length !== data.attempts.length)
     throw new Error('Backup contains invalid or repeated questions.');
   return attempts;
@@ -82,7 +90,7 @@ export function readProgress(storage = defaultStorage(), now = Date.now()) {
   if (!storage) return { attempts: [], persisted: false, error: 'Browser storage is unavailable.' };
   try {
     const text = storage.getItem(PROGRESS_KEY);
-    return { attempts: text === null ? [] : decode(text, now), persisted: true };
+    return { attempts: text === null ? [] : decode(text, now, true), persisted: true };
   } catch {
     return {
       attempts: [],

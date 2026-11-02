@@ -200,6 +200,32 @@ test('progress exports and imports a versioned backup without losing first-attem
   assertEqual(readProgress(destination).attempts[0].correct, false);
 });
 
+test('progress stays readable and restorable after a fast device clock is corrected', () => {
+  const store = storage();
+  const realNow = Date.now;
+  const unstamped = (seed) => {
+    const value = attempt(seed);
+    delete value.at;
+    return value;
+  };
+  try {
+    Date.now = () => realNow() + 3_600_000;
+    for (const seed of [1, 2, 3]) assert(recordAttempt(unstamped(seed), store).recorded);
+    Date.now = realNow;
+    const saved = readProgress(store);
+    assert(saved.persisted, saved.error);
+    assertEqual(saved.attempts.length, 3);
+    assert(recordAttempt(unstamped(4), store).recorded);
+    const backup = exportProgress(store);
+    assertEqual(importProgress(backup, storage()).total, 4);
+    // Only the app's own store is clamped: an incoming backup from the future is still refused.
+    const ahead = JSON.stringify({ version: 1, attempts: [attempt(5, true, { at: realNow() + 3_600_000 })] });
+    assertThrows(() => importProgress(ahead, storage()));
+  } finally {
+    Date.now = realNow;
+  }
+});
+
 test('progress import rejects malformed, oversized, unsupported and unrecognized records atomically', () => {
   const store = storage();
   recordAttempt(attempt(), store);
