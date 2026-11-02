@@ -21,7 +21,7 @@ export default {
         difficulty: 3,
         stem: `The identity (${fmtLinear(1, p)})(${a}x² + bx + c) = ${right} is true for every real number x, where b, c, and k are constants. What is k?`,
         answer: sprNum(k),
-        explanation: `Match coefficients after expansion. The coefficient of x² is b + (${fmtNum(p)})(${a}) = ${fmtNum(d)}, so b = ${fmtNum(b)}. The constant term is (${fmtNum(p)})c = ${fmtNum(constant)}, so c = ${fmtNum(c)}. The coefficient of x is c + pb; therefore k = ${fmtNum(c)} + (${fmtNum(p)})(${fmtNum(b)}) = ${fmtNum(k)}. Matching the constant term first avoids expanding an expression with three unknowns.`,
+        explanation: `Match coefficients after expansion. The coefficient of x² is b + (${fmtNum(p)})(${a}) = ${fmtNum(d)}, so b = ${fmtNum(b)}. The constant term is (${fmtNum(p)})c = ${fmtNum(constant)}, so c = ${fmtNum(c)}. The coefficient of x is c + (${fmtNum(p)})b; therefore k = ${fmtNum(c)} + (${fmtNum(p)})(${fmtNum(b)}) = ${fmtNum(k)}. Matching the constant term first avoids expanding an expression with three unknowns.`,
       },
       params: { p, a, d, constant },
     };
