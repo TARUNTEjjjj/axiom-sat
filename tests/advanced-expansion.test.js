@@ -2,6 +2,7 @@ import { test, assert, assertEqual } from './harness.js';
 import { createRng } from '../src/questions/prng.js';
 import { isSprAnswer } from '../src/questions/schema.js';
 import { parseSpr } from '../src/questions/spr.js';
+import { fmtNum } from '../src/questions/format.js';
 import { generate, getTemplate } from '../src/questions/index.js';
 
 const IDS = [
@@ -123,4 +124,53 @@ test('circle challenges cover horizontal and vertical tangents on either side of
     variants.add(`${axis}:${Math.sign(t - center)}`);
   }
   assertEqual(variants.size, 4);
+});
+
+test('quadratic reconstructions never give the y-intercept itself as the second point', () => {
+  const template = getTemplate('advanced.quadratic-from-points');
+  for (let seed = 0; seed < 2000; seed++) {
+    const {
+      params: { h, x },
+    } = template.generate(createRng(seed));
+    assert(x !== 0 && x !== h, `seed ${seed}: the given point has x = ${x}`);
+  }
+});
+
+test('conditional probability work cross-multiplies the rate as printed, without restating a reduced fraction', () => {
+  const template = getTemplate('psda.conditional-probability');
+  for (let seed = 0; seed < 500; seed++) {
+    const { item } = template.generate(createRng(seed));
+    const [, num, den, left, right] = item.explanation.match(
+      /= (\d+)\/(\d+)\. Cross-multiplication gives \((\d+)\)\(\d+\) = \((\d+)\)/,
+    );
+    assertEqual(`${left}/${right}`, `${den}/${num}`, `seed ${seed}: ${item.explanation}`);
+    assert(!/(\d+\/\d+) = \1\./.test(item.explanation), `seed ${seed}: ${item.explanation}`);
+  }
+});
+
+test('polynomial identity work substitutes the factor constant rather than an undefined p', () => {
+  const template = getTemplate('advanced.polynomial-parameter');
+  for (let seed = 0; seed < 300; seed++) {
+    const {
+      item,
+      params: { p },
+    } = template.generate(createRng(seed));
+    assert(!item.explanation.includes('pb'), `seed ${seed}: ${item.explanation}`);
+    assert(item.explanation.includes(`c + (${fmtNum(p)})b`), `seed ${seed}: ${item.explanation}`);
+  }
+});
+
+test('nonlinear intercept work with a leading coefficient of 1 does not restate the squared equation', () => {
+  const template = getTemplate('advanced.nonlinear-models');
+  let checked = 0;
+  for (let seed = 0; seed < 2000; seed++) {
+    const {
+      item,
+      params: { ask, a },
+    } = template.generate(createRng(seed));
+    if (ask !== 'intercepts' || a !== 1) continue;
+    checked++;
+    assert(!/\(([^()]+)\)² = (\S+), so \(\1\)² = \2\b/.test(item.explanation), `seed ${seed}: ${item.explanation}`);
+  }
+  assert(checked > 0, 'no a = 1 intercept items were generated');
 });
