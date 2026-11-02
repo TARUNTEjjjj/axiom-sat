@@ -100,7 +100,7 @@ function tilt(wrapper, card) {
 function fillStats({ listTemplates, totalSpace, DOMAINS }) {
   const count = listTemplates().length;
   setStat('templates', String(count), count === 1 ? 'Question template' : 'Question templates');
-  // 28.1M+ fits the tile at every width; the exact lower bound lives on the bank page.
+  // 31.6M+ fits the tile at every width; the exact lower bound lives on the bank page.
   const compact = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 });
   setStat('space', compact.format(totalSpace()) + '+');
   setStat('domains', String(DOMAINS.length));
