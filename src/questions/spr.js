@@ -1,10 +1,19 @@
 // Checking what a student typed into a response box.
 
 const RESPONSE = /^-?(\d+\.?\d*|\.\d+|\d+\/\d+)$/;
+// Persist bounded editable drafts. Validate complete input rather than using a
+// native maxlength that can truncate a pasted fraction into a different number.
+export const MAX_SPR_INPUT_LENGTH = 32;
+
+// Whitespace around a fraction bar is harmless, but never join separate digits
+// ("1 2" must not become "12"). Share this rule across both answer-entry pages.
+export function normalizeSpr(input) {
+  return String(input).trim().replace(/−/g, '-').replace(/\s*\/\s*/g, '/');
+}
 
 // The numeric value of a typed response, or null when it is not a number.
 export function parseSpr(input) {
-  const text = String(input).trim().replace(/−/g, '-');
+  const text = normalizeSpr(input);
   if (!RESPONSE.test(text)) return null;
   if (text.includes('/')) {
     const [num, den] = text.split('/').map(Number);
@@ -20,7 +29,7 @@ export function parseSpr(input) {
 // or truncated to the decimal places the student typed, as the test allows for a
 // value that does not fit the box: .6666, .6667 and .667 all count for 2/3, .67 does not.
 export function sprEquals(input, answer) {
-  const text = String(input).trim().replace(/−/g, '-');
+  const text = normalizeSpr(input);
   if (text.replace(/^-/, '').length > 5) return false;
   const a = parseSpr(input);
   const b = parseSpr(answer);

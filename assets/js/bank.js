@@ -2,7 +2,7 @@
 // question, and the address bar (?t=<templateId>&s=<seed>) always points at the
 // question on screen, so any question can be linked to.
 
-import { parseSpr, sprEquals } from '../../src/questions/spr.js';
+import { normalizeSpr, parseSpr, sprEquals } from '../../src/questions/spr.js';
 import { MINUS } from '../../src/questions/format.js';
 import { recordAttempt } from '../../src/learning/progress.js';
 import { isSprAnswer } from '../../src/questions/schema.js';
@@ -408,14 +408,14 @@ function renderResponse(item) {
     class: 'spr-input',
     type: 'text',
     autocomplete: 'off',
-    maxlength: '6',
     'aria-describedby': 'spr-hint',
   });
   const check = el('button', { type: 'submit', class: 'btn btn-secondary', text: 'Check' });
+  const inputHint = 'Enter a number, a decimal or a fraction like 7/2';
   const hint = el('p', {
     id: 'spr-hint',
     class: 'small muted',
-    text: 'Enter a number, a decimal or a fraction like 7/2',
+    text: inputHint,
   });
   const response = el('form', { class: 'spr', novalidate: true }, [
     el('label', { class: 'spr-label', for: 'spr-input', text: 'Your answer' }),
@@ -423,12 +423,15 @@ function renderResponse(item) {
     hint,
   ]);
 
-  input.addEventListener('input', () => input.removeAttribute('aria-invalid'));
+  input.addEventListener('input', () => {
+    input.removeAttribute('aria-invalid');
+    hint.textContent = inputHint;
+  });
 
   response.addEventListener('submit', (event) => {
     event.preventDefault();
     if (state.graded) return;
-    const typed = input.value.replace(/\s+/g, '').replace(/−/g, '-');
+    const typed = normalizeSpr(input.value);
     if (!typed) {
       input.focus();
       return;
