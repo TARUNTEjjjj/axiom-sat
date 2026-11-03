@@ -1,4 +1,4 @@
-import { fmtFrac, sprFrac } from '../../format.js';
+import { fmtFrac, gcd, sprFrac } from '../../format.js';
 import { parseSpr } from '../../spr.js';
 
 export default {
@@ -16,6 +16,10 @@ export default {
     const c = numerator * scale;
     const missing = remainder * scale;
     const rate = fmtFrac(numerator, numerator + remainder);
+    // The rate is printed in lowest terms (2/4 as 1/2), so it is cross-multiplied that way too.
+    const g = gcd(numerator, numerator + remainder);
+    const raw = `${missing}/${b + missing}`;
+    const reduced = fmtFrac(missing, b + missing);
     return {
       item: {
         type: 'spr',
@@ -30,7 +34,7 @@ export default {
           ],
         },
         answer: sprFrac(missing, b + missing),
-        explanation: `Let x be the number of program B participants who did not complete the course. The given probability uses only program B: ${c}/(${c} + x) = ${rate}. Cross-multiplication gives (${numerator + remainder})(${c}) = (${numerator})(${c} + x), so x = ${missing}. For the requested probability, the sample space changes to all non-completers. There are ${b} + ${missing} = ${b + missing} of them, and ${missing} are in B. The probability is ${missing}/${b + missing} = ${fmtFrac(missing, b + missing)}.`,
+        explanation: `Let x be the number of program B participants who did not complete the course. The given probability uses only program B: ${c}/(${c} + x) = ${rate}. Cross-multiplication gives (${(numerator + remainder) / g})(${c}) = (${numerator / g})(${c} + x), so x = ${missing}. For the requested probability, the sample space changes to all non-completers. There are ${b} + ${missing} = ${b + missing} of them, and ${missing} are in B. The probability is ${reduced === raw ? raw : `${raw} = ${reduced}`}.`,
       },
       params: { a, b, c, rateNumerator: numerator, rateDenominator: numerator + remainder },
     };

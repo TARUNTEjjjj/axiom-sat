@@ -168,6 +168,26 @@ test('progress summary counts domains and recommends a skill with mistakes', () 
   assertEqual(summary.weakest.templateId, templateId);
 });
 
+test('progress summary recommends the weakest skill across all of its templates', () => {
+  const answered = (id, seed, correct) => {
+    const item = generate(id, seed);
+    const response = correct ? item.answer : ['A', 'B', 'C', 'D'].find((key) => key !== item.answer);
+    return { templateId: id, seed, response, at: now - 1000, source: 'bank' };
+  };
+  // Nonlinear functions spans two templates: 5 of 6 right overall, though 0 of 1 on function-values.
+  const values = normalizeAttempts([
+    ...[1, 2, 3, 4, 5].map((seed) => answered('advanced.nonlinear-models', seed, true)),
+    answered('advanced.function-values', 6, false),
+    answered('algebra.linear-functions', 7, true),
+    ...[8, 9, 10].map((seed) => answered('algebra.linear-functions', seed, false)),
+  ]);
+  assertEqual(values.length, 10);
+  const { weakest } = summarize(values);
+  assertEqual(weakest.name, 'Linear functions');
+  assertEqual(weakest.attempted, 4);
+  assertEqual(weakest.correct, 1);
+});
+
 test('progress exports and imports a versioned backup without losing first-attempt results', () => {
   const source = storage();
   const destination = storage();
@@ -178,6 +198,32 @@ test('progress exports and imports a versioned backup without losing first-attem
   assertEqual(merged.total, 2);
   assertEqual(merged.added, 1);
   assertEqual(readProgress(destination).attempts[0].correct, false);
+});
+
+test('progress stays readable and restorable after a fast device clock is corrected', () => {
+  const store = storage();
+  const realNow = Date.now;
+  const unstamped = (seed) => {
+    const value = attempt(seed);
+    delete value.at;
+    return value;
+  };
+  try {
+    Date.now = () => realNow() + 3_600_000;
+    for (const seed of [1, 2, 3]) assert(recordAttempt(unstamped(seed), store).recorded);
+    Date.now = realNow;
+    const saved = readProgress(store);
+    assert(saved.persisted, saved.error);
+    assertEqual(saved.attempts.length, 3);
+    assert(recordAttempt(unstamped(4), store).recorded);
+    const backup = exportProgress(store);
+    assertEqual(importProgress(backup, storage()).total, 4);
+    // Only the app's own store is clamped: an incoming backup from the future is still refused.
+    const ahead = JSON.stringify({ version: 1, attempts: [attempt(5, true, { at: realNow() + 3_600_000 })] });
+    assertThrows(() => importProgress(ahead, storage()));
+  } finally {
+    Date.now = realNow;
+  }
 });
 
 test('progress import rejects malformed, oversized, unsupported and unrecognized records atomically', () => {

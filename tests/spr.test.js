@@ -1,5 +1,20 @@
 import { test, assert, assertEqual } from './harness.js';
-import { parseSpr, sprEquals } from '../src/questions/spr.js';
+import { normalizeSpr, parseSpr, sprEquals } from '../src/questions/spr.js';
+
+test('fraction spacing is accepted without merging separate digits', () => {
+  assertEqual(normalizeSpr(' −1 / 2 '), '-1/2');
+  assertEqual(parseSpr('1 / 2'), 0.5);
+  assert(sprEquals('1 / 2', '.5'));
+  assert(sprEquals('12 / 34', '6/17'));
+  assert(!sprEquals('12 / 34', '4'));
+  const spaced = '12' + ' '.repeat(28) + '/34';
+  assert(sprEquals(spaced, '6/17'));
+  assert(!sprEquals(spaced, '4'));
+  for (const text of ['1 2', '1 2 / 3', '1 .5', '1 / 2 / 3']) {
+    assertEqual(parseSpr(normalizeSpr(text)), null);
+    assert(!sprEquals(text, '12'));
+  }
+});
 
 test('parseSpr reads integers, decimals and fractions', () => {
   assertEqual(parseSpr('12'), 12);

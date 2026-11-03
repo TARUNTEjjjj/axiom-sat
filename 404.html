@@ -42,6 +42,10 @@
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
+    <script>
+      // The <base> above would resolve #main to the home page; keep the skip link on this page.
+      document.querySelector('.skip-link').href = new URL('#main', location.href).href;
+    </script>
     <header class="nav">
       <div class="container nav-inner">
         <a class="wordmark" href="index.html"><span class="wordmark-dot" aria-hidden="true"></span>Axiom</a>

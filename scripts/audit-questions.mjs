@@ -9,6 +9,8 @@ import { parseSpr, sprEquals } from '../src/questions/spr.js';
 
 // Captured from release c7bf02c before adding challenge templates. Stable seeded
 // questions matter because saved sessions, progress and shared links refer to IDs.
+// The hash was re-baselined on 2026-11-03 for an explanation-only fix
+// (nonlinear-models a = 1 intercept steps; answers unchanged).
 const LEGACY_IDS = [
   'advanced.expressions',
   'advanced.function-values',
@@ -30,7 +32,7 @@ const LEGACY_IDS = [
   'psda.probability',
   'psda.ratios',
 ];
-const LEGACY_HASH = '63ec2ccd67e60e7d5b6d14fed60ec750173d2402070fa9591e9cd6f355f10d6d';
+const LEGACY_HASH = '6e6bdcd526e3b957a1c24e2f8e66695237c160cad15a7943fa5dfed381271479';
 const samples = Number(process.argv[2] ?? 5000);
 assert(
   Number.isInteger(samples) && samples >= 1 && samples <= 20000,

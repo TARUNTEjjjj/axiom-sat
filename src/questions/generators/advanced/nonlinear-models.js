@@ -163,8 +163,8 @@ function quadratic(rng) {
       : ask === 'extreme'
         ? `${square} Because a = ${fmtNum(a)} is ${opens}, ` +
           `so its ${a > 0 ? 'minimum' : 'maximum'} value is the y-coordinate of the vertex, ${fmtNum(k)}.`
-        : `${square} Set f(x) = 0: ${lead(a)}(${shifted})${sup(2)} = ${fmtNum(-k)}, so (${shifted})${sup(2)} = ${fmtNum(d * d)} ` +
-          `and ${shifted} = ${fmtNum(d)} or ${shifted} = ${fmtNum(-d)}, giving x = ${fmtNum(h + d)} or x = ${fmtNum(h - d)}. ` +
+        : `${square} Set f(x) = 0: ${lead(a)}(${shifted})${sup(2)} = ${fmtNum(-k)}${a === 1 ? ', so' : `, so (${shifted})${sup(2)} = ${fmtNum(d * d)} and`} ` +
+          `${shifted} = ${fmtNum(d)} or ${shifted} = ${fmtNum(-d)}, giving x = ${fmtNum(h + d)} or x = ${fmtNum(h - d)}. ` +
           `The x-intercepts are ${intercepts(h - d, h + d)}.`;
 
   // Intercepts take the most steps; otherwise a leading coefficient of ±1 is the easy case.

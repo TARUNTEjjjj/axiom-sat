@@ -2,7 +2,7 @@
 // Deadlines are wall-clock timestamps so a sleeping or reloaded tab cannot pause time.
 import { generate, listTemplates } from '../questions/index.js';
 import { createRng } from '../questions/prng.js';
-import { parseSpr, sprEquals } from '../questions/spr.js';
+import { MAX_SPR_INPUT_LENGTH, normalizeSpr, parseSpr, sprEquals } from '../questions/spr.js';
 
 // Keep the original key so existing learners can resume after a release.
 export const SESSION_KEY = 'axiom.practice.v1';
@@ -217,7 +217,7 @@ export function restoreSession(raw, now = Date.now()) {
       !value.responses.every(
         (response, i) =>
           typeof response === 'string' &&
-          response.length <= 6 &&
+          response.length <= MAX_SPR_INPUT_LENGTH &&
           (response === '' || (items[i].type === 'mc' ? /^[A-D]$/.test(response) : true)),
       )
     )
@@ -297,7 +297,7 @@ export function gradeSession(session) {
 
 export function responseIsValid(item, response) {
   if (typeof response !== 'string') return false;
-  const text = response.trim().replace(/−/g, '-');
+  const text = item.type === 'mc' ? response.trim() : normalizeSpr(response);
   if (!text) return true;
   if (item.type === 'mc') return /^[A-D]$/.test(text);
   return text.replace(/^-/, '').length <= 5 && text.length <= 6 && Number.isFinite(parseSpr(text));
