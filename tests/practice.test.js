@@ -115,7 +115,7 @@ test('session restore rejects forged identities, timing, indexes and answers', (
       s.questions.pop();
     },
     (s) => {
-      s.responses[0] = 'x'.repeat(7);
+      s.responses[0] = 'x'.repeat(33);
     },
     (s) => {
       s.responses = [];
@@ -157,11 +157,23 @@ test('grading separates unanswered from incorrect and checks numeric equivalence
 
 test('draft numeric responses need valid bounded notation before counting as answered', () => {
   const numeric = { type: 'spr' };
-  for (const input of ['', '3', '-3', '7/2', '.6667', '-.6667']) assert(responseIsValid(numeric, input));
-  for (const input of ['1/', '1/0', 'hello', 'Infinity', '123456', '-123456', '2+2'])
+  for (const input of ['', '3', '-3', '7/2', '1 / 2', '.6667', '-.6667']) assert(responseIsValid(numeric, input));
+  for (const input of ['1/', '1/0', 'hello', 'Infinity', '123456', '-123456', '2+2', '1 2', '1 2/3'])
     assert(!responseIsValid(numeric, input));
   assert(responseIsValid({ type: 'mc' }, 'A'));
   assert(!responseIsValid({ type: 'mc' }, 'E'));
+});
+
+test('spaced fractions and invalid longer drafts survive session restoration without truncation', () => {
+  const session = fresh({ mode: 'module' });
+  const index = sessionItems(session).findIndex((item) => item.type === 'spr');
+  for (const draft of ['12 / 34', '1234567']) {
+    session.responses[index] = draft;
+    const restored = restoreSession(JSON.stringify(session), NOW + 1000);
+    assert(restored);
+    assertEqual(restored.responses[index], draft);
+    assertEqual(responseIsValid({ type: 'spr' }, restored.responses[index]), draft === '12 / 34');
+  }
 });
 
 test('custom practice honors every domain, difficulty and length combination', () => {

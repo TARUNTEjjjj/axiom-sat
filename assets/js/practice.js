@@ -15,7 +15,7 @@ import {
   gradeSession,
   responseIsValid,
 } from '../../src/practice/session.js';
-import { parseSpr } from '../../src/questions/spr.js';
+import { MAX_SPR_INPUT_LENGTH, normalizeSpr, parseSpr } from '../../src/questions/spr.js';
 
 const root = document.getElementById('practice-app');
 const status = document.getElementById('save-status');
@@ -453,7 +453,6 @@ function renderActive(focus = false) {
     const input = el('input', {
       id: 'practice-response',
       type: 'text',
-      maxlength: '6',
       autocomplete: 'off',
       'aria-describedby': 'response-hint response-error',
     });
@@ -464,15 +463,22 @@ function renderActive(focus = false) {
       'aria-live': 'polite',
     });
     const validate = () => {
+      const tooLong = normalizeSpr(input.value).length > MAX_SPR_INPUT_LENGTH;
       const valid = responseIsValid(item, input.value);
       input.setAttribute('aria-invalid', String(!valid));
-      error.textContent = valid
+      error.textContent = tooLong
+        ? 'This draft is too long to save. Shorten it; this question is currently unanswered.'
+        : valid
         ? ''
         : 'Use a number or fraction, up to 5 characters plus a minus sign. Invalid entries remain unanswered.';
     };
     input.addEventListener('input', () => {
-      saveResponse(input.value);
-      if (input.hasAttribute('aria-invalid')) validate();
+      const draft = normalizeSpr(input.value);
+      // Never slice an answer: preserve the full visible draft, but clear its
+      // saved answer if too large so a previous answer cannot be graded instead.
+      const tooLong = draft.length > MAX_SPR_INPUT_LENGTH;
+      saveResponse(tooLong ? '' : draft);
+      if (tooLong || input.hasAttribute('aria-invalid')) validate();
     });
     input.addEventListener('blur', validate);
     card.append(
