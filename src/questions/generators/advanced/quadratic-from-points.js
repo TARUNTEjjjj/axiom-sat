@@ -5,12 +5,13 @@ export default {
   id: 'advanced.quadratic-from-points',
   domain: 'advanced',
   skill: 'Reconstructing quadratic functions',
-  space: 10 * 20 * 41 * 8,
+  space: 10 * 41 * (20 * 8 - 8), // a · k · (h, d) pairs, less the 8 that put the point on the y-axis
   generate(rng) {
     const a = rng.pick([-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]);
     const h = rng.nonzero(-10, 10);
     const k = rng.int(-20, 20);
-    const d = rng.int(1, 8);
+    let d = rng.int(1, 8);
+    while (h + d === 0) d = rng.int(1, 8); // a point at x = 0 would be the y-intercept itself
     const x = h + d;
     const y = a * d * d + k;
     const value = a * h * h + k;
