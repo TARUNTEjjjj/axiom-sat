@@ -16,6 +16,7 @@ import {
   responseIsValid,
 } from '../../src/practice/session.js';
 import { MAX_SPR_INPUT_LENGTH, normalizeSpr, parseSpr } from '../../src/questions/spr.js';
+import { subscribeSessionChanges } from '../../src/practice/sync.js';
 
 const root = document.getElementById('practice-app');
 const status = document.getElementById('save-status');
@@ -803,20 +804,12 @@ document.addEventListener('visibilitychange', () => {
   if (!document.hidden) tick();
 });
 window.addEventListener('pageshow', tick);
-window.addEventListener('storage', (event) => {
-  if (event.key !== SESSION_KEY && event.key !== null) return;
-  try {
-    if (event.storageArea !== localStorage) return;
-  } catch {
-    return;
-  }
+subscribeSessionChanges(window, () => localStorage, (next) => {
   // Revoke the old confirmation before adopting another tab's answers or a new
   // session. close() queues its event, so also discard the captured target.
   finishTarget = null;
   dialog.returnValue = 'external-change';
   if (dialog.open) dialog.close('external-change');
-  const next = restoreSession(event.newValue);
-  // A null key is localStorage.clear(), which also removes this session.
   session = next;
   items = next ? sessionItems(next) : [];
   timerWarning = false;
@@ -825,7 +818,7 @@ window.addEventListener('storage', (event) => {
   else if (next.finishedAt !== null) renderResults();
   else renderActive();
   live.textContent = 'Practice updated from another tab in this browser.';
-});
+}, storageWarning);
 try {
   restore();
   if (!session) renderSetup();
