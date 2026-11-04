@@ -1,7 +1,7 @@
 // Browser-local learning history. Only first attempts on the most recent 500
 // distinct template/seed pairs count; the answer is rechecked when data is read.
 import { DOMAINS, generate, getTemplate } from '../questions/index.js';
-import { parseSpr, sprEquals } from '../questions/spr.js';
+import { normalizeSpr, parseSpr, sprEquals } from '../questions/spr.js';
 import { isSprAnswer } from '../questions/schema.js';
 
 export const PROGRESS_KEY = 'axiom.progress.v1';
@@ -33,7 +33,7 @@ export function normalizeAttempt(value, now = Date.now()) {
   if (!['bank', 'practice'].includes(value.source)) return null;
   if (!Number.isInteger(value.at) || value.at < EARLIEST || value.at > now + 300_000) return null;
   if (typeof value.response !== 'string' || value.response.length > 64) return null;
-  const response = value.response.trim().replace(/−/g, '-');
+  const response = normalizeSpr(value.response);
   if (!response) return null;
   try {
     const item = generate(value.templateId, value.seed);
