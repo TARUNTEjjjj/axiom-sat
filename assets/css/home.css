@@ -305,9 +305,9 @@
   color: var(--ok);
 }
 
-/* Open source */
+/* Practice call to action */
 
-.oss-actions {
+.practice-cta {
   display: flex;
   justify-content: center;
   gap: 12px;

@@ -530,12 +530,6 @@ button {
   margin-inline: -6px;
 }
 
-@media (max-width: 640px) {
-  .nav-github {
-    display: none;
-  }
-}
-
 /* Keyboard skip link and compact navigation on every study page. */
 [hidden] {
   display: none !important;
@@ -576,9 +570,6 @@ button {
   .nav-links a {
     padding-inline: 3px;
     margin-inline: -3px;
-  }
-  .nav-github {
-    display: none;
   }
 }
 @media (max-width: 360px) {
