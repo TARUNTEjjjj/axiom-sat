@@ -14,6 +14,7 @@ import {
   gradeSession,
   responseIsValid,
 } from '../src/practice/session.js';
+import { MAX_SPR_INPUT_LENGTH } from '../src/questions/spr.js';
 
 const NOW = 1793520000000;
 const fresh = (options = {}) => createSession({ seed: 42, now: NOW, ...options });
@@ -115,7 +116,12 @@ test('session restore rejects forged identities, timing, indexes and answers', (
       s.questions.pop();
     },
     (s) => {
-      s.responses[0] = 'x'.repeat(33);
+      const i = sessionItems(s).findIndex((item) => item.type === 'spr');
+      s.responses[i] = '1'.repeat(MAX_SPR_INPUT_LENGTH + 1);
+    },
+    (s) => {
+      const i = sessionItems(s).findIndex((item) => item.type === 'mc');
+      s.responses[i] = 'E';
     },
     (s) => {
       s.responses = [];
