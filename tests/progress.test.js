@@ -100,6 +100,26 @@ test('progress student response normalization rejects invalid numbers and accept
   }
 });
 
+test('progress records a spaced fraction that practice graded correct, in canonical form', () => {
+  const store = storage();
+  const item = generate('psda.conditional-probability', 1);
+  assert(item.type === 'spr' && item.answer.includes('/'));
+  const value = {
+    templateId: item.templateId,
+    seed: item.seed,
+    response: item.answer.replace('/', ' / '),
+    at: now - 1000,
+    source: 'practice',
+  };
+  const saved = recordAttempt(value, store);
+  assert(saved.recorded && saved.persisted, JSON.stringify(saved));
+  const [stored] = readProgress(store).attempts;
+  assertEqual(stored.response, item.answer);
+  assertEqual(stored.correct, true);
+  // Spaces only collapse around a fraction bar; separate digits are still not an answer.
+  assertEqual(normalizeAttempt({ ...value, response: '1 2' }, now), null);
+});
+
 test('progress reports unavailable and throwing storage without breaking answer checking', () => {
   assert(!recordAttempt(attempt(), null).persisted);
   assert(!readProgress(null).persisted);
