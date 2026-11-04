@@ -1,6 +1,6 @@
 # Axiom SAT Math
 
-Free, open-source SAT-style math practice with original generated questions, timed sessions, worked review, and progress saved on your device. Plain HTML, CSS, and JavaScript; no runtime dependencies, account, or backend.
+Free SAT-style math practice with original generated questions, timed sessions, worked review, and progress saved on your device. Plain HTML, CSS, and JavaScript; no runtime dependencies, account, or backend.
 
 **[Open Axiom](https://axiom-sat.pages.dev/)** · [Practice](https://axiom-sat.pages.dev/practice) · [Question bank](https://axiom-sat.pages.dev/bank) · [Progress](https://axiom-sat.pages.dev/progress)
 
@@ -8,7 +8,7 @@ Free, open-source SAT-style math practice with original generated questions, tim
 
 Axiom is an independent project created and maintained by Tarun Tej. I planned the project and reviewed and tested the work myself.
 
-The source and Git history are public, and the original code is [MIT licensed](LICENSE).
+The source repository and Git history are private. The learning website remains publicly available on Cloudflare Pages; browser-delivered HTML, CSS, and JavaScript remain inspectable. The original code retains its [MIT license](LICENSE).
 
 ## Engineering overview
 
@@ -71,7 +71,9 @@ Cloudflare Pages project **axiom-sat** deploys `main` using:
 | Output directory  | `dist`          |
 | Production branch | `main`          |
 
-A failed test or missing release asset fails the build, keeping the last good deployment live. `_headers` sets basic security headers. Scripts are not fingerprinted, so Cloudflare's default revalidation behavior is retained. `404.html` handles missing paths, including when the site is mirrored under `/axiom-sat/` on GitHub Pages.
+A failed test or missing release asset fails the build, keeping the last good deployment live. `_headers` sets basic security headers. Scripts are not fingerprinted, so Cloudflare's default revalidation behavior is retained. `404.html` handles missing paths.
+
+Cloudflare's GitHub integration must retain access to this private repository for automatic builds. The canonical website is **https://axiom-sat.pages.dev/**. The former `taruntejjjj.github.io/axiom-sat/` redirect is retired: GitHub Free does not serve Pages from private repositories. Use the Cloudflare address in bookmarks and shared links.
 
 ## Project map
 
