@@ -1,5 +1,5 @@
 import { DOMAINS } from '../../src/questions/index.js';
-import { recordAttempt } from '../../src/learning/progress.js';
+import { recordAttempts } from '../../src/learning/progress.js';
 import {
   SESSION_KEY,
   MODES,
@@ -586,23 +586,17 @@ function answerLabel(item, response) {
 }
 function saveFinishedProgress(result) {
   if (session.progressSaved) return;
-  let savedAll = true;
-  for (const row of result.rows) {
-    if (!row.response) continue;
-    try {
-      const saved = recordAttempt({
-        templateId: row.item.templateId,
-        seed: row.item.seed,
-        response: row.response,
-        correct: row.correct,
-        source: 'practice',
-        at: session.finishedAt,
-      });
-      if (!saved.persisted) savedAll = false;
-    } catch {
-      savedAll = false;
-    }
-  }
+  const attempts = result.rows.filter(row => row.response).map(row => ({
+    templateId: row.item.templateId,
+    seed: row.item.seed,
+    response: row.response,
+    source: 'practice',
+    at: session.finishedAt,
+  }));
+  let savedAll = !attempts.length;
+  try {
+    if (attempts.length) savedAll = recordAttempts(attempts).persisted;
+  } catch { savedAll = false; }
   // Keep results even when progress storage fails. A reload retries only the
   // incomplete write; duplicate attempts are idempotent in the progress store.
   session.progressSaved = savedAll;

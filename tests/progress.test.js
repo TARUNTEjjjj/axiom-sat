@@ -7,6 +7,7 @@ import {
   normalizeAttempt,
   normalizeAttempts,
   recordAttempt,
+  recordAttempts,
   readProgress,
   summarize,
   clearProgress,
@@ -286,4 +287,51 @@ test('reset deletes only Axiom progress and reports failed deletion', () => {
       },
     }),
   );
+});
+
+
+test('a completed session validates history and writes its first attempts only once', () => {
+  const store = storage();
+  recordAttempt(attempt(10, false), store);
+  let reads = 0, writes = 0;
+  const counted = { getItem(key) { reads++; return store.getItem(key); }, setItem(key, value) { writes++; store.setItem(key, value); } };
+  const batch = [attempt(10, true), attempt(11, false), attempt(11, true), attempt(12, true)];
+  const result = recordAttempts(batch, counted);
+  assertEqual(result.recorded, 2); assert(result.persisted);
+  assertEqual(reads, 1); assertEqual(writes, 1);
+  const saved = readProgress(store).attempts;
+  assertEqual(saved.length, 3);
+  assertEqual(saved.find(a => a.seed === 10).correct, false);
+  assertEqual(saved.find(a => a.seed === 11).correct, false);
+  assertEqual(saved.find(a => a.seed === 12).correct, true);
+  assertEqual(recordAttempts(batch, counted).recorded, 0);
+  assertEqual(writes, 1, 'an exact retry does not rewrite history');
+});
+
+test('batch validation and failed storage never commit a partial practice session', () => {
+  const store = storage(); recordAttempt(attempt(10), store);
+  const original = store.getItem(PROGRESS_KEY);
+  for (const invalid of [null, [], Array(1), Array.from({ length: 23 }, (_, i) => attempt(i + 30)), [attempt(11), { templateId: 'missing' }]]) {
+    assert(!recordAttempts(invalid, store).persisted);
+    assertEqual(store.getItem(PROGRESS_KEY), original);
+  }
+  const failed = { getItem: store.getItem, setItem() { throw new Error('QuotaExceeded'); } };
+  assert(!recordAttempts([attempt(11), attempt(12)], failed).persisted);
+  assertEqual(store.getItem(PROGRESS_KEY), original);
+  assertEqual(recordAttempts([attempt(11), attempt(12)], store).recorded, 2);
+  store.setItem(PROGRESS_KEY, '{');
+  assert(!recordAttempts([attempt(13)], store).persisted);
+  assertEqual(store.getItem(PROGRESS_KEY), '{');
+});
+
+test('a full 22-answer batch retains the latest 500 first attempts without mutating its inputs', () => {
+  const store = storage();
+  const old = Array.from({ length: 500 }, (_, i) => normalizeAttempt(attempt(i, true, { at: now - 10000 + i })));
+  store.setItem(PROGRESS_KEY, JSON.stringify({ version: 1, attempts: old }));
+  const batch = Array.from({ length: 22 }, (_, i) => attempt(i + 500, true, { source: 'practice' }));
+  const original = JSON.stringify(batch);
+  assertEqual(recordAttempts(batch, store).recorded, 22);
+  const saved = readProgress(store).attempts;
+  assertEqual(saved.length, 500); assertEqual(saved[0].seed, 22); assertEqual(saved.at(-1).seed, 521);
+  assertEqual(JSON.stringify(batch), original);
 });

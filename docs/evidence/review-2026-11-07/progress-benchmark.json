@@ -1,0 +1,224 @@
+{
+  "method": "Alternating Node-only completion persistence, 5 warmups and 20 samples per version. Each starts with the same 500 validated history records and stores 22 new answers. Excludes browser DOM and real disk latency; uses an in-memory localStorage adapter. Full persisted JSON must match.",
+  "node": "v26.13.0",
+  "baselineCommit": "d9dc64326b647e49f9b183ad84aa8c88d9f2b4bb",
+  "exactPersistedJSONMatch": true,
+  "before": {
+    "medianMs": 326.0725419999999,
+    "p95Ms": 346.83504200000016,
+    "reads": 22,
+    "writes": 22
+  },
+  "after": {
+    "medianMs": 7.888374999999996,
+    "p95Ms": 8.086833999999726,
+    "reads": 1,
+    "writes": 1
+  },
+  "samples": {
+    "before": [
+      {
+        "ms": 317.92841599999997,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 346.83504200000016,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 322.24741700000004,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 320.1233750000001,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 319.74166600000035,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 318.8475410000001,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 321.2710000000002,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 317.84666600000037,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 318.81987500000014,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 322.60725,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 333.5931250000003,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 332.8481249999995,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 354.4685420000005,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 328.5848329999999,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 330.128291,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 325.4810830000006,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 328.07574999999997,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 335.59833400000025,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 327.93270799999937,
+        "reads": 22,
+        "writes": 22
+      },
+      {
+        "ms": 326.0725419999999,
+        "reads": 22,
+        "writes": 22
+      }
+    ],
+    "after": [
+      {
+        "ms": 7.597709000000123,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 7.814707999999882,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 7.834374999999909,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 7.773667000000387,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 7.888374999999996,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 7.674708999999893,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 7.705500000000029,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 7.6849169999995866,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 8.239458000000013,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 8.065458000000035,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 7.816667000000052,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 7.702124999999796,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 8.086833999999726,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 7.9696670000003,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 8.016167000000678,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 7.985041999999339,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 7.896541999999499,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 7.900540999999976,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 7.935542000001078,
+        "reads": 1,
+        "writes": 1
+      },
+      {
+        "ms": 7.784375000001091,
+        "reads": 1,
+        "writes": 1
+      }
+    ]
+  }
+}

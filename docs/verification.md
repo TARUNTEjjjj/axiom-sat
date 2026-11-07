@@ -1,3 +1,15 @@
+# Code and persistence review — 7 November 2026 (India Standard Time)
+
+- **230/230 tests pass**, followed by a production build containing all five public pages and validated local dependencies. No npm runtime dependencies are declared.
+- Completing a 22-question session previously revalidated and rewrote the bounded 500-answer history once per answer. Practice now validates the batch and existing history once, keeps the original first attempts, and commits one storage update. The single-answer question-bank API retains its behavior.
+- New regressions cover one-read/one-write completion, existing and within-batch duplicate answers, exact retries, invalid/oversized/sparse batches, failed writes, corrupted saved history, the 500-record limit and caller-input immutability. An invalid batch or failed write does not leave a partly saved session; its result remains available for retry.
+- An alternating Node-only persistence benchmark (5 warmups, 20 samples per version, 500 stored records plus 22 new answers) measured median **326.07 ms → 7.89 ms** and p95 **346.84 ms → 8.09 ms**, with identical final JSON. Storage calls dropped from 22 reads/writes to one each. [Measurements](evidence/review-2026-11-07/progress-benchmark.json) use an in-memory adapter and exclude browser rendering and real disk latency; they are not Web Vitals or physical-device measurements.
+- A fresh deep mathematical audit passed **155,124 generated items** across 31 templates, including uint32 boundary seeds, plus **3,800 unchanged published identities**. It checked deterministic generation, schemas, generator verification, finite parameters, exact-answer grading and numeric-choice uniqueness. [Audit output](evidence/review-2026-11-07/question-audit.json). Generator source and published question identities were not changed by the persistence optimization.
+
+Browser and hosted verification are recorded separately during release. These checks do not certify psychometric calibration, every device/browser, or concurrent-user capacity. The historical release notes below describe their original versions.
+
+---
+
 # Release verification — v0.3.0, 1 November 2026 (IST)
 
 ## Automated checks

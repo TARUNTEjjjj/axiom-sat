@@ -1,0 +1,349 @@
+{
+  "passed": true,
+  "templates": 31,
+  "generatedItemsChecked": 155124,
+  "legacyItemsUnchanged": 3800,
+  "summary": [
+    {
+      "template": "algebra.linear-one-var",
+      "checked": 5004,
+      "distinctStems": 4960,
+      "levels": {
+        "1": 306,
+        "2": 1606,
+        "3": 3092
+      },
+      "numericChoiceChecks": 5004
+    },
+    {
+      "template": "algebra.linear-functions",
+      "checked": 5004,
+      "distinctStems": 4471,
+      "levels": {
+        "1": 1027,
+        "2": 2704,
+        "3": 1273
+      },
+      "numericChoiceChecks": 1422
+    },
+    {
+      "template": "algebra.line-two-points",
+      "checked": 5004,
+      "distinctStems": 4945,
+      "levels": {
+        "1": 1212,
+        "2": 2237,
+        "3": 1555
+      },
+      "numericChoiceChecks": 1681
+    },
+    {
+      "template": "algebra.systems",
+      "checked": 5004,
+      "distinctStems": 5003,
+      "levels": {
+        "1": 1518,
+        "2": 2753,
+        "3": 733
+      },
+      "numericChoiceChecks": 0
+    },
+    {
+      "template": "algebra.inequalities",
+      "checked": 5004,
+      "distinctStems": 4324,
+      "levels": {
+        "1": 581,
+        "2": 2396,
+        "3": 2027
+      },
+      "numericChoiceChecks": 0
+    },
+    {
+      "template": "algebra.system-parameter",
+      "checked": 5004,
+      "distinctStems": 5000,
+      "levels": {
+        "1": 0,
+        "2": 0,
+        "3": 5004
+      },
+      "numericChoiceChecks": 0
+    },
+    {
+      "template": "advanced.expressions",
+      "checked": 5004,
+      "distinctStems": 4203,
+      "levels": {
+        "1": 2728,
+        "2": 930,
+        "3": 1346
+      },
+      "numericChoiceChecks": 1249
+    },
+    {
+      "template": "advanced.quadratic-roots",
+      "checked": 5004,
+      "distinctStems": 3972,
+      "levels": {
+        "1": 1317,
+        "2": 2449,
+        "3": 1238
+      },
+      "numericChoiceChecks": 0
+    },
+    {
+      "template": "advanced.line-parabola",
+      "checked": 5004,
+      "distinctStems": 4835,
+      "levels": {
+        "1": 882,
+        "2": 1690,
+        "3": 2432
+      },
+      "numericChoiceChecks": 3323
+    },
+    {
+      "template": "advanced.nonlinear-models",
+      "checked": 5004,
+      "distinctStems": 3662,
+      "levels": {
+        "1": 1799,
+        "2": 2377,
+        "3": 828
+      },
+      "numericChoiceChecks": 833
+    },
+    {
+      "template": "advanced.function-values",
+      "checked": 5004,
+      "distinctStems": 3470,
+      "levels": {
+        "1": 832,
+        "2": 2019,
+        "3": 2153
+      },
+      "numericChoiceChecks": 5004
+    },
+    {
+      "template": "advanced.discriminant-parameter",
+      "checked": 5004,
+      "distinctStems": 3170,
+      "levels": {
+        "1": 0,
+        "2": 0,
+        "3": 5004
+      },
+      "numericChoiceChecks": 0
+    },
+    {
+      "template": "advanced.root-relationships",
+      "checked": 5004,
+      "distinctStems": 4503,
+      "levels": {
+        "1": 0,
+        "2": 0,
+        "3": 5004
+      },
+      "numericChoiceChecks": 0
+    },
+    {
+      "template": "advanced.rational-equations",
+      "checked": 5004,
+      "distinctStems": 3819,
+      "levels": {
+        "1": 0,
+        "2": 0,
+        "3": 5004
+      },
+      "numericChoiceChecks": 0
+    },
+    {
+      "template": "advanced.radical-equations",
+      "checked": 5004,
+      "distinctStems": 2363,
+      "levels": {
+        "1": 0,
+        "2": 0,
+        "3": 5004
+      },
+      "numericChoiceChecks": 0
+    },
+    {
+      "template": "advanced.exponential-observations",
+      "checked": 5004,
+      "distinctStems": 4360,
+      "levels": {
+        "1": 0,
+        "2": 0,
+        "3": 5004
+      },
+      "numericChoiceChecks": 0
+    },
+    {
+      "template": "advanced.quadratic-from-points",
+      "checked": 5004,
+      "distinctStems": 4817,
+      "levels": {
+        "1": 0,
+        "2": 0,
+        "3": 5004
+      },
+      "numericChoiceChecks": 0
+    },
+    {
+      "template": "advanced.polynomial-parameter",
+      "checked": 5004,
+      "distinctStems": 4846,
+      "levels": {
+        "1": 0,
+        "2": 0,
+        "3": 5004
+      },
+      "numericChoiceChecks": 0
+    },
+    {
+      "template": "advanced.nonlinear-system-sum",
+      "checked": 5004,
+      "distinctStems": 4944,
+      "levels": {
+        "1": 0,
+        "2": 0,
+        "3": 5004
+      },
+      "numericChoiceChecks": 0
+    },
+    {
+      "template": "psda.ratios",
+      "checked": 5004,
+      "distinctStems": 4523,
+      "levels": {
+        "1": 980,
+        "2": 2480,
+        "3": 1544
+      },
+      "numericChoiceChecks": 4836
+    },
+    {
+      "template": "psda.percentages",
+      "checked": 5004,
+      "distinctStems": 4305,
+      "levels": {
+        "1": 1250,
+        "2": 2489,
+        "3": 1265
+      },
+      "numericChoiceChecks": 1250
+    },
+    {
+      "template": "psda.center",
+      "checked": 5004,
+      "distinctStems": 5004,
+      "levels": {
+        "1": 851,
+        "2": 1648,
+        "3": 2505
+      },
+      "numericChoiceChecks": 0
+    },
+    {
+      "template": "psda.probability",
+      "checked": 5004,
+      "distinctStems": 4137,
+      "levels": {
+        "1": 1994,
+        "2": 1020,
+        "3": 1990
+      },
+      "numericChoiceChecks": 5004
+    },
+    {
+      "template": "psda.linear-model",
+      "checked": 5004,
+      "distinctStems": 4204,
+      "levels": {
+        "1": 716,
+        "2": 1816,
+        "3": 2472
+      },
+      "numericChoiceChecks": 0
+    },
+    {
+      "template": "psda.conditional-probability",
+      "checked": 5004,
+      "distinctStems": 4954,
+      "levels": {
+        "1": 0,
+        "2": 0,
+        "3": 5004
+      },
+      "numericChoiceChecks": 0
+    },
+    {
+      "template": "geometry.area-volume",
+      "checked": 5004,
+      "distinctStems": 3366,
+      "levels": {
+        "1": 792,
+        "2": 3212,
+        "3": 1000
+      },
+      "numericChoiceChecks": 2254
+    },
+    {
+      "template": "geometry.angles-triangles",
+      "checked": 5004,
+      "distinctStems": 4152,
+      "levels": {
+        "1": 1250,
+        "2": 2489,
+        "3": 1265
+      },
+      "numericChoiceChecks": 5004
+    },
+    {
+      "template": "geometry.right-triangles",
+      "checked": 5004,
+      "distinctStems": 3139,
+      "levels": {
+        "1": 597,
+        "2": 2215,
+        "3": 2192
+      },
+      "numericChoiceChecks": 0
+    },
+    {
+      "template": "geometry.circles",
+      "checked": 5004,
+      "distinctStems": 2602,
+      "levels": {
+        "1": 1279,
+        "2": 2476,
+        "3": 1249
+      },
+      "numericChoiceChecks": 1263
+    },
+    {
+      "template": "geometry.circle-tangency",
+      "checked": 5004,
+      "distinctStems": 4707,
+      "levels": {
+        "1": 0,
+        "2": 0,
+        "3": 5004
+      },
+      "numericChoiceChecks": 0
+    },
+    {
+      "template": "geometry.similar-solids",
+      "checked": 5004,
+      "distinctStems": 4954,
+      "levels": {
+        "1": 0,
+        "2": 0,
+        "3": 5004
+      },
+      "numericChoiceChecks": 0
+    }
+  ]
+}

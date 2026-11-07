@@ -101,21 +101,39 @@ export function readProgress(storage = defaultStorage(), now = Date.now()) {
   }
 }
 
-export function recordAttempt(value, storage = defaultStorage()) {
-  const attempt = normalizeAttempt(value && { ...value, at: value.at ?? Date.now() });
-  if (!attempt) return { recorded: false, persisted: false, reason: 'invalid' };
-  const saved = readProgress(storage);
-  if (!saved.persisted) return { recorded: false, persisted: false, reason: 'storage' };
-  if (saved.attempts.some((a) => key(a) === key(attempt))) {
-    return { recorded: false, persisted: true, reason: 'duplicate' };
+// A completed practice session has at most 22 questions. Validate once and
+// persist once instead of regenerating the 500-entry history for every answer.
+export function recordAttempts(values, storage = defaultStorage()) {
+  if (!Array.isArray(values) || !values.length || values.length > 22)
+    return { recorded: 0, persisted: false, reason: 'invalid' };
+  const now = Date.now();
+  const incoming = Array.from(values, value => normalizeAttempt(value && { ...value, at: value.at ?? now }, now));
+  if (incoming.some(attempt => !attempt))
+    return { recorded: 0, persisted: false, reason: 'invalid' };
+  const saved = readProgress(storage, now);
+  if (!saved.persisted) return { recorded: 0, persisted: false, reason: 'storage' };
+  const seen = new Set(saved.attempts.map(key));
+  const added = [];
+  for (const attempt of incoming) {
+    if (seen.has(key(attempt))) continue;
+    seen.add(key(attempt));
+    added.push(attempt);
   }
+  if (!added.length) return { recorded: 0, persisted: true, reason: 'duplicate' };
   try {
-    const attempts = normalizeAttempts([...saved.attempts, attempt]);
+    // Both collections are already validated and keys are distinct. Existing
+    // first attempts win; a retry cannot revise their answers or accuracy.
+    const attempts = [...saved.attempts, ...added].sort((a, b) => a.at - b.at).slice(-MAX_ATTEMPTS);
     storage.setItem(PROGRESS_KEY, JSON.stringify({ version: 1, attempts }));
-    return { recorded: true, persisted: true };
+    return { recorded: added.length, persisted: true };
   } catch {
-    return { recorded: false, persisted: false, reason: 'storage' };
+    return { recorded: 0, persisted: false, reason: 'storage' };
   }
+}
+
+export function recordAttempt(value, storage = defaultStorage()) {
+  const result = recordAttempts([value], storage);
+  return { ...result, recorded: result.recorded > 0 };
 }
 
 export function clearProgress(storage = defaultStorage()) {
