@@ -15,9 +15,50 @@ import {
   responseIsValid,
 } from '../src/practice/session.js';
 import { MAX_SPR_INPUT_LENGTH } from '../src/questions/spr.js';
+import { recordAttempts, readProgress } from '../src/learning/progress.js';
 
 const NOW = 1793520000000;
 const fresh = (options = {}) => createSession({ seed: 42, now: NOW, ...options });
+
+test('an incomplete numeric draft is skipped without losing other completed answers', () => {
+  const session = fresh();
+  const items = sessionItems(session);
+  const invalid = items.findIndex(item => item.type === 'spr');
+  const valid = items.findIndex((item, index) => index !== invalid);
+  session.responses[invalid] = '1/';
+  session.responses[valid] = items[valid].answer;
+  const result = gradeSession(session);
+  assertEqual(result.rows[invalid].status, 'skipped');
+  assertEqual(result.rows[invalid].response, '');
+  assertEqual(session.responses[invalid], '1/');
+  const values = new Map();
+  const storage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
+  const saved = recordAttempts(result.rows.filter(row => row.response).map(row => ({
+    templateId: row.item.templateId, seed: row.item.seed, response: row.response, source: 'practice',
+  })), storage);
+  assertEqual(saved.recorded, 1);
+  assert(saved.persisted);
+  assertEqual(readProgress(storage).attempts.length, 1);
+});
+
+test('session domain results count correct, incorrect and skipped responses independently', () => {
+  const session = fresh();
+  const items = sessionItems(session);
+  session.responses = items.map((item, index) => index % 3 === 0 ? item.answer : '');
+  const result = gradeSession(session);
+  assertEqual(result.domains.reduce((sum, domain) => sum + domain.total, 0), result.total);
+  assertEqual(result.domains.reduce((sum, domain) => sum + domain.correct, 0), result.correct);
+  assertEqual(result.domains.reduce((sum, domain) => sum + domain.skipped, 0), result.skipped);
+  for (const domain of result.domains) {
+    const matching = result.rows.filter(row => row.item.domain === domain.domain);
+    assertEqual(domain.total, matching.length);
+    assertEqual(domain.correct, matching.filter(row => row.correct).length);
+    assertEqual(domain.incorrect + domain.correct + domain.skipped, domain.total);
+  }
+  const custom = gradeSession(fresh({mode: 'custom', custom: {domain: 'algebra', difficulty: 0, count: 5}}));
+  assertEqual(custom.domains.length, 1);
+  assertEqual(custom.domains[0].domain, 'algebra');
+});
 
 test('practice generates deterministic, distinct, difficulty-ordered questions', () => {
   for (const mode of Object.keys(MODES)) {
