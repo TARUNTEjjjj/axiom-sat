@@ -275,7 +275,10 @@ export function finishSession(session, now = Date.now()) {
 
 export function gradeSession(session) {
   const rows = sessionItems(session).map((item, i) => {
-    const response = session.responses[i].trim();
+    // An incomplete numeric draft is unanswered, as shown by the navigator.
+    // Passing it to the progress batch would reject every valid answer too.
+    const draft = session.responses[i].trim();
+    const response = responseIsValid(item, draft) ? draft : '';
     const correct =
       response !== '' && (item.type === 'mc' ? response === item.answer : sprEquals(response, item.answer));
     return {
@@ -288,6 +291,16 @@ export function gradeSession(session) {
   });
   return {
     rows,
+    domains: DOMAINS.map(domain => {
+      const matching = rows.filter(row => row.item.domain === domain);
+      return {
+        domain,
+        total: matching.length,
+        correct: matching.filter(row => row.correct).length,
+        incorrect: matching.filter(row => row.status === 'incorrect').length,
+        skipped: matching.filter(row => row.status === 'skipped').length,
+      };
+    }).filter(domain => domain.total > 0),
     correct: rows.filter((row) => row.correct).length,
     incorrect: rows.filter((row) => row.status === 'incorrect').length,
     skipped: rows.filter((row) => row.status === 'skipped').length,

@@ -766,6 +766,13 @@ function renderResults() {
           ? 'This retry shows how you did on the same questions. Your first-attempt progress stays unchanged for previously answered questions; answering a previously skipped question records its first attempt.'
           : 'Session accuracy includes skipped questions. Retry missed questions to practice the exact problems again. Progress records only your first answer to each unique question, so retries do not inflate it.',
     }),
+    el('h3', { class: 'subtitle', text: 'Your results by domain' }),
+    el('ul', { class: 'domain-results' }, result.domains.map(result =>
+      el('li', {}, [
+        el('strong', { text: `${DOMAINS.find(domain => domain.id === result.domain).name}: ` }),
+        el('span', { text: `${result.correct}/${result.total} correct · ${result.incorrect} incorrect · ${result.skipped} skipped` }),
+      ]),
+    )),
     el('h3', { class: 'subtitle', text: 'Review the reasoning' }),
     filters,
     review,

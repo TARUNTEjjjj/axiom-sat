@@ -35,6 +35,7 @@ Read the [engineering notes](docs/engineering.md) for architecture, design trade
 - Build a **custom 5-, 10-, or 20-question set** for one domain or all four, with Foundation, Standard, Challenge, or mixed difficulty. The optional custom timer allows two minutes per question. Setup choices are remembered on this browser.
 - Change answers, flag questions, and use the question navigator. Sessions resume after a reload; a timed session keeps counting while the page is closed.
 - Review correct, incorrect, skipped, and flagged questions with the full worked reasoning after finishing.
+- See a session breakdown by domain to decide where to focus next. Incomplete numeric drafts count as skipped and never prevent other valid answers from saving to progress.
 - Retry the exact missed and skipped questions in an untimed session. Answers and flags start fresh; prior first-attempt history stays intact. A previously skipped question records its first attempt when answered.
 - Track first-attempt accuracy by domain, find a skill to practice next, and revisit missed questions. Duplicate attempts do not inflate your numbers.
 - Download and restore a progress backup. History retains the first attempt on each of the latest 500 distinct template/seed pairs.
