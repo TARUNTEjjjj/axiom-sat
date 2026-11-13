@@ -8,7 +8,7 @@ Free SAT-style math practice with original generated questions, timed sessions, 
 
 Axiom is an independent project created and maintained by Tarun Tej. I planned the project and reviewed and tested the work myself.
 
-The source repository and Git history are private. The learning website remains publicly available on Cloudflare Pages; browser-delivered HTML, CSS, and JavaScript remain inspectable. The original code retains its [MIT license](LICENSE).
+The source repository and Git history are public. The learning website remains publicly available on Cloudflare Pages; browser-delivered HTML, CSS, and JavaScript remain inspectable. The original code retains its [MIT license](LICENSE).
 
 ## Engineering overview
 
@@ -74,7 +74,7 @@ Cloudflare Pages project **axiom-sat** deploys `main` using:
 
 A failed test or missing release asset fails the build, keeping the last good deployment live. `_headers` sets basic security headers. Scripts are not fingerprinted, so Cloudflare's default revalidation behavior is retained. `404.html` handles missing paths.
 
-Cloudflare's GitHub integration must retain access to this private repository for automatic builds. The canonical website is **https://axiom-sat.pages.dev/**. The former `taruntejjjj.github.io/axiom-sat/` redirect is retired: GitHub Free does not serve Pages from private repositories. Use the Cloudflare address in bookmarks and shared links.
+Cloudflare's GitHub integration must retain access to this repository for automatic builds. The canonical website is **https://axiom-sat.pages.dev/**. The former `taruntejjjj.github.io/axiom-sat/` redirect is retired: GitHub Free does not serve Pages from private repositories. Use the Cloudflare address in bookmarks and shared links.
 
 ## Project map
 
