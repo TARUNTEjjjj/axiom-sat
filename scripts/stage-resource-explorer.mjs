@@ -35,9 +35,15 @@ export async function stageResourceExplorer(root, output) {
   await mkdir(output, {recursive: true});
   for (const [file, bytes] of inputs) await writeFile(resolve(output, file), bytes);
 }
+export async function stageRootOfflineWorker(root, outputRoot) {
+  const worker = await readFile(resolve(root, 'offline-resources-worker.js'));
+  await mkdir(outputRoot, {recursive: true});
+  await writeFile(resolve(outputRoot, 'offline-resources-worker.js'), worker);
+}
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
   const target = process.argv[2];
   if (!['public/resources', 'dist/resources'].includes(target)) throw new Error('Choose public/resources or dist/resources');
   await stageResourceExplorer(root, resolve(root, target));
+  await stageRootOfflineWorker(root, resolve(root, dirname(target)));
 }

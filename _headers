@@ -1,9 +1,11 @@
 # Cloudflare Pages response headers.
-# There are deliberately no Cache-Control rules: the scripts and stylesheets are not
-# fingerprinted, so the Pages default (revalidate on every visit) keeps a deploy from
-# mixing old and new modules in one visitor's browser.
+# Scripts and stylesheets use the Pages default revalidation policy because
+# their paths are not fingerprinted. The root recovery worker is also revalidated.
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+/offline-resources-worker.js
+  Cache-Control: no-cache

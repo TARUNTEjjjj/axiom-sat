@@ -1,5 +1,30 @@
 export const RESOURCE_SCOPE = '/resources/';
 export const RESOURCE_WORKER = '/resources/offline-worker.js';
+export const ROOT_OFFLINE_WORKER = '/offline-resources-worker.js';
+
+/** Add navigation recovery only after the resource shell has been prepared. */
+export async function ensureRootOfflineFallback({serviceWorker = globalThis.navigator?.serviceWorker,
+  origin = globalThis.location?.origin, timeoutMs = 10000} = {}) {
+  if (!serviceWorker || !origin || !Number.isFinite(timeoutMs) || timeoutMs <= 0 || timeoutMs > 30000) return {registered: false};
+  let timer, expired = false;
+  const script = new URL(ROOT_OFFLINE_WORKER, origin).href, scope = new URL('/', origin).href;
+  const operation = (async () => {
+    const existing = await serviceWorker.getRegistration(scope);
+    if (expired) return {registered: false};
+    const workers = existing ? [existing.active, existing.installing, existing.waiting].filter(Boolean) : [];
+    if (existing && (existing.scope !== scope || !workers.length || workers.some(worker => worker.scriptURL !== script))) {
+      return {registered: false, reason: 'The application already has its own offline worker.'};
+    }
+    const registration = await serviceWorker.register(script, {scope: '/', updateViaCache: 'none'});
+    return {registered: registration.scope === scope, scope};
+  })();
+  try {
+    return await Promise.race([operation, new Promise(resolve => {
+      timer = setTimeout(() => { expired = true; resolve({registered: false, reason: 'Offline startup preparation timed out.'}); }, timeoutMs);
+    })]);
+  } catch { return {registered: false, reason: 'Offline startup could not be prepared.'}; }
+  finally { clearTimeout(timer); }
+}
 
 /** Register only the library scope, including when called from the main app. */
 export async function ensureOfflineShell({serviceWorker = globalThis.navigator?.serviceWorker,
