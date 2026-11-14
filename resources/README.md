@@ -51,3 +51,11 @@ A service worker scoped to `/resources/` saves the resource-library page and its
 After an online visit finishes preparing the resource library, installed-app startup can recover from an unavailable main page. A separate root navigation worker first tries the requested page, then redirects to `/resources/` if the network fails or the request does not respond within four seconds. The resource library opens its saved collection; the full main application still needs its normal online assets. Normal HTTP responses, including not-found pages, remain unchanged.
 
 This fallback does not cache application pages or API responses and leaves existing application storage alone. It is registered only when no other root worker exists, or when updating this same fallback worker. Browser storage can still be cleared or evicted; complete the first online preparation before relying on offline startup.
+
+### Application updates
+
+Published pages include a source-content version. While an app window is open, it checks `/app-version.json` at startup and every 15 minutes. When a newer release is available, it prepares the verified resource shell and waits for a quiet moment before reloading. Every open window on the same site must report that reloading is safe; older windows that cannot report readiness defer activation until closed. Edited fields, open dialogs, and active learning work also defer updates. Return to the home or overview page after saving work to let a pending update finish.
+
+Updates preserve the saved resource catalog in IndexedDB. The resource worker retains the previous shell cache while switching versions; it does not clear learner data or download arbitrary repository code. Offline windows keep their current version and saved resources until a later successful update check.
+
+Application-version checks also resume when the app regains focus, becomes visible, or reconnects. Focus checks are throttled to one per minute, including after a failed request. Going back to a cached page resumes its updater, and another window activating a release triggers a fresh check. These checks keep the same safeguards for unsaved work and offline collections.

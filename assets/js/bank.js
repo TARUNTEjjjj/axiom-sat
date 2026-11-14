@@ -8,6 +8,8 @@ import { recordAttempt } from '../../src/learning/progress.js';
 import { isSprAnswer } from '../../src/questions/schema.js';
 
 const MAX_SEED = 2 ** 31 - 1;
+// Question-bank answers and reveal state are intentionally kept in this page.
+window.appUpdateCanReload = () => false;
 const KEYS = ['A', 'B', 'C', 'D'];
 const DIGITS = ['1', '2', '3', '4'];
 const grouped = new Intl.NumberFormat('en-US');

@@ -27,6 +27,8 @@ let items = [];
 let reviewFilter = 'all';
 let timerWarning = false;
 let persistWarning = false;
+// Preserve active sessions and any unconfirmed persistence until the learner leaves.
+window.appUpdateCanReload = () => !session && !persistWarning;
 let finishTarget = null;
 const el = (tag, attrs = {}, children = []) => {
   const node = document.createElement(tag);
