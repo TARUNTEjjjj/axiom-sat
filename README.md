@@ -102,3 +102,7 @@ The site links to College Board, Khan Academy and Desmos; those services have th
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for generator invariants, useful feature work, and release checks. Original source is [MIT licensed](LICENSE). Axiom is not affiliated with or endorsed by College Board.
+
+## GitHub resource collection
+
+Explore the project-specific [resource catalog](resources/README.md): curated references, star-ranked discovery, dated source metadata, cached failure recovery and an optional read-only server API. The repository includes a daily refresh workflow; hosted sites still follow their existing deployment process.

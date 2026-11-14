@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "project": "axiom-sat",
+  "title": "Axiom SAT learning resources",
+  "minStars": 500,
+  "maxPerCategory": 12,
+  "categories": [
+    {
+      "id": "mathematics",
+      "title": "Mathematics and visualization",
+      "queries": [
+        "topic:mathematics"
+      ],
+      "seeds": [
+        "sympy/sympy",
+        "3b1b/manim"
+      ]
+    },
+    {
+      "id": "practice",
+      "title": "Practice and explanations",
+      "queries": [
+        "topic:math-education"
+      ],
+      "seeds": [
+        "3b1b/manim",
+        "TheAlgorithms/Python"
+      ]
+    }
+  ]
+}
