@@ -3,7 +3,7 @@ import { cp, mkdir, readFile, rm, stat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve, dirname } from 'node:path';
 
-import {stageResourceExplorer} from './stage-resource-explorer.mjs';
+import {stageResourceExplorer, stageRootOfflineWorker} from './stage-resource-explorer.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const output = resolve(root, 'dist');
@@ -23,6 +23,7 @@ await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 for (const file of publicFiles) await cp(resolve(root, file), resolve(output, file), { recursive: true });
 await stageResourceExplorer(root, resolve(output, 'resources'));
+await stageRootOfflineWorker(root, output);
 // Verify local links, stylesheets, scripts and imported modules in the release itself.
 const { readdir } = await import('node:fs/promises');
 async function walk(directory) {
