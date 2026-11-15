@@ -1,5 +1,5 @@
 import { TIMES, fmtComma, gcd } from '../../format.js';
-import { makeChoices, pickDistractors } from '../../choices.js';
+import { makeChoices, notARun, pickDistractors } from '../../choices.js';
 import { answerText } from '../../schema.js';
 
 // Two quantities in a fixed ratio n : d. One pair (d·m1 of the first, n·m1 of the
@@ -220,7 +220,8 @@ export default {
     // group is a single unit). A slip more than a factor of 10 from the answer is
     // dropped as implausible. Gaps are filled two, then three, groups away on a
     // randomly chosen side, so the choices do not form a run of consecutive
-    // numbers around the answer.
+    // numbers around the answer. Slips can still crowd a small answer from below
+    // (5, 4 and 3 under 6), so the last distractor may not complete a run either.
     const step = Math.max(reverse ? d : n, 2);
     const side = rng.sign();
     const plausible = (v) => (v >= 1 && 10 * v >= answer && v <= 10 * answer ? v : NaN);
@@ -232,6 +233,7 @@ export default {
       [...slips.map(plausible), plausible(answer + side * step)],
       3,
       (k) => plausible(answer + side * step * (k > 0 ? k + 1 : k - 1)),
+      notARun(answer),
     );
     const { choices, answer: key } = makeChoices(rng, fmtComma(answer), distractors.map(fmtComma));
 

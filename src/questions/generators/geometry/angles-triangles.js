@@ -1,5 +1,5 @@
 import { fmtLinear, fmtNum, fmtTerm, DEGREES, MINUS, TIMES } from '../../format.js';
-import { makeChoices, pickDistractors } from '../../choices.js';
+import { makeChoices, notARun, pickDistractors } from '../../choices.js';
 import { answerText } from '../../schema.js';
 
 const TRIANGLES = ['ABC', 'DEF', 'PQR', 'XYZ', 'JKL', 'RST'];
@@ -234,8 +234,10 @@ export default {
     const kind = rng.pick(KINDS);
     const { stem, value, slips, step, ok = positive, explanation, params } = VARIANTS[kind](rng);
     // Which three slips appear is left to chance, so the answer is not pinned to
-    // one position among the sorted choices.
-    const distractors = pickDistractors(value, rng.shuffle(slips), 3, filler(value, step, ok));
+    // one position among the sorted choices. Two slips can land just above the
+    // answer, where the filler next to them closes a run of four, so the last
+    // distractor may not complete one.
+    const distractors = pickDistractors(value, rng.shuffle(slips), 3, filler(value, step, ok), notARun(value));
     const { choices, answer } = makeChoices(rng, fmtNum(value), distractors.map(fmtNum));
 
     // The plain angle sum is 1; isosceles and similar triangles add one

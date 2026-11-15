@@ -8,14 +8,21 @@ export default {
   id: 'algebra.linear-one-var',
   domain: 'algebra',
   skill: 'Linear equations in one variable',
-  space: 25 * 18 * 16 * 41, // x · a · c · b ranges below; d is determined by them
+  // x · a · c · b ranges below; d is determined by them. The 25 equations x = n
+  // that are written another way are outnumbered by the 17th value of c when
+  // a = ±9, so this stays a lower bound.
+  space: 25 * 18 * 16 * 41,
 
   generate(rng) {
     const x = rng.int(-12, 12);
     const a = rng.nonzero(-9, 9);
     let c = rng.int(-8, 8);
     while (c === a) c = rng.int(-8, 8); // a ≠ c keeps exactly one solution
-    const b = rng.int(-20, 20);
+    // With a = 1, c = 0 and b = 0 the stem would read "If x = n", stating its own
+    // answer. It reads x − n = 0 instead (x + 1 = 1 when n is 0) without another
+    // draw, so the key keeps its letter and the choices keep their values.
+    const drawn = rng.int(-20, 20);
+    const b = a === 1 && c === 0 && drawn === 0 ? (x === 0 ? 1 : -x) : drawn;
     const d = a * x + b - c * x;
 
     const stem = `If ${fmtLinear(a, b)} = ${fmtLinear(c, d)}, what is the value of x?`;

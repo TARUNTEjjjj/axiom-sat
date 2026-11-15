@@ -1,6 +1,6 @@
 import { test, assert, assertEqual, assertThrows } from './harness.js';
 import { createRng } from '../src/questions/prng.js';
-import { makeChoices, pickDistractors } from '../src/questions/choices.js';
+import { makeChoices, notARun, offCenter, pickDistractors } from '../src/questions/choices.js';
 
 test('makeChoices labels A–D and points at the correct text', () => {
   const { choices, answer } = makeChoices(createRng(1), '12', ['10', '14', '6']);
@@ -21,6 +21,16 @@ test('pickDistractors uses candidates first and skips the correct value and repe
 test('pickDistractors ignores non-finite candidates and fills from the fallback', () => {
   assertEqual(JSON.stringify(pickDistractors(5, [NaN, Infinity, -5])), '[-5,6,4]');
   assertEqual(JSON.stringify(pickDistractors(5, [], 2, (k) => 5 * (k + 1))), '[10,0]');
+});
+
+test('pickDistractors passes over a value that breaks a rule and keeps looking', () => {
+  // 5 would complete the run 2, 3, 4, 5; 9 does not.
+  assertEqual(JSON.stringify(pickDistractors(2, [3, 4, 5, 9])), '[3,4,5]');
+  assertEqual(JSON.stringify(pickDistractors(2, [3, 4, 5, 9], 3, undefined, notARun(2))), '[3,4,9]');
+  // 4 and 1 mirror 6 and 9 about 5, which would leave 5 in the middle of evenly spaced values.
+  assertEqual(JSON.stringify(pickDistractors(5, [6, 4, 9, 1], 3, undefined, offCenter(5))), '[6,9,7]');
+  // Gap fillers obey the rules too: 24, 23 and 28 are passed over for 25.
+  assertEqual(JSON.stringify(pickDistractors(25, [], 3, undefined, offCenter(25), notARun(25))), '[26,27,22]');
 });
 
 test('pickDistractors never returns the correct value', () => {

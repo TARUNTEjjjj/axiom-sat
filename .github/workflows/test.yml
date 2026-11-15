@@ -16,3 +16,5 @@ jobs:
         with:
           node-version: 22
       - run: npm run build
+      # Fails if a published question changed without a documented re-baseline.
+      - run: npm run audit:questions

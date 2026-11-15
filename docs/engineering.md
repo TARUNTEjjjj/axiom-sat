@@ -20,7 +20,7 @@ flowchart LR
 - [Session model](../src/practice/session.js): creates, restores, grades and finishes sessions. It accepts an explicit clock value for deterministic timing tests.
 - [Progress model](../src/learning/progress.js): validates and regrades attempts, keeps bounded first-attempt history, and merges backups.
 - [Browser controllers](../assets/js/): render those models, handle forms and keyboard interaction, persist sessions, and display storage failures.
-- [Build script](../scripts/build.mjs): copies an explicit public-file list into `dist/` and rejects missing local dependencies. GitHub Actions runs the test-gated build on pushes and pull requests; Cloudflare Pages uses the same build command for deployment.
+- [Build script](../scripts/build.mjs): copies an explicit public-file list into `dist/` and rejects missing local dependencies. GitHub Actions runs the test-gated build and the question audit on pushes and pull requests; Cloudflare Pages uses the same build command for deployment.
 
 ## Design decisions and their costs
 
@@ -34,11 +34,11 @@ Progress belongs to a browser origin and does not automatically sync across devi
 
 A template ID and seed identify an exact item. This supports shareable links, reproducible failures and lightweight saved sessions. Generation uses ordinary mathematical code, rather than a model API.
 
-Changing a generator can change old links and saved answers. The release audit therefore checks fingerprints of previously published items, and session migration preserves stored question identities when the catalog expands. A large parameter space gives many numerical variations; it is not the same as that many distinct concepts or independently authored exercises.
+Changing a generator can change old links and saved answers. The release audit therefore checks fingerprints of previously published items from every template, and session migration preserves stored question identities when the catalog expands. A large parameter space gives many numerical variations; it is not the same as that many distinct concepts or independently authored exercises.
 
 ### First attempts and practice retries have different purposes
 
-The first recorded valid attempt for a template/seed pair contributes to progress while that question remains in the retained history. Practice answers can change before a session finishes; finishing records the graded attempts. Retrying a retained question helps practice without replacing the original result. History is bounded to 500 distinct questions, and overlapping backups keep the earliest attempt.
+The first recorded valid attempt at a question contributes to progress while that question remains in the retained history. Records are kept per template/seed pair, but two seeds that give the same stem, data and correct answer are the same question, so a repeat under another seed is not a new first attempt. Practice answers can change before a session finishes; finishing records the graded attempts. A retry stores which of its questions were answered before and records a first attempt only for one that was skipped, so retrying helps practice without replacing the original result, even one that progress could not save. History is bounded to 500 distinct questions, and overlapping backups keep the earliest attempt.
 
 This makes the displayed accuracy interpretable, but it is not an adaptive mastery model or a prediction of an official SAT score. A learner can improve on a retry without changing the first-attempt percentage.
 

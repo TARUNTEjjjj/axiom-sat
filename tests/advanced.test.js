@@ -112,3 +112,30 @@ test('function-values: table inputs are consecutive and every lookup lands in th
     }
   }
 });
+
+test('function-values: g(x) = −x + n applied to 0 is worked as 0, never a negative zero', () => {
+  let checked = 0;
+  for (let seed = 0; seed < 2000; seed++) {
+    const { item, params } = functionValues.generate(createRng(seed));
+    if (params.kind === 'table') continue;
+    const { m, p, k, a, xs, fv } = params;
+    // The value g is applied to: p or f(p) with two formulas, a or f(a) with a table.
+    let input;
+    if (params.kind === 'formulas') input = params.order === 'fg' ? p : p * p - k;
+    else input = params.ask === 'fg' ? a : fv[xs.indexOf(a)];
+    if (m === -1 && input === 0) checked++;
+    assert(!/−0(?![\d.])/.test(JSON.stringify(item)), `seed ${seed}: ${item.explanation}`);
+  }
+  assert(checked > 0, 'no item applied g(x) = −x + n to 0');
+});
+
+test('function-values: a step that is already its value is not repeated', () => {
+  // Before, seed 1073 read "Then g(6) = −6 = −6" and seed 1664 "Then g(3) = 3 = 3".
+  let checked = 0;
+  for (let seed = 0; seed < 2000; seed++) {
+    const { item, params } = functionValues.generate(createRng(seed));
+    if (params.kind === 'mixed' && params.n === 0 && Math.abs(params.m) === 1) checked++;
+    assert(!/g\(−?\d+\) = (−?\d+) = \1\b/.test(item.explanation), `seed ${seed}: ${item.explanation}`);
+  }
+  assert(checked > 0, 'no item applied g(x) = ±x');
+});

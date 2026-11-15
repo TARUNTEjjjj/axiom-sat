@@ -6,6 +6,8 @@ import { MAX_SPR_INPUT_LENGTH, normalizeSpr, parseSpr, sprEquals } from '../ques
 
 // Keep the original key so existing learners can resume after a release.
 export const SESSION_KEY = 'axiom.practice.v1';
+// The last setup chosen on the practice page. Like the session, a progress reset keeps it.
+export const SETTINGS_KEY = 'axiom.practice.settings.v1';
 export const MODES = Object.freeze({
   sprint: {
     name: 'Quick sprint',
@@ -132,24 +134,30 @@ export function sessionItems(session) {
 }
 
 // Retry uses the exact missed identities, not new questions with similar stems.
-// It does not erase the first-attempt history kept by the progress module.
+// It does not erase the first-attempt history kept by the progress module. It notes
+// which questions were answered before, in the source or in a retry before it: their
+// first attempts were made then, even when progress could not save them, so only a
+// question skipped so far can add one (progressAttempts).
 export function createRetrySession(source, now = Date.now()) {
   const clean = restoreSession(JSON.stringify(source), now);
   if (!clean || clean.finishedAt === null || !validTime(now))
     throw new Error('Finish a session before retrying');
-  const items = gradeSession(clean)
-    .rows.filter((row) => !row.correct)
-    .map((row) => row.item);
-  if (!items.length) throw new Error('There are no missed questions to retry');
-  return newSession({
-    mode: 'retry',
-    seed: clean.seed,
-    timed: false,
-    now,
-    custom: null,
-    minutes: null,
-    items,
-  });
+  const missed = gradeSession(clean)
+    .rows.map((row, i) => ({ ...row, before: row.response !== '' || clean.answeredBefore?.[i] === true }))
+    .filter((row) => !row.correct);
+  if (!missed.length) throw new Error('There are no missed questions to retry');
+  return {
+    ...newSession({
+      mode: 'retry',
+      seed: clean.seed,
+      timed: false,
+      now,
+      custom: null,
+      minutes: null,
+      items: missed.map((row) => row.item),
+    }),
+    answeredBefore: missed.map((row) => row.before),
+  };
 }
 
 // Validate stored identities instead of regenerating the set from today's
@@ -163,8 +171,11 @@ export function restoreSession(raw, now = Date.now()) {
       return null;
     const fixed = Object.hasOwn(MODES, value.mode);
     if (!fixed && (value.version !== 2 || !['custom', 'retry'].includes(value.mode))) return null;
-    if (!validTime(value.startedAt) || value.startedAt > now + 60000 || now - value.startedAt > MAX_AGE)
-      return null;
+    // A clock that ran fast and was set back leaves a session that started, or
+    // finished, ahead of now. Its answers are still the learner's, so keep it. One
+    // that is unfinished cannot have started yet, so it starts now (below) with its
+    // full time instead of a deadline that is further away than its length.
+    if (!validTime(value.startedAt) || now - value.startedAt > MAX_AGE) return null;
     if (typeof value.timed !== 'boolean' || typeof value.expired !== 'boolean') return null;
     if (value.progressSaved != null && typeof value.progressSaved !== 'boolean') return null;
     if (value.mode === 'custom' && (!value.custom || typeof value.custom !== 'object')) return null;
@@ -223,10 +234,7 @@ export function restoreSession(raw, now = Date.now()) {
     )
       return null;
     if (!value.flags.every((flag) => typeof flag === 'boolean')) return null;
-    if (
-      value.finishedAt !== null &&
-      (!validTime(value.finishedAt) || value.finishedAt < value.startedAt || value.finishedAt > now + 60000)
-    )
+    if (value.finishedAt !== null && (!validTime(value.finishedAt) || value.finishedAt < value.startedAt))
       return null;
     if (value.expired && (!value.timed || value.finishedAt !== deadline)) return null;
     if (
@@ -240,11 +248,19 @@ export function restoreSession(raw, now = Date.now()) {
       mode: value.mode,
       seed: value.seed,
       timed: value.timed,
-      now: value.startedAt,
+      now: value.finishedAt === null ? Math.min(value.startedAt, now) : value.startedAt,
       custom,
       minutes,
       items,
     });
+    // A retry's note of the questions answered before it (createRetrySession). Retries
+    // saved without one, by earlier releases, restore as they were. The note only limits
+    // what progress records, so one that cannot be used is dropped, never the session.
+    const noted =
+      value.mode === 'retry' &&
+      Array.isArray(value.answeredBefore) &&
+      value.answeredBefore.length === count &&
+      value.answeredBefore.every((answered) => typeof answered === 'boolean');
     return {
       ...clean,
       index: value.index,
@@ -253,14 +269,19 @@ export function restoreSession(raw, now = Date.now()) {
       finishedAt: value.finishedAt,
       expired: value.expired,
       progressSaved: value.progressSaved === true,
+      ...(noted ? { answeredBefore: [...value.answeredBefore] } : {}),
     };
   } catch {
     return null;
   }
 }
 
+// A clock set back during a session cannot add to its length: no time counts as
+// used before the start, so at most the full time remains.
 export function remainingSeconds(session, now = Date.now()) {
-  return session.timed ? Math.max(0, Math.ceil((session.deadline - now) / 1000)) : null;
+  return session.timed
+    ? Math.max(0, Math.ceil((session.deadline - Math.max(now, session.startedAt)) / 1000))
+    : null;
 }
 
 export function finishSession(session, now = Date.now()) {
@@ -306,6 +327,21 @@ export function gradeSession(session) {
     skipped: rows.filter((row) => row.status === 'skipped').length,
     total: rows.length,
   };
+}
+
+// The answers a finished session adds to progress (recordAttempts). A retry adds only
+// those to questions skipped before it: an answered one had its first attempt then,
+// and a retry answer must not take its place even if progress never saved it.
+export function progressAttempts(session, result = gradeSession(session)) {
+  return result.rows
+    .filter((row, i) => row.response && !session.answeredBefore?.[i])
+    .map((row) => ({
+      templateId: row.item.templateId,
+      seed: row.item.seed,
+      response: row.response,
+      source: 'practice',
+      at: session.finishedAt,
+    }));
 }
 
 export function responseIsValid(item, response) {

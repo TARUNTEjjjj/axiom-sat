@@ -38,7 +38,7 @@ Read the [engineering notes](docs/engineering.md) for architecture, design trade
 - See a session breakdown by domain to decide where to focus next. Incomplete numeric drafts count as skipped and never prevent other valid answers from saving to progress.
 - Retry the exact missed and skipped questions in an untimed session. Answers and flags start fresh; prior first-attempt history stays intact. A previously skipped question records its first attempt when answered.
 - Track first-attempt accuracy by domain, find a skill to practice next, and revisit missed questions. Duplicate attempts do not inflate your numbers.
-- Download and restore a progress backup. History retains the first attempt on each of the latest 500 distinct template/seed pairs.
+- Download and restore a progress backup. History retains the first attempt on each of the latest 500 distinct template/seed pairs. When another seed gives the same question again (the same stem, data and correct answer), only the first attempt counts.
 
 These are independent, non-adaptive practice sessions, not an official SAT test. Accuracy is not a predicted SAT score or a calibrated mastery estimate. The 35-minute module timing follows [College Board's published structure](https://satsuite.collegeboard.org/sat/whats-on-the-test/structure); questions and difficulty ratings are Axiom's own. Use [Bluebook](https://satsuite.collegeboard.org/practice/practice-tests/bluebook) for official full-length practice.
 
@@ -59,9 +59,9 @@ Open `http://localhost:8787/`. To work directly on the source, use `npm run serv
 
 `npm test` runs the same dependency-free test list as `tests/run.html`. The generator suite checks every template over 400 seeds. The challenge suite includes separate mathematical audits using enumeration, elimination, interpolation, and geometric relationships. Tests also cover numeric response rounding, difficulty filters, every custom setup combination, legacy-session migration, retries, timed-session restore, grading, corrupted storage, deduplication, and atomic backup import.
 
-`npm run audit:questions` performs the deeper release audit: 5,004 seeds per template, numeric-choice equivalence, schema and deterministic-answer checks, plus fingerprints of 3,800 previously published questions. See [release verification](docs/verification.md) for the tested scope and limits.
+`npm run audit:questions` performs the deeper release audit: 5,004 seeds per template, numeric-choice equivalence, schema and deterministic-answer checks, plus fingerprints of 6,200 previously published questions (seeds 0–199 of every template). See [release verification](docs/verification.md) for the tested scope and limits.
 
-`npm run build` first runs the tests, then `scripts/build.mjs` packages an explicit public-file list and checks local page/module references. Tests, Git metadata, and local tooling are excluded from `dist/`. GitHub Actions runs this build on every push and pull request.
+`npm run build` first runs the tests, then `scripts/build.mjs` packages an explicit public-file list and checks local page/module references. Tests, Git metadata, and local tooling are excluded from `dist/`. GitHub Actions runs this build, then the question audit, on every push and pull request.
 
 Cloudflare Pages project **axiom-sat** deploys `main` using:
 

@@ -1,3 +1,13 @@
+# Grading and question changes — 15 November 2026 (India Standard Time)
+
+These corrections change what some learners see. Saved sessions, history and backups from earlier releases still load, and nothing in them is discarded.
+
+- **Grid-in decimals follow the fourth-digit rule.** A decimal answer that doesn't fit the box must fill all four digit places, as in College Board's example of .6667 or 0.667 for 2/3; .667 is no longer accepted. Saved history and finished sessions are regraded whenever they are read, so a three-digit answer such as .412 for 7/17 that an earlier release marked correct now counts as incorrect, and first-attempt accuracy can drop. The bank and practice hints state the rule, and the feedback says when a right decimal needs more digits.
+- **Some published questions offer different wrong answers.** Distractor-only fixes remove a key between two evenly spaced choices, a choice next to the key, four consecutive choices and a 0π choice. Over random seeds this changes about 3% of linear-functions items, 0.5% of circles items, 3 in 10,000 ratios items and 1 in 10,000 angles items; among seeds 0–199 it changes linear-functions seeds 5, 30, 53, 125, 134, 135, 162, 167 and 173 and circles seed 99. Every key and its letter are unchanged, so saved answers grade the same, but a saved wrong letter on a changed question now names a different value in review. The audit fingerprint was re-baselined for these seeds.
+- **A few stems and worked solutions read differently.** About 1 in 10,000 linear-one-var stems and 2 in 10,000 inequalities stems no longer state their own answer (for about one linear-one-var draw in 300,000, the same four choices also change letters), and some function-values and quadratic-from-points solutions no longer write "−0", "+ 0" or a step that repeats its value. Answers are unchanged.
+
+---
+
 # Code and persistence review — 7 November 2026 (India Standard Time)
 
 - **230/230 tests pass**, followed by a production build containing all five public pages and validated local dependencies. No npm runtime dependencies are declared.

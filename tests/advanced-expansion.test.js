@@ -136,6 +136,23 @@ test('quadratic reconstructions never give the y-intercept itself as the second 
   }
 });
 
+test('quadratic reconstructions leave a zero vertex constant out of the working', () => {
+  const template = getTemplate('advanced.quadratic-from-points');
+  let checked = 0;
+  for (let seed = 0; seed < 2000; seed++) {
+    const {
+      item,
+      params: { k },
+    } = template.generate(createRng(seed));
+    if (k === 0) checked++;
+    assert(
+      !/[+−] \(?0\)?(?!\d|\.\d)/.test(item.explanation),
+      `seed ${seed}: a zero term is written out: ${item.explanation}`,
+    );
+  }
+  assert(checked > 0, 'no k = 0 items were generated');
+});
+
 test('conditional probability work cross-multiplies the rate as printed, without restating a reduced fraction', () => {
   const template = getTemplate('psda.conditional-probability');
   for (let seed = 0; seed < 500; seed++) {

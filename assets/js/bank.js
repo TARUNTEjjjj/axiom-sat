@@ -2,9 +2,9 @@
 // question, and the address bar (?t=<templateId>&s=<seed>) always points at the
 // question on screen, so any question can be linked to.
 
-import { normalizeSpr, parseSpr, sprEquals } from '../../src/questions/spr.js';
+import { normalizeSpr, parseSpr, sprEquals, sprTooShort } from '../../src/questions/spr.js';
 import { MINUS } from '../../src/questions/format.js';
-import { recordAttempt } from '../../src/learning/progress.js';
+import { keepRecordedAttempts, recordAttempt } from '../../src/learning/progress.js';
 import { isSprAnswer } from '../../src/questions/schema.js';
 
 const MAX_SEED = 2 ** 31 - 1;
@@ -12,6 +12,7 @@ const MAX_SEED = 2 ** 31 - 1;
 window.appUpdateCanReload = () => false;
 const KEYS = ['A', 'B', 'C', 'D'];
 const DIGITS = ['1', '2', '3', '4'];
+const FOURTH_DIGIT = 'If a decimal doesn’t fit, fill all four digit places, as in .6667 or 0.667 for 2/3.';
 const grouped = new Intl.NumberFormat('en-US');
 // Below this width the controls sit under the question (bank.css), so a new
 // question would otherwise render out of view.
@@ -413,7 +414,7 @@ function renderResponse(item) {
     'aria-describedby': 'spr-hint',
   });
   const check = el('button', { type: 'submit', class: 'btn btn-secondary', text: 'Check' });
-  const inputHint = 'Enter a number, a decimal or a fraction like 7/2';
+  const inputHint = `Enter a number, a decimal or a fraction like 7/2. ${FOURTH_DIGIT}`;
   const hint = el('p', {
     id: 'spr-hint',
     class: 'small muted',
@@ -479,7 +480,11 @@ function finish(item, correct, answer, response) {
     : saved.recorded
       ? 'First attempt saved on this device.'
       : 'Already practiced. Your first attempt stays in your progress.';
-  const message = correct ? 'Correct' : `Not quite — the answer is ${displayAnswer(answer)}`;
+  // A right decimal with too few digits is marked incorrect; say why.
+  const short = item.type === 'spr' && !correct && sprTooShort(response, answer);
+  const message = correct
+    ? 'Correct'
+    : `Not quite — the answer is ${displayAnswer(answer)}${short ? `. Your decimal needs more digits. ${FOURTH_DIGIT}` : ''}`;
   const next = nextButton();
   // Focus moving to the button can cut the live announcement short, so the button
   // carries the result as its description too.
@@ -689,6 +694,7 @@ card.addEventListener('keydown', (event) => {
 
 /* Start */
 
+keepRecordedAttempts(window);
 fillDomains();
 fillSkills('');
 renderGlance();

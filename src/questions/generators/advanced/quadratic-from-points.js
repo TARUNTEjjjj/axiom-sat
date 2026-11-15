@@ -15,13 +15,18 @@ export default {
     const x = h + d;
     const y = a * d * d + k;
     const value = a * h * h + k;
+    // The vertex's y-coordinate as a term of the vertex form, left out when it is zero.
+    const plusK = k === 0 ? '' : ` ${k < 0 ? '−' : '+'} ${Math.abs(k)}`;
+    const vertexForm =
+      k === 0 ? 'Use vertex form. The vertex is on the x-axis, so there is no constant term' : 'Use vertex form';
+    const rise = k === 0 ? fmtNum(y) : `(${fmtNum(y)} − (${fmtNum(k)}))`;
     return {
       item: {
         type: 'spr',
         difficulty: 3,
         stem: `In the xy-plane, the graph of the quadratic function f has vertex (${fmtNum(h)}, ${fmtNum(k)}) and passes through (${fmtNum(x)}, ${fmtNum(y)}). What is the y-intercept of this graph? Give only its y-coordinate.`,
         answer: sprNum(value),
-        explanation: `Use vertex form: f(x) = a(${fmtLinear(1, -h)})² ${k < 0 ? '−' : '+'} ${Math.abs(k)}. Substitute the other point: ${fmtNum(y)} = a(${d})² ${k < 0 ? '−' : '+'} ${Math.abs(k)}, so a = (${fmtNum(y)} − (${fmtNum(k)})) / ${d * d} = ${fmtNum(a)}. A y-intercept has x = 0. Therefore f(0) = (${fmtNum(a)})(${fmtNum(-h)})² ${k < 0 ? '−' : '+'} ${Math.abs(k)} = ${fmtNum(value)}.`,
+        explanation: `${vertexForm}: f(x) = a(${fmtLinear(1, -h)})²${plusK}. Substitute the other point: ${fmtNum(y)} = a(${d})²${plusK}, so a = ${rise} / ${d * d} = ${fmtNum(a)}. A y-intercept has x = 0. Therefore f(0) = (${fmtNum(a)})(${fmtNum(-h)})²${plusK} = ${fmtNum(value)}.`,
       },
       params: { h, k, x, y },
     };

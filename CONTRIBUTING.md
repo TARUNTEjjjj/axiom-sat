@@ -9,8 +9,9 @@ Useful contributions improve mathematical correctness, learning feedback, access
 3. Implement `verify()` by solving the problem independently of the generation path. Register the template in its domain index.
 4. Document an honest lower bound for the template's parameter space. A large parameter space does not mean an equally large variety of concepts.
 5. Add invariant tests to the appropriate domain test file, including edge values, notation, and student-produced response limits.
+6. Pin its published questions before release: `npm run audit:questions` fails until the template is listed in `TEMPLATE_HASHES` in `scripts/audit-questions.mjs`, and the message gives the hash to add.
 
-Preserve existing valid template/seed outputs when possible: learners use those links to revisit questions. If a correction changes generated content, explain it and consider how saved sessions and history are affected.
+Preserve existing valid template/seed outputs when possible: learners use those links to revisit questions. If a correction changes generated content, explain it and consider how saved sessions and history are affected. They store answer letters and typed responses and regrade them when read, so a changed distractor changes what a saved wrong letter names even when every key keeps its letter.
 
 ## Test a learning-flow change
 
