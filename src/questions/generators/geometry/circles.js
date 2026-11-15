@@ -1,5 +1,5 @@
 import { fmtComma, fmtFrac, fmtNum, sup, DEGREES, MINUS, PI, TIMES } from '../../format.js';
-import { makeChoices, pickDistractors } from '../../choices.js';
+import { makeChoices, notARun, pickDistractors } from '../../choices.js';
 import { answerText } from '../../schema.js';
 
 // Each object carries the unit it is measured in and the radii it comes in, so
@@ -34,6 +34,8 @@ const fmtPi = (n) => (n === 1 ? PI : fmtComma(n) + PI);
 // Filler distractors step away from the answer on both sides by a natural unit
 // of the problem, but never reach zero; a length or area cannot be negative.
 const filler = (value, step) => (k) => (value + step * k > 0 ? value + step * k : NaN);
+// Nor can a slip be zero: θr/360 for 40° and a radius of 3 rounds down to 0π.
+const positive = (n) => (n > 0 ? n : NaN);
 
 const point = (x, y) => `(${fmtNum(x)}, ${fmtNum(y)})`;
 
@@ -44,9 +46,13 @@ const pickObject = (rng) => {
 
 // Numeric answers: the correct value and the results of common slips, all
 // formatted the same way. Which three slips appear is left to chance, so the
-// answer is not pinned to one position among the sorted choices.
+// answer is not pinned to one position among the sorted choices. Slips can land
+// close to the answer, where a filler or another slip closes a run of
+// consecutive numbers (3, 4, 5, 6 for a radius of 3 with a center coordinate of
+// 4; π to 4π for a 90° arc of radius 2), so the last distractor may not
+// complete one.
 function numeric(rng, value, slips, fmt, step) {
-  const distractors = pickDistractors(value, rng.shuffle(slips), 3, filler(value, step));
+  const distractors = pickDistractors(value, rng.shuffle(slips).map(positive), 3, filler(value, step), notARun(value));
   return makeChoices(rng, fmt(value), distractors.map(fmt));
 }
 

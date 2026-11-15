@@ -14,12 +14,13 @@ const SEEDS = 300;
 
 const positiveChoices = (item, seed) => {
   for (const choice of item.choices) {
-    assert(!choice.text.startsWith(MINUS) && choice.text !== '0', `seed ${seed}: choice ${choice.text}`);
+    assert(!choice.text.startsWith(MINUS) && choice.text.replace(PI, '') !== '0', `seed ${seed}: choice ${choice.text}`);
   }
 };
 
-// The number in a choice such as 1,250, 48π or (3, −4) is read without its dressing.
-const amount = (text) => Number(text.replace(/[,π]/g, '').replace(MINUS, '-'));
+// The number in a choice such as 1,250, 48π or (3, −4) is read without its
+// dressing; π on its own is 1π.
+const amount = (text) => Number((text === PI ? '1' : text).replace(/[,π]/g, '').replace(MINUS, '-'));
 
 // Where the key falls among the choices sorted by value: 0 is the smallest, 3 the largest.
 const keyRank = (item) => {
@@ -133,6 +134,15 @@ test('angles-triangles: exactly one choice satisfies the stated relation', () =>
   }
 });
 
+test('angles-triangles: the choices never run consecutively', () => {
+  // A run needs a rare draw; the first at 23a84e7 was seed 9539, a transversal
+  // offering 16, 19, 18 and 17.
+  for (let seed = 0; seed < 10000; seed++) {
+    const { item } = anglesTriangles.generate(createRng(seed));
+    assert(!consecutive(item), `seed ${seed}: consecutive choices ${item.choices.map((c) => c.text).join(', ')}`);
+  }
+});
+
 test('angles-triangles: no choice is an impossible angle, and the angle-sum key is not always the smallest', () => {
   const ranks = new Set();
   for (let seed = 0; seed < SEEDS; seed++) {
@@ -237,9 +247,21 @@ test('circles: center choices are the four sign variants of (h, k); other choice
   }
 });
 
+test('circles: a slip that rounds down to nothing is not offered as 0π', () => {
+  // θr/360 rounds to 0 only for a 40° sector of a circle of radius 3, 1 item in
+  // 640; 23a84e7 offered 9π, π, 2π and 0π for seed 705.
+  const { item, params } = circles.generate(createRng(705));
+  assert(params.sector && params.theta === 40 && params.r === 3, 'seed 705 no longer draws that sector');
+  positiveChoices(item, 705);
+});
+
 test('circles: the choices never run consecutively and the radius read from an equation is not always the smallest', () => {
+  // Runs need rare draws, so seeds where 23a84e7 offered one are added: π to 4π
+  // for a 90° sector of radius 2 (447) and a 120° arc of radius 3 (3848), and
+  // 4, 5, 3 and 6 for a radius of 3 read from an equation (8735). The 90° arc
+  // of radius 2 is seed 99.
   const ranks = new Set();
-  for (let seed = 0; seed < SEEDS; seed++) {
+  for (const seed of [...Array(SEEDS).keys(), 447, 3848, 8735]) {
     const { item, params } = circles.generate(createRng(seed));
     if (params.kind === 'equation' && params.askCenter) continue;
     assert(!consecutive(item), `seed ${seed}: consecutive choices ${item.choices.map((c) => c.text).join(', ')}`);

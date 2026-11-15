@@ -7,9 +7,17 @@ import { parseSpr } from '../../spr.js';
 const operand = (n) => (n < 0 ? `(${fmtNum(n)})` : fmtNum(n));
 
 // m × p + n written out with the actual numbers; a coefficient of ±1 is not written
-// as a product (5 − 3, −(−4) − 3) and a zero constant is not written at all.
-const scaled = (m, p) => (m === 1 ? fmtNum(p) : m === -1 ? MINUS + operand(p) : `${fmtNum(m)} ${TIMES} ${operand(p)}`);
+// as a product (5 − 3, −(−4) − 3, and 0 + 5 rather than −0 + 5) and a zero constant
+// is not written at all.
+const scaled = (m, p) =>
+  m === 1 || (m === -1 && p === 0) ? fmtNum(m * p) : m === -1 ? MINUS + operand(p) : `${fmtNum(m)} ${TIMES} ${operand(p)}`;
 const linearSteps = (m, n, p) => scaled(m, p) + (n === 0 ? '' : ` ${n < 0 ? MINUS : '+'} ${fmtNum(Math.abs(n))}`);
+// The working, then its value. When the working is already that value (a coefficient
+// of ±1 and no constant), it is written once: g(6) = −6, not g(6) = −6 = −6.
+const worked = (m, n, p, value) => {
+  const steps = linearSteps(m, n, p);
+  return steps === fmtNum(value) ? steps : `${steps} = ${fmtNum(value)}`;
+};
 
 // A table of consecutive x-values and arbitrary integer outputs for the function `fn`.
 function makeTable(rng, fn, rows) {
@@ -53,10 +61,10 @@ function formulas(rng) {
   const squareMinusK = (x) => `${operand(x)}${sup(2)} ${k < 0 ? '+' : MINUS} ${fmtNum(Math.abs(k))}`;
   const explanation =
     order === 'fg'
-      ? `Work from the inside out. First g(${fmtNum(p)}) = ${linearSteps(m, n, p)} = ${fmtNum(gp)}. ` +
+      ? `Work from the inside out. First g(${fmtNum(p)}) = ${worked(m, n, p, gp)}. ` +
         `Then f(${fmtNum(gp)}) = ${squareMinusK(gp)} = ${fmtNum(fg)}. So f(g(${fmtNum(p)})) = ${fmtNum(fg)}.`
       : `Work from the inside out. First f(${fmtNum(p)}) = ${squareMinusK(p)} = ${fmtNum(fp)}. ` +
-        `Then g(${fmtNum(fp)}) = ${linearSteps(m, n, fp)} = ${fmtNum(gf)}. So g(f(${fmtNum(p)})) = ${fmtNum(gf)}.`;
+        `Then g(${fmtNum(fp)}) = ${worked(m, n, fp, gf)}. So g(f(${fmtNum(p)})) = ${fmtNum(gf)}.`;
 
   // Negative inputs, slopes or constants add sign work to the two steps.
   const difficulty = m > 0 && p >= 0 && k > 0 ? 2 : 3;
@@ -96,9 +104,9 @@ function mixed(rng) {
 
   const explanation =
     ask === 'gf'
-      ? `From the table, f(${fmtNum(a)}) = ${fmtNum(fa)}. Then g(${fmtNum(fa)}) = ${linearSteps(m, n, fa)} = ${fmtNum(value)}. ` +
+      ? `From the table, f(${fmtNum(a)}) = ${fmtNum(fa)}. Then g(${fmtNum(fa)}) = ${worked(m, n, fa, value)}. ` +
         `So g(f(${fmtNum(a)})) = ${fmtNum(value)}.`
-      : `First g(${fmtNum(a)}) = ${linearSteps(m, n, a)} = ${fmtNum(c)}. From the table, f(${fmtNum(c)}) = ${fmtNum(value)}. ` +
+      : `First g(${fmtNum(a)}) = ${worked(m, n, a, c)}. From the table, f(${fmtNum(c)}) = ${fmtNum(value)}. ` +
         `So f(g(${fmtNum(a)})) = ${fmtNum(value)}.`;
 
   return {

@@ -50,8 +50,10 @@ test('ratios: every choice is a positive whole number', () => {
 });
 
 test('ratios: answers are at least 4, the choices never run consecutively, and the key is sometimes the largest or smallest', () => {
+  // A run needs a rare draw (32 in 100,000 seeds at 23a84e7), so seeds where one
+  // came up are added: 5, 6, 4 and 3 for seed 9111, and 4, 5, 6 and 7 for 55082.
   const ranks = new Set();
-  for (let seed = 0; seed < SEEDS; seed++) {
+  for (const seed of [...Array(SEEDS).keys(), 9111, 55082]) {
     const { item, params } = ratios.generate(createRng(seed));
     assert(params.answer >= 4, `seed ${seed}: answer ${params.answer} leaves no room for distractors`);
     assert(!consecutive(item), `seed ${seed}: consecutive choices ${item.choices.map((c) => c.text).join(', ')}`);

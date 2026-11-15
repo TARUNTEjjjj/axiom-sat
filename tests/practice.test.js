@@ -12,6 +12,7 @@ import {
   remainingSeconds,
   finishSession,
   gradeSession,
+  progressAttempts,
   responseIsValid,
 } from '../src/practice/session.js';
 import { MAX_SPR_INPUT_LENGTH } from '../src/questions/spr.js';
@@ -123,11 +124,37 @@ test('session restore retains answers, navigation and flags without answers embe
   assert(!Object.hasOwn(session.questions[0], 'answer'));
 });
 
-test('session restore rejects malformed, oversized, future and expired storage', () => {
+test('session restore rejects malformed, oversized and expired storage', () => {
   for (const input of [null, 'null', '{bad}', '{}', 'x'.repeat(20001)])
     assertEqual(restoreSession(input, NOW), null);
-  assertEqual(restoreSession(JSON.stringify(fresh({ now: NOW + 120000 })), NOW), null);
   assertEqual(restoreSession(JSON.stringify(fresh()), NOW + 31 * 86400000), null);
+});
+
+test('a session saved ahead of a clock that was set back still restores, finishes and retries', () => {
+  // The clock ran 10 minutes fast when the sprint started and was corrected 2 minutes later.
+  const ahead = NOW + 600000;
+  const session = createSession({ seed: 42, now: ahead });
+  session.responses[0] = sessionItems(session)[0].answer;
+  // The page that started it never shows more than the sprint's 16 minutes.
+  assertEqual(remainingSeconds(session, NOW + 120000), 16 * 60);
+  // Restored, it starts now with its answers and its full time, and runs out on schedule.
+  const restored = restoreSession(JSON.stringify(session), NOW + 120000);
+  assertEqual(JSON.stringify(restored.responses), JSON.stringify(session.responses));
+  assertEqual(restored.startedAt, NOW + 120000);
+  assertEqual(restored.deadline, NOW + 120000 + 16 * 60000);
+  assertEqual(remainingSeconds(restored, NOW + 120000), 16 * 60);
+  assertEqual(remainingSeconds(restored, NOW + 180000), 15 * 60);
+  assertEqual(finishSession(restored, NOW + 120000 + 16 * 60000).expired, true);
+  assertEqual(JSON.stringify(restoreSession(JSON.stringify(restored), NOW + 180000)), JSON.stringify(restored));
+  const finished = finishSession(restored, NOW + 180000);
+  assertEqual(finished.finishedAt, NOW + 180000);
+  assertEqual(JSON.stringify(restoreSession(JSON.stringify(finished), NOW + 240000)), JSON.stringify(finished));
+  assertEqual(createRetrySession(finished, NOW + 240000).questions.length, 9);
+  // A session that finished while the clock ran fast keeps its times.
+  const late = finishSession(fresh(), NOW + 120000);
+  assertEqual(JSON.stringify(restoreSession(JSON.stringify(late), NOW + 1000)), JSON.stringify(late));
+  const early = finishSession(createSession({ seed: 42, now: ahead }), ahead + 60000);
+  assertEqual(JSON.stringify(restoreSession(JSON.stringify(early), NOW + 1000)), JSON.stringify(early));
 });
 
 test('session restore rejects forged identities, timing, indexes and answers', () => {
@@ -174,7 +201,7 @@ test('session restore rejects forged identities, timing, indexes and answers', (
       s.finishedAt = NOW - 1;
     },
     (s) => {
-      s.finishedAt = NOW + 120000;
+      s.finishedAt = NOW + 0.5;
     },
     (s) => {
       s.expired = true;
@@ -374,6 +401,57 @@ test('retry requires a finished valid session and at least one missed question',
   retry.timed = true;
   retry.deadline = NOW + 60000;
   assertEqual(restoreSession(JSON.stringify(retry), NOW + 3000), null);
+});
+
+test('a retry records first attempts only for questions skipped before, even when progress never saved the answers', () => {
+  // Four wrong answers and six skipped questions; progress could not save the four.
+  const source = fresh();
+  const items = sessionItems(source);
+  const wrong = (item) => (item.type === 'mc' ? ['A', 'B', 'C', 'D'].find((key) => key !== item.answer) : '99999');
+  source.responses = items.map((item, i) => (i < 4 ? wrong(item) : ''));
+  const finished = finishSession(source, NOW + 60000);
+  assertEqual(gradeSession(finished).incorrect, 4);
+  const ids = (list) => JSON.stringify(list.map(({ templateId, seed }) => `${templateId}#${seed}`).sort());
+  // Finishing a session records its answers, as the page always did.
+  assertEqual(ids(progressAttempts(finished)), ids(source.questions.slice(0, 4)));
+  assert(progressAttempts(finished).every((a) => a.source === 'practice' && a.at === finished.finishedAt));
+  // The learner retries without them. The retry notes which questions were answered,
+  // and the note survives a reload.
+  const retry = createRetrySession(finished, NOW + 120000);
+  assertEqual(JSON.stringify(retry.answeredBefore), JSON.stringify(items.map((item, i) => i < 4)));
+  assertEqual(JSON.stringify(restoreSession(JSON.stringify(retry), NOW + 130000)), JSON.stringify(retry));
+  // Every retry answer is right, and storage works again when it finishes: progress gains
+  // the six questions answered for the first time, not ten correct first attempts.
+  const right = { ...retry, responses: sessionItems(retry).map((item) => item.answer) };
+  const values = new Map();
+  const storage = { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
+  assertEqual(recordAttempts(progressAttempts(finishSession(right, NOW + 180000)), storage).recorded, 6);
+  const saved = readProgress(storage).attempts;
+  assertEqual(ids(saved), ids(source.questions.slice(4)));
+  assert(saved.every((a) => a.correct));
+  // A retry of that retry still knows: wrong again (0), skipped this time (1), first
+  // answered in the retry (4), and skipped in both (5).
+  const mixed = {
+    ...retry,
+    responses: sessionItems(retry).map((item, i) => (i === 0 || i === 4 ? wrong(item) : i === 1 || i === 5 ? '' : item.answer)),
+  };
+  const again = createRetrySession(finishSession(mixed, NOW + 180000), NOW + 240000);
+  assertEqual(JSON.stringify(again.questions), JSON.stringify([0, 1, 4, 5].map((i) => retry.questions[i])));
+  assertEqual(JSON.stringify(again.answeredBefore), '[true,true,true,false]');
+  // A retry saved by an earlier release has no note: it restores as it was and records
+  // every answer, leaving it to progress to skip the questions it already holds.
+  const legacy = { ...right };
+  delete legacy.answeredBefore;
+  assertEqual(JSON.stringify(restoreSession(JSON.stringify(legacy), NOW + 130000)), JSON.stringify(legacy));
+  assertEqual(progressAttempts(finishSession(legacy, NOW + 180000)).length, 10);
+  // A note that cannot be used is dropped, never the session, and only a retry keeps one.
+  for (const note of [[true], 'yes', items.map(() => 1), null])
+    assertEqual(
+      JSON.stringify(restoreSession(JSON.stringify({ ...legacy, answeredBefore: note }), NOW + 130000)),
+      JSON.stringify(legacy),
+    );
+  const noted = { ...source, answeredBefore: items.map(() => true) };
+  assertEqual(JSON.stringify(restoreSession(JSON.stringify(noted), NOW + 1000)), JSON.stringify(source));
 });
 
 test('restore rejects finished timer states that contradict their deadline', () => {

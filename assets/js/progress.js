@@ -4,9 +4,11 @@ import {
   MAX_BACKUP_BYTES,
   readProgress,
   summarize,
+  firstAttempts,
   exportProgress,
   importProgress,
   clearProgress,
+  keepRecordedAttempts,
 } from '../../src/learning/progress.js';
 
 const $ = (id) => document.getElementById(id);
@@ -78,6 +80,7 @@ function attemptRow(attempt, showStem = false) {
 let shownReview = 6;
 function render() {
   const saved = readProgress();
+  const attempts = firstAttempts(saved.attempts);
   const summary = summarize(saved.attempts);
   $('storage-notice').hidden = saved.persisted;
   $('storage-notice').textContent = saved.error || '';
@@ -159,7 +162,7 @@ function render() {
       ]);
     }),
   );
-  const missed = saved.attempts.filter((a) => !a.correct).reverse();
+  const missed = attempts.filter((a) => !a.correct).reverse();
   $('review-count').textContent = `${missed.length} to revisit`;
   $('review-list').replaceChildren(
     ...(missed.length
@@ -190,8 +193,8 @@ function render() {
     $('review-list').append(more);
   }
   $('recent-list').replaceChildren(
-    ...(saved.attempts.length
-      ? saved.attempts
+    ...(attempts.length
+      ? attempts
           .slice(-5)
           .reverse()
           .map((a) => attemptRow(a))
@@ -241,8 +244,14 @@ $('reset-dialog').addEventListener('close', () => {
     $('data-message').textContent = 'Saved progress was reset on this device.';
   } else $('data-message').textContent = 'The browser did not allow progress to be reset.';
 });
+// Another tab's write can drop records a restore just added; put them back before rendering it.
+keepRecordedAttempts(window);
 window.addEventListener('storage', (event) => {
   if (event.key === PROGRESS_KEY || event.key === null) render();
 });
-window.addEventListener('pageshow', render);
+// A normal load fires pageshow too, after the render below; only a page restored from
+// the back/forward cache needs to read progress again.
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) render();
+});
 render();

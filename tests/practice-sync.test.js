@@ -1,6 +1,6 @@
 import { test, assertEqual } from './harness.js';
-import { SESSION_KEY, createSession, finishSession } from '../src/practice/session.js';
-import { subscribeSessionChanges } from '../src/practice/sync.js';
+import { SESSION_KEY, createSession, finishSession, sessionItems } from '../src/practice/session.js';
+import { readSessionChange, subscribeSessionChanges } from '../src/practice/sync.js';
 
 const NOW = 1793520000000;
 function setup(onChange) {
@@ -64,6 +64,29 @@ test('session sync ignores unrelated storage and unsubscribes without reading it
   tab.off();
   tab.send(SESSION_KEY, null);
   assertEqual(changes, 0);
+});
+
+test('a page back from the back/forward cache finds the newer session another page saved', () => {
+  // Page 1 answered three questions of a sprint, then left for the bank.
+  const sprint = createSession({ seed: 4, now: NOW });
+  const answers = sessionItems(sprint).map((item) => item.answer);
+  const left = JSON.stringify({ ...sprint, responses: answers.map((answer, i) => (i < 3 ? answer : '')) });
+  // Page 2 resumed the same sprint and answered the rest; its storage event reached page 1
+  // with the stored text it read.
+  let adopted;
+  const listening = setup((next, raw) => { adopted = raw; });
+  listening.storage.setItem(SESSION_KEY, JSON.stringify({ ...sprint, responses: answers }));
+  listening.send(SESSION_KEY, null);
+  assertEqual(adopted, listening.storage.getItem(SESSION_KEY));
+  listening.off();
+  // Back after the deadline, page 1 adopts page 2's answers instead of finishing its own copy.
+  const change = readSessionChange(listening.storage, left, NOW + 16.5 * 60000);
+  assertEqual(change.raw, adopted);
+  assertEqual(change.session.responses.filter(Boolean).length, 10);
+  assertEqual(change.session.finishedAt, null);
+  assertEqual(readSessionChange(listening.storage, adopted, NOW + 16.5 * 60000), null);
+  listening.storage.setItem(SESSION_KEY, null);
+  assertEqual(JSON.stringify(readSessionChange(listening.storage, left)), '{"raw":null,"session":null}');
 });
 
 test('a failed cross-tab read preserves the visible session and reports unavailable storage', () => {

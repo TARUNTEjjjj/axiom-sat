@@ -27,6 +27,14 @@ test('linear-one-var: the solution is an integer and the equation is never degen
   }
 });
 
+test('linear-one-var: the stem never states its own answer', () => {
+  // The first such draws at 23a84e7 were seeds 4403 ("If x = 5") and 11084 ("If x = 0").
+  for (let seed = 0; seed < 12000; seed++) {
+    const { item } = linearOneVar.generate(createRng(seed));
+    assert(!/^If x = −?\d+,/.test(item.stem), `seed ${seed}: ${item.stem}`);
+  }
+});
+
 test('linear-functions: the starting value is positive, the number asked about appears once, f never goes negative', () => {
   for (let seed = 0; seed < SEEDS; seed++) {
     const { item, params } = linearFunctions.generate(createRng(seed));
@@ -63,6 +71,25 @@ test('linear-functions: every evaluate choice makes sense in the story', () => {
       if (percent) assert(v <= 100, `seed ${seed}: ${choice.text} is more than 100%`);
     }
   }
+});
+
+test('linear-functions: an evaluated key is never the middle of three evenly spaced choices or part of a run', () => {
+  // At 23a84e7 seed 5 offered f(1), f(2) and f(3) (631, 622, 613) for f(2), and seed 1095 the run 24 to 27.
+  let evaluated = 0;
+  let adjacent = 0;
+  for (let seed = 0; seed < 2000; seed++) {
+    const { item, params } = linearFunctions.generate(createRng(seed));
+    if (params.kind !== 'evaluate') continue;
+    const values = item.choices.map((c) => parseSpr(c.text.replace(/,/g, '')));
+    const shown = item.choices.map((c) => c.text).join(', ');
+    assert(!values.some((v) => v !== params.value && values.includes(2 * params.value - v)), `seed ${seed}: ${shown}`);
+    assert(Math.max(...values) - Math.min(...values) !== 3, `seed ${seed}: consecutive choices ${shown}`);
+    evaluated++;
+    if (values.includes(params.value + 1) || values.includes(params.value - 1)) adjacent++;
+  }
+  // A choice next to the key is a cue too. Gaps are filled with other values of f first,
+  // so few remain; whole-number filler put one in 57 of these 665 items, and 23a84e7 in 27.
+  assert(adjacent <= evaluated / 100, `${adjacent} of ${evaluated} evaluated keys sit next to a choice`);
 });
 
 test('line-two-points: the two points are distinct, lie on the line and the slope is in lowest terms', () => {
@@ -109,6 +136,15 @@ test('inequalities: the symbol reverses exactly when a − c is negative', () =>
     assertEqual(solved !== relation, a - c < 0, `seed ${seed}: flip`);
     assertEqual(a * k + b, c * k + d, `seed ${seed}: k is not the boundary`);
     assert(a !== c && k !== 0, `seed ${seed}: degenerate`);
+  }
+});
+
+test('inequalities: the inequality is never printed already solved, so the stem cannot state its answer', () => {
+  // The first such draws at 23a84e7 were seeds 2147 (a value item) and 4086 (an equivalent item).
+  for (let seed = 0; seed < 10000; seed++) {
+    const { item, params } = inequalities.generate(createRng(seed));
+    if (params.kind === 'pair') continue;
+    assert(!/(?:equivalent to|If) x [<>≤≥] −?\d+[?,]/.test(item.stem), `seed ${seed}: ${item.stem}`);
   }
 });
 

@@ -24,7 +24,10 @@ function oneVariable(rng) {
   const a = rng.nonzero(-6, 6);
   let c = rng.int(-5, 5);
   while (c === a) c = rng.int(-5, 5); // a ≠ c keeps a single boundary
-  const b = rng.int(-12, 12);
+  // x R k alone would already be solved, so the stem would state its own answer.
+  // Write it as x − k R 0 without another draw: the choices and the answer stay.
+  const drawn = rng.int(-12, 12);
+  const b = a === 1 && c === 0 && drawn === 0 ? -k : drawn;
   const d = (a - c) * k + b;
   const relation = rng.pick(RELATIONS);
   const flip = a - c < 0;
@@ -114,7 +117,9 @@ export default {
   domain: 'algebra',
   skill: 'Linear inequalities in one or two variables',
   // One variable: 18 boundaries · 12 values of a · at least 10 values of c ≠ a · 25
-  // constants · 4 symbols · two asks with different wording. Two variables: 12
+  // constants · 4 symbols · two asks with different wording. The one (a, c, b) never
+  // printed, x alone on the left (it would already be solved), is outnumbered by the
+  // extra values of c for a = ±6, so this stays a lower bound. Two variables: 12
   // slopes · 31 intercepts · 4 symbols (the stem does not show the pairs).
   space: 18 * 12 * 10 * 25 * 4 * 2 + 12 * 31 * 4,
 

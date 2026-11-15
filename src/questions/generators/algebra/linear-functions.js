@@ -1,5 +1,5 @@
 import { fmtComma, fmtLinear, fmtMoney, fmtNum, fmtPct, plural } from '../../format.js';
-import { makeChoices, pickDistractors } from '../../choices.js';
+import { makeChoices, notARun, offCenter, pickDistractors } from '../../choices.js';
 import { answerText } from '../../schema.js';
 
 const KINDS = ['slope', 'intercept', 'evaluate'];
@@ -211,11 +211,20 @@ export default {
       // multiply the rate by x, and multiplying the starting value by x too. Each
       // must still make sense in the story: positive, no more than about three
       // times the key, and never above the starting value of a quantity that runs
-      // down or above the cap of a percent. Whole numbers near the key fill any gap.
+      // down or above the cap of a percent. Another slip (m + b is f(1)) or a filler
+      // can still land on the other side of the key, so a value that would leave the
+      // key in the middle, or complete a run of four consecutive numbers, is passed
+      // over. A gap is filled with f at x ± 1, 2 or 3 (whole steps of the rate from
+      // the key) before whole numbers near the key, which would put the key next to
+      // a choice.
       const ceiling = Math.min(3 * value, ctx.sign < 0 ? b : Infinity, ctx.cap || Infinity);
       const plausible = (v) => v > 0 && v <= ceiling;
       const slips = rng.shuffle([m * (x + rng.pick([-1, 1])) + b, b - m * x, rate * x, m + b, (m + b) * x]);
-      const distractors = pickDistractors(value, slips.filter(plausible), 3, (k) => (plausible(value + k) ? value + k : NaN));
+      const fill = (k) => {
+        const v = value + Math.sign(k) * (Math.abs(k) <= 3 ? Math.abs(k) * rate : Math.abs(k) - 3);
+        return plausible(v) ? v : NaN;
+      };
+      const distractors = pickDistractors(value, slips.filter(plausible), 3, fill, offCenter(value), notARun(value));
       const { choices, answer } = makeChoices(rng, fmtComma(value), distractors.map(fmtComma));
       const explanation =
         `The starting value is ${fmtNum(b)} and the rate of change is ${fmtNum(m)} per ${ctx.each}, ` +

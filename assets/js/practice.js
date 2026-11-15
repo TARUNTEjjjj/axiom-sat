@@ -1,7 +1,8 @@
 import { DOMAINS } from '../../src/questions/index.js';
-import { recordAttempts } from '../../src/learning/progress.js';
+import { keepRecordedAttempts, recordAttempts } from '../../src/learning/progress.js';
 import {
   SESSION_KEY,
+  SETTINGS_KEY,
   MODES,
   createSession,
   createRetrySession,
@@ -13,10 +14,11 @@ import {
   remainingSeconds,
   finishSession,
   gradeSession,
+  progressAttempts,
   responseIsValid,
 } from '../../src/practice/session.js';
-import { MAX_SPR_INPUT_LENGTH, normalizeSpr, parseSpr } from '../../src/questions/spr.js';
-import { subscribeSessionChanges } from '../../src/practice/sync.js';
+import { MAX_SPR_INPUT_LENGTH, normalizeSpr, parseSpr, sprTooShort } from '../../src/questions/spr.js';
+import { readSessionChange, subscribeSessionChanges } from '../../src/practice/sync.js';
 
 const root = document.getElementById('practice-app');
 const status = document.getElementById('save-status');
@@ -30,6 +32,11 @@ let persistWarning = false;
 // Preserve active sessions and any unconfirmed persistence until the learner leaves.
 window.appUpdateCanReload = () => !session && !persistWarning;
 let finishTarget = null;
+// The stored session text this page last saved or loaded.
+let known = null;
+// The finished session whose unsaved first attempts the learner was told about.
+let warnedUnsaved = null;
+const FOURTH_DIGIT = 'If a decimal doesn’t fit, fill all four digit places, as in .6667 or 0.667 for 2/3.';
 const el = (tag, attrs = {}, children = []) => {
   const node = document.createElement(tag);
   for (const [key, value] of Object.entries(attrs)) {
@@ -59,7 +66,9 @@ function storageWarning() {
 }
 function persist() {
   try {
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    const raw = JSON.stringify(session);
+    localStorage.setItem(SESSION_KEY, raw);
+    known = raw;
     if (!persistWarning) {
       status.textContent =
         session.finishedAt !== null
@@ -77,11 +86,17 @@ function persist() {
 function restore() {
   try {
     const raw = localStorage.getItem(SESSION_KEY);
+    known = raw;
     session = restoreSession(raw);
     if (raw && !session) {
       status.textContent =
         'An old or invalid saved session could not be resumed. Start a fresh session below.';
       localStorage.removeItem(SESSION_KEY);
+      known = null;
+    } else if (session && session.startedAt !== JSON.parse(raw).startedAt) {
+      // A session that a clock set back says has not started yet restarts now with its
+      // full time (restoreSession). Save that, so a reload or another tab keeps the restart.
+      persist();
     }
   } catch {
     storageWarning();
@@ -114,7 +129,6 @@ function complete() {
   document.getElementById('result-heading').focus({ preventScroll: true });
   root.scrollIntoView({ block: 'start' });
 }
-const SETTINGS_KEY = 'axiom.practice.settings.v1';
 const DIFFICULTIES = ['Mixed difficulty', 'Foundation', 'Standard', 'Challenge'];
 function readSetup() {
   const defaults = { mode: 'sprint', timed: true, custom: normalizeCustom() };
@@ -491,7 +505,7 @@ function renderActive(focus = false) {
         el('p', {
           class: 'input-hint',
           id: 'response-hint',
-          text: 'Enter a number, decimal or fraction such as 7/2. Your answer saves as you type.',
+          text: `Enter a number, decimal or fraction such as 7/2. ${FOURTH_DIGIT} Your answer saves as you type.`,
         }),
         error,
       ]),
@@ -588,22 +602,41 @@ function answerLabel(item, response) {
 }
 function saveFinishedProgress(result) {
   if (session.progressSaved) return;
-  const attempts = result.rows.filter(row => row.response).map(row => ({
-    templateId: row.item.templateId,
-    seed: row.item.seed,
-    response: row.response,
-    source: 'practice',
-    at: session.finishedAt,
-  }));
-  let savedAll = !attempts.length;
+  const attempts = progressAttempts(session, result);
+  let saved = { persisted: !attempts.length };
   try {
-    if (attempts.length) savedAll = recordAttempts(attempts).persisted;
-  } catch { savedAll = false; }
+    if (attempts.length) saved = recordAttempts(attempts);
+  } catch { saved = { persisted: false, reason: 'storage' }; }
   // Keep results even when progress storage fails. A reload retries only the
   // incomplete write; duplicate attempts are idempotent in the progress store.
-  session.progressSaved = savedAll;
-  if (!savedAll) storageWarning();
+  session.progressSaved = saved.persisted;
+  if (!saved.persisted) storageWarning();
   persist();
+  return saved;
+}
+// Until progress saves them, the finished session is the only copy of its first
+// attempts. Retry the write before a retry or a fresh session replaces it. While it
+// still fails, keep the results and say why; selecting either button again goes ahead
+// without them, as it does at once when the session itself cannot be stored.
+function keepUnsavedResults() {
+  if (session.progressSaved) return false;
+  const saved = saveFinishedProgress(gradeSession(session));
+  const stored = known === JSON.stringify(session);
+  if (session.progressSaved) {
+    // Storage works again, so the earlier warning no longer applies.
+    if (stored) {
+      persistWarning = false;
+      status.classList.remove('is-warning');
+    }
+    return false;
+  }
+  if (!stored || warnedUnsaved === session) return false;
+  warnedUnsaved = session;
+  status.textContent =
+    saved.reason === 'unreadable'
+      ? 'Your saved progress could not be read, so this session’s first attempts are not in it yet. To keep them, reset progress on the Progress page, then come back. To continue without them, select the button again.'
+      : 'Browser storage is full or unavailable, so this session’s first attempts could not be added to your progress. To continue without them, select the button again.';
+  return true;
 }
 function renderResults() {
   const result = gradeSession(session);
@@ -641,6 +674,11 @@ function renderResults() {
               el('strong', { text: answerLabel(item, item.answer) }),
             ]),
           ]),
+        );
+        // A right decimal with too few digits is marked incorrect; say why.
+        if (row.status === 'incorrect' && item.type === 'spr' && sprTooShort(row.response, item.answer))
+          body.append(el('p', { class: 'small muted', text: `Your decimal needs more digits. ${FOURTH_DIGIT}` }));
+        body.append(
           el('p', { class: 'explanation', text: item.explanation }),
           el('a', {
             class: 'review-link',
@@ -711,14 +749,21 @@ function renderResults() {
         button(
           `Retry missed (${result.incorrect + result.skipped})`,
           () => {
+            if (keepUnsavedResults()) return;
             try {
+              // Still unsaved here when the learner goes ahead without this session's first attempts.
+              const unsaved = !session.progressSaved;
               session = createRetrySession(session);
               items = sessionItems(session);
               reviewFilter = 'all';
               timerWarning = false;
               persist();
               renderActive(true);
-              live.textContent = `Untimed retry started with ${items.length} question${items.length === 1 ? '' : 's'}. First-attempt progress is preserved.`;
+              live.textContent = `Untimed retry started with ${items.length} question${items.length === 1 ? '' : 's'}. ${
+                unsaved
+                  ? 'Your first attempts from the finished session could not be saved, and retry answers will not take their place.'
+                  : 'First-attempt progress is preserved.'
+              }`;
             } catch (error) {
               live.textContent = error.message;
             }
@@ -729,10 +774,12 @@ function renderResults() {
           },
         ),
         button('Start a fresh session', () => {
+          if (keepUnsavedResults()) return;
           session = null;
           items = [];
           try {
             localStorage.removeItem(SESSION_KEY);
+            known = null;
           } catch {
             storageWarning();
           }
@@ -803,12 +850,11 @@ dialog.addEventListener('close', () => {
   finishTarget = null;
   if (dialog.returnValue === 'finish' && target === session) complete();
 });
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) tick();
-});
-window.addEventListener('pageshow', tick);
-subscribeSessionChanges(window, () => localStorage, (next) => {
-  // Revoke the old confirmation before adopting another tab's answers or a new
+// Another tab's change arrives by a storage event; one made on another page in this
+// tab is found when the page comes back (refresh). The announcement fits both.
+function adopt(next, raw) {
+  known = raw;
+  // Revoke the old confirmation before adopting another page's answers or a new
   // session. close() queues its event, so also discard the captured target.
   finishTarget = null;
   dialog.returnValue = 'external-change';
@@ -820,8 +866,27 @@ subscribeSessionChanges(window, () => localStorage, (next) => {
   if (!next) renderSetup();
   else if (next.finishedAt !== null) renderResults();
   else renderActive();
-  live.textContent = 'Practice updated from another tab in this browser.';
-}, storageWarning);
+  live.textContent = 'Practice updated from another page in this browser.';
+}
+// A page back from the back/forward cache still holds the session it had when it
+// left. Adopt any newer stored session before the timer can finish the old copy
+// and save it over answers given on another page.
+function refresh() {
+  let change = null;
+  try {
+    change = readSessionChange(localStorage, known);
+  } catch {
+    // Storage that cannot be read holds nothing newer.
+  }
+  if (change) adopt(change.session, change.raw);
+  else tick();
+}
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) refresh();
+});
+window.addEventListener('pageshow', refresh);
+subscribeSessionChanges(window, () => localStorage, adopt, storageWarning);
+keepRecordedAttempts(window);
 try {
   restore();
   if (!session) renderSetup();
