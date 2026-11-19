@@ -1,6 +1,9 @@
 .DS_Store
 node_modules/
 dist/
+# Browser regression output (traces, screenshots, videos, HTML report).
+test-results/
+playwright-report/
 
 .wrangler/
 
