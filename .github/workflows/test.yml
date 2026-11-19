@@ -22,7 +22,7 @@ jobs:
   # Learner journeys in a real browser against the packaged dist/ build.
   browser:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,8 +30,32 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      # Retry: the browser and system-package downloads occasionally fail on the runner.
+      - name: Install Chromium, Firefox and WebKit
+        run: |
+          for attempt in 1 2 3; do
+            npx playwright install --with-deps chromium firefox webkit && exit 0
+            sleep 15
+          done
+          exit 1
       - run: npm run test:browser
+      # The acceptance matrix for this run (exact engine builds and each result), pass or fail.
+      - name: Record the acceptance matrix
+        if: always()
+        run: |
+          if [ -f test-results/results.json ]; then
+            node scripts/acceptance-matrix.mjs > test-results/acceptance-matrix.md
+            cat test-results/acceptance-matrix.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-acceptance-matrix
+          path: |
+            test-results/results.json
+            test-results/acceptance-matrix.md
+          if-no-files-found: ignore
+          retention-days: 90
       # Traces, screenshots, videos, console logs and storage for each failed journey.
       - uses: actions/upload-artifact@v4
         if: failure()

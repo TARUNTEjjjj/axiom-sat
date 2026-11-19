@@ -214,7 +214,8 @@
   border-radius: 6px;
 }
 .result-correct {
-  color: var(--ok);
+  /* Darker than --ok: 11px text on the tinted badge needs 4.5:1 (about 4.3:1 with --ok). */
+  color: #116329;
   background: var(--ok-soft);
 }
 .result-review {

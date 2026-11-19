@@ -21,7 +21,7 @@ flowchart LR
 - [Progress model](../src/learning/progress.js): validates and regrades attempts, keeps bounded first-attempt history, and merges backups.
 - [Browser controllers](../assets/js/): render those models, handle forms and keyboard interaction, persist sessions, and display storage failures.
 - [Build script](../scripts/build.mjs): copies an explicit public-file list into `dist/` and rejects missing local dependencies. GitHub Actions runs the test-gated build and the question audit on pushes and pull requests; Cloudflare Pages uses the same build command for deployment.
-- [Browser journeys](../tests/browser/): Playwright drives the packaged `dist/` build in Chromium with isolated storage and a controlled clock. GitHub Actions runs them in a separate job on pushes and pull requests.
+- [Browser journeys](../tests/browser/): Playwright drives the packaged `dist/` build in Chromium, Firefox and WebKit with isolated storage and a controlled clock, and runs automated accessibility, keyboard, reflow, motion and storage-failure checks. GitHub Actions runs them in a separate job on pushes and pull requests.
 
 ## Design decisions and their costs
 
@@ -64,12 +64,12 @@ Run:
 ```sh
 npm run build
 npm run audit:questions
-npm run test:browser   # after npm ci and npx playwright install chromium
+npm run test:browser   # after npm ci and npx playwright install chromium firefox webkit
 ```
 
 The shared Node/browser test suite covers question invariants, numeric grading, session timing and migration, retries, and progress recovery. [Independent mathematical audits](../tests/math-audit.test.js) use alternative solution methods, including enumeration, interpolation and elimination, so correctness checks do not rely only on a generator's own verifier.
 
-The browser suite exercises four complete journeys through the rendered pages: timed reload and expiry, exact-question retry with preserved first attempts, rejected malformed backups, and finish-dialog cancellation. It fixes the clock and session seed and blocks external requests, so a failure reproduces exactly. It runs in Chromium only and does not replace manual keyboard, screen-reader or cross-browser checks.
+The browser suite exercises four complete journeys through the rendered pages: timed reload and expiry, exact-question retry with preserved first attempts, rejected malformed backups, and finish-dialog cancellation. It fixes the clock and session seed and blocks external requests, so a failure reproduces exactly. The [acceptance record](acceptance.md) lists the automated checks by engine, their exact versions, the screen-reader protocol and what has not been tested.
 
 The [release verification record](verification.md) describes measured coverage and manual browser checks. Finite seed samples do not prove correctness for every possible seed. Browser checks are not a complete cross-browser or assistive-technology certification, and the app has no psychometric calibration or demonstrated SAT-score prediction.
 
@@ -79,7 +79,7 @@ These are future tasks, not claims of completed features.
 
 | Task | Evidence of completion |
 | --- | --- |
-| Broader browser and accessibility checks | Record browser versions and keyboard/screen-reader results for setup, question navigation, finish/cancel, review, and backup restoration; add regression coverage for defects found. |
+| Screen-reader acceptance | Run the [screen-reader protocol](acceptance.md#screen-reader-protocol) with VoiceOver, NVDA and TalkBack, record versions and results, and add regression coverage for defects found. |
 | New original question families | Add a template with explicit domain constraints, worked reasoning, an independent solver or mathematical oracle, and representative edge-case checks. |
 
 For current contributor rules and release steps, see [CONTRIBUTING.md](../CONTRIBUTING.md).

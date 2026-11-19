@@ -12,7 +12,11 @@ export const START = new Date('2026-11-19T09:00:00Z');
 export const SESSION_SEED = 20261119;
 
 export const test = base.extend({
-  page: async ({ page }, use, testInfo) => {
+  page: async ({ page, browserName }, use, testInfo) => {
+    // The exact engine build, for the acceptance matrix (scripts/acceptance-matrix.mjs).
+    const channel = testInfo.project.use.channel;
+    const build = channel ? `installed ${channel} channel` : 'Playwright build';
+    testInfo.annotations.push({ type: 'browser', description: `${browserName} ${page.context().browser().version()} (${build})` });
     const log = [];
     const errors = [];
     page.on('console', (message) => log.push(`[${message.type()}] ${message.text()}`));
@@ -149,4 +153,39 @@ export function resultMetric(page, label) {
 // The value shown on a Progress page summary card.
 export function progressMetric(page, title) {
   return page.locator('.progress-metric').filter({ has: page.getByText(title, { exact: true }) }).locator('strong');
+}
+
+// Press Tab (or Shift+Tab) until the target has focus, as a keyboard-only learner would.
+// WebKit on macOS follows Safari's default: Tab reaches only text fields and pop-up menus,
+// and Option+Tab reaches every control (or the learner turns on "Press Tab to highlight
+// each item"). Use the key a Safari keyboard user would.
+export function tabKey(page) {
+  return page.context().browser().browserType().name() === 'webkit' && process.platform === 'darwin' ? 'Alt+Tab' : 'Tab';
+}
+
+export async function tabTo(page, target, { max = 60, back = false } = {}) {
+  const key = tabKey(page);
+  for (let i = 0; i < max; i++) {
+    if (await target.evaluate((node) => node === document.activeElement).catch(() => false)) return;
+    await page.keyboard.press(back ? `Shift+${key}` : key);
+  }
+  await expect(target, `reachable with ${back ? 'Shift+' : ''}Tab within ${max} presses`).toBeFocused({ timeout: 1 });
+}
+
+// Write raw text to a storage key before the page's own scripts read it.
+export async function seedStorage(page, values) {
+  await page.addInitScript((entries) => {
+    if (sessionStorage.getItem('__seeded')) return;
+    sessionStorage.setItem('__seeded', '1');
+    for (const [key, value] of Object.entries(entries)) localStorage.setItem(key, value);
+  }, values);
+}
+
+// Wait for entrance animations and transitions to end, so checks see the settled page.
+export async function settle(page) {
+  await page.evaluate(() =>
+    Promise.allSettled(
+      document.getAnimations().filter((a) => a.effect?.getTiming().iterations !== Infinity).map((a) => a.finished),
+    ),
+  );
 }
