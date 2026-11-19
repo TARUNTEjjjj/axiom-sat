@@ -24,6 +24,7 @@ test.describe('Acceptance: automated accessibility rules', () => {
     ['/bank.html', 'question bank'],
     ['/practice.html', 'practice setup'],
     ['/progress.html', 'empty progress'],
+    ['/resources/', 'resource explorer'],
     ['/no-such-page', '404 page'],
   ]) {
     test(`${state} has no axe violations`, async ({ page }) => {
@@ -37,17 +38,25 @@ test.describe('Acceptance: automated accessibility rules', () => {
     await startCustomSession(page, { count: 5, timed: true });
     const questions = await sessionQuestions(page);
     await expectNoViolations(page, 'multiple-choice question');
-    await goToQuestion(page, questions.findIndex((q) => q.type === 'spr') + 1);
+    // One correct and one incorrect answer, so the results show both review statuses
+    // (an all-skipped session never renders the "Correct" badge).
+    await answer(page, questions[0], questions[0].answer);
+    await expectNoViolations(page, 'multiple-choice question with a chosen answer');
+    const spr = questions.findIndex((q) => q.type === 'spr');
+    await goToQuestion(page, spr + 1);
     await page.getByLabel('Your answer').fill('1/');
     await page.getByLabel('Your answer').blur();
     await expect(page.getByLabel('Your answer')).toHaveAttribute('aria-invalid', 'true');
     await expectNoViolations(page, 'numeric question with an invalid draft');
+    await answer(page, questions[spr], questions[spr].wrong);
     await page.locator('.practice-navigator').getByRole('button', { name: 'Finish & review' }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await expectNoViolations(page, 'finish dialog');
     await page.getByRole('dialog').getByRole('button', { name: 'Finish & review' }).click();
+    await expect(page.locator('.review-status.is-correct')).toHaveCount(1);
+    await expect(page.locator('.review-status.is-incorrect')).toHaveCount(1);
     await page.locator('.review-item summary').first().click();
-    await expectNoViolations(page, 'results with an expanded worked solution');
+    await expectNoViolations(page, 'results with correct, incorrect and skipped answers and an expanded worked solution');
   });
 
   test('progress with history and the reset dialog have no axe violations', async ({ page }) => {

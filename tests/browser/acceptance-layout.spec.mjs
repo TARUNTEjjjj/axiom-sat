@@ -31,7 +31,7 @@ async function expectNoHorizontalScroll(page, state) {
 for (const width of [320, 390]) {
   test.describe(`Acceptance: reflow at ${width} px`, () => {
     test.use({ viewport: { width, height: 720 } });
-    for (const [path, state] of [['/', 'overview'], ['/bank.html', 'question bank'], ['/practice.html', 'practice setup'], ['/progress.html', 'progress']]) {
+    for (const [path, state] of [['/', 'overview'], ['/bank.html', 'question bank'], ['/practice.html', 'practice setup'], ['/progress.html', 'progress'], ['/resources/', 'resource explorer']]) {
       test(`${state} fits without horizontal scrolling`, async ({ page }) => {
         await page.goto(path);
         await expectNoHorizontalScroll(page, state);

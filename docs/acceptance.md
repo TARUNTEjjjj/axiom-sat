@@ -6,6 +6,8 @@ This records which browsers and assistive technologies have been checked against
 
 Each automated row ran the same 37 checks: the four learner journeys plus 33 acceptance checks.
 
+Added after these runs, in review: axe and 320/390 px reflow checks on the resource explorer (`/resources/`), and a correct and an incorrect answer in the axe practice-results state (which found the second contrast defect below). The suite now has 40 checks; their per-engine results are in the matrix CI publishes with each run, not in the dated records here.
+
 | Platform | Browser | Exact version | How | Result | Screen reader |
 | --- | --- | --- | --- | --- | --- |
 | macOS 27.2.1 (26B131), arm64 | Chromium | 159.0.8154.6 | Playwright 1.65.1 build, headless | 37/37 pass | — |
@@ -40,13 +42,13 @@ Keyboard note for Safari: by default, Safari and WebKit on macOS move Tab only b
 | Keyboard-only operation | Every step above uses only Tab, Shift+Tab, arrows, Space, Enter and Escape | Automated, all |
 | Focus recovery | Start, Next, navigator, dialog close, finish and retry each leave focus on a defined element | Automated, all |
 | Announcements | Text written to the polite live regions: session complete with counts, retry started, five-minute warning, backup merged/failed | Automated, all (text only — see the screen-reader protocol for what is spoken) |
-| Zoom / narrow viewports | No horizontal scrolling and no element outside the viewport at 320 px (a 1280 px window at 400%) and 390 px, on every page and on the question, dialog and fully expanded results | Automated, all (viewport emulation, not the browser's zoom control) |
+| Zoom / narrow viewports | No horizontal scrolling and no element outside the viewport at 320 px (a 1280 px window at 400%) and 390 px, on the overview, bank, practice, progress and resource explorer pages and on the question, dialog and fully expanded results | Automated, all (viewport emulation, not the browser's zoom control) |
 | Reduced motion | With `prefers-reduced-motion: reduce`, no animation or transform/position transition over 10 ms on any page or the active question, and links skip the page-turn animation (a control run shows the animation with motion allowed) | Automated, all |
 | Storage denial | `localStorage` throws on access: practice runs to results with a visible warning; Progress explains the problem and restore fails without change | Automated, all |
 | Storage full | Writes fail mid-session: answers stay on screen with a warning; stored state keeps the last good write and a reload restores it | Automated, all |
 | Storage corruption | An unreadable saved session is reported and practice restarts; unreadable progress is kept, never overwritten by a restore or a finished session, and the learner is told how to keep new first attempts | Automated, all |
 | Timer reload | Answers, flags and the original deadline survive reload; a deadline that passes while the page is closed finishes the session at that deadline with answers kept | Automated, all |
-| Automated rules | axe-core WCAG 2.0/2.1/2.2 A and AA rules on every page, the practice states, the finish and reset dialogs and progress with history | Automated, all |
+| Automated rules | axe-core WCAG 2.0/2.1/2.2 A and AA rules on the overview, bank, practice, progress, resource explorer and 404 pages, the practice states (including results with correct, incorrect and skipped answers), the finish and reset dialogs and progress with history | Automated, all |
 
 ## Screen-reader protocol
 
@@ -75,9 +77,10 @@ Use a fresh browser profile or clear site data first. Navigate with the screen r
 
 | Defect | Where | Engines | Status |
 | --- | --- | --- | --- |
-| "Correct" badge text #1a7f37 on its tinted background measured about 4.3:1, below the 4.5:1 WCAG AA minimum for 11 px text (axe `color-contrast`) | Progress page review and recent-work lists | All | Fixed: badge text is now #116329 (about 6.3:1); the axe check covers it |
+| "Correct" badge text #1a7f37 on its tinted background measured about 4.3:1, below the 4.5:1 WCAG AA minimum for 11 px text (axe `color-contrast`) | Progress page review and recent-work lists | All | Fixed: badge text is now #116329 (`--ok-ink`, about 6.3:1); the axe check covers it |
+| "Correct" status on practice results, same colours at 12 px (axe `color-contrast`, 4.33:1). Missed by the first scan because its results state had no correct answer | Practice results review list | Chromium, WebKit (Firefox not run locally) | Fixed: uses `--ok-ink`; the axe results state now includes a correct and an incorrect answer |
 
-No other failures were found by the automated checks in any engine that ran. Test-harness problems found on the way were fixed in the suite, not the app: a clock-install race in the shared fixture and an answer click that landed while the question card was still smooth-scrolling (one Firefox CI run; both fixed in the #11 branch as well), axe needing real timers while the page clock is paused, and checks that ran while the overview's reveal fade or the question card's smooth scroll was still in progress (axe then reported mid-fade contrast or a mid-scroll overlap with the sticky header; the settled page has neither).
+No other failures were found by the automated checks in any engine that ran. axe could not decide some contrast checks (text over gradients, background images and pseudo-elements, mainly on the overview) and reports those as incomplete, not as passes. Test-harness problems found on the way were fixed in the suite, not the app: a clock-install race in the shared fixture and an answer click that landed while the question card was still smooth-scrolling (one Firefox CI run; both fixed in the #11 branch as well), axe needing real timers while the page clock is paused, and checks that ran while the overview's reveal fade or the question card's smooth scroll was still in progress (axe then reported mid-fade contrast or a mid-scroll overlap with the sticky header; the settled page has neither).
 
 ## Remaining gaps
 
