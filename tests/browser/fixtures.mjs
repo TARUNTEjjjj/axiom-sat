@@ -196,18 +196,7 @@ export async function settle(page) {
       ),
     )
     .toBe(0);
-  let last = null;
-  await expect
-    .poll(
-      async () => {
-        const position = await page.evaluate(() => `${scrollX},${scrollY}`);
-        const still = position === last;
-        last = position;
-        return still;
-      },
-      { intervals: [100] },
-    )
-    .toBe(true);
+  await scrollSettled(page);
   await page.evaluate(() =>
     Promise.allSettled(
       document.getAnimations().filter((a) => a.effect?.getTiming().iterations !== Infinity).map((a) => a.finished),

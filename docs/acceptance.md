@@ -77,7 +77,7 @@ Use a fresh browser profile or clear site data first. Navigate with the screen r
 | --- | --- | --- | --- |
 | "Correct" badge text #1a7f37 on its tinted background measured about 4.3:1, below the 4.5:1 WCAG AA minimum for 11 px text (axe `color-contrast`) | Progress page review and recent-work lists | All | Fixed: badge text is now #116329 (about 6.3:1); the axe check covers it |
 
-No other failures were found by the automated checks in any engine that ran. Test-harness problems found on the way were fixed in the suite, not the app: a clock-install race in the shared fixture (fixed in the #11 branch as well), axe needing real timers while the page clock is paused, and checks that ran while the overview's reveal fade or the question card's smooth scroll was still in progress (axe then reported mid-fade contrast or a mid-scroll overlap with the sticky header; the settled page has neither).
+No other failures were found by the automated checks in any engine that ran. Test-harness problems found on the way were fixed in the suite, not the app: a clock-install race in the shared fixture and an answer click that landed while the question card was still smooth-scrolling (one Firefox CI run; both fixed in the #11 branch as well), axe needing real timers while the page clock is paused, and checks that ran while the overview's reveal fade or the question card's smooth scroll was still in progress (axe then reported mid-fade contrast or a mid-scroll overlap with the sticky header; the settled page has neither).
 
 ## Remaining gaps
 
