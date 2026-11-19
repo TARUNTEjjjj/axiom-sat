@@ -28,7 +28,9 @@ export const test = base.extend({
       log.push(`[blocked] ${route.request().url()}`);
       return route.abort('blockedbyclient');
     });
-    await page.clock.install({ time: START });
+    // Install a minute early, then pause at START: pausing can only move time forward,
+    // and real time passes between the two calls.
+    await page.clock.install({ time: START.getTime() - 60_000 });
     // Paused: the page clock only moves when a test advances it.
     await page.clock.pauseAt(START);
     await page.addInitScript((seed) => {
