@@ -12,15 +12,17 @@ Each automated row ran the same 37 checks: the four learner journeys plus 33 acc
 | macOS 27.2.1 (26B131), arm64 | WebKit | 27.2 | Playwright 1.65.1 build, headless | 37/37 pass | — |
 | macOS 27.2.1 (26B131), arm64 | Google Chrome | 157.0.8103.79 | installed browser via Playwright `chrome` channel, headless | 37/37 pass | — |
 | macOS 27.2.1 (26B131), arm64 | Firefox | 159.0 (Playwright build) | Not run: this build exits at launch on this Mac with "Could not find profile folder", with or without Playwright | Not run | — |
-| __LINUX_ROWS__ |
+| Ubuntu 26.04 (GitHub runner image 20261111.635), Linux 7.0.0-1016-aws, x64 | Chromium | 159.0.8154.6 | Playwright 1.65.1 build, headless, in CI | 37/37 pass | — |
+| Ubuntu 26.04 (GitHub runner image 20261111.635), Linux 7.0.0-1016-aws, x64 | Firefox | 159.0 | Playwright 1.65.1 build, headless, in CI | 37/37 pass | — |
+| Ubuntu 26.04 (GitHub runner image 20261111.635), Linux 7.0.0-1016-aws, x64 | WebKit | 27.2 | Playwright 1.65.1 build, headless, in CI | 37/37 pass | — |
 | macOS | Safari | — | Not run (Playwright cannot drive Safari itself) | Not run | VoiceOver: not yet run |
 | iOS | Safari | — | Not run | Not run | VoiceOver: not yet run |
 | Windows | Firefox, Chrome | — | Not run | Not run | NVDA: not yet run |
 | Android | Chrome | — | Not run | Not run | TalkBack: not yet run |
 
-Also on that Mac: Node.js 26.13.0, @axe-core/playwright 4.14.0 with axe-core 4.14.1. A repeat of the macOS run (`--repeat-each=2`, 222 tests) also passed.
+Tools: @axe-core/playwright 4.14.0 with axe-core 4.14.1 on both platforms; Node.js 26.13.0 on the Mac and 22.23.5 in CI. A repeat of the macOS run (`--repeat-each=2`, 222 tests) also passed. CI runs all three Playwright engines on every push and pull request and publishes the same matrix with each run, so Firefox is covered there although it could not start on this Mac.
 
-Keyboard note for Safari: by default, Safari and WebKit on macOS move Tab only between text fields and pop-up menus. The WebKit keyboard checks use Option+Tab, as a Safari keyboard user would, or the learner can turn on "Press Tab to highlight each item" in Safari's settings. This is platform behaviour, not an application defect.
+Keyboard note for Safari: by default, Safari and WebKit on macOS move Tab only between text fields and pop-up menus. Safari keyboard users press Option+Tab to reach buttons, radios and links, or turn on "Press Tab to highlight each item" in Safari settings; the macOS WebKit keyboard checks use Option+Tab. This is platform behaviour, not an application defect.
 
 "Playwright build" means the engine Playwright downloads and drives headless. It runs the same rendering and JavaScript engine as the branded browser, but it is not the browser a learner installs: Safari's own WebKit, extensions, user settings and platform accessibility bridges are not exercised. Google Chrome was driven through Playwright's `chrome` channel.
 
@@ -75,7 +77,7 @@ Use a fresh browser profile or clear site data first. Navigate with the screen r
 | --- | --- | --- | --- |
 | "Correct" badge text #1a7f37 on its tinted background measured about 4.3:1, below the 4.5:1 WCAG AA minimum for 11 px text (axe `color-contrast`) | Progress page review and recent-work lists | All | Fixed: badge text is now #116329 (about 6.3:1); the axe check covers it |
 
-No other failures were found by the automated checks in any engine that ran. Two test-harness problems found on the way were fixed in the suite, not the app: a clock-install race in the shared fixture (fixed in the #11 branch as well), and axe needing real timers while the page clock is paused.
+No other failures were found by the automated checks in any engine that ran. Test-harness problems found on the way were fixed in the suite, not the app: a clock-install race in the shared fixture (fixed in the #11 branch as well), axe needing real timers while the page clock is paused, and checks that ran while the overview's reveal fade or the question card's smooth scroll was still in progress (axe then reported mid-fade contrast or a mid-scroll overlap with the sticky header; the settled page has neither).
 
 ## Remaining gaps
 

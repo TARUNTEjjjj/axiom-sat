@@ -1,3 +1,11 @@
+# Browser and accessibility acceptance — 19 November 2026 (India Standard Time)
+
+- The learner journeys and 33 acceptance checks ran in Playwright's Chromium 159.0.8154.6, Firefox 159.0 and WebKit 27.2 builds, and in installed Google Chrome 157.0.8103.79. Exact versions, platforms and per-check results are in the [acceptance record](acceptance.md).
+- axe-core 4.14.1 found one defect: the Progress page's "Correct" badge text was below the 4.5:1 contrast minimum. It is fixed and the check now covers it. No other automated check failed.
+- Screen-reader testing (VoiceOver, NVDA, TalkBack) has **not yet been run**; the record gives the protocol. Branded Safari, real phones and the browser's own zoom control were not tested.
+
+---
+
 # Grading and question changes — 15 November 2026 (India Standard Time)
 
 These corrections change what some learners see. Saved sessions, history and backups from earlier releases still load, and nothing in them is discarded.
