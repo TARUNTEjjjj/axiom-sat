@@ -96,8 +96,27 @@ export async function startCustomSession(page, { count = 5, timed = true } = {})
   await expect(page.locator('#practice-stem')).toBeVisible();
 }
 
+// After moving to a question the page smooth-scrolls its card into view. Wait until the
+// scroll position stops changing, so a click lands where the learner would see the control.
+// Polling runs here in Node, not on the page's paused clock.
+export async function scrollSettled(page) {
+  let last = null;
+  await expect
+    .poll(
+      async () => {
+        const position = await page.evaluate(() => `${scrollX},${scrollY}`);
+        const still = position === last;
+        last = position;
+        return still;
+      },
+      { intervals: [100] },
+    )
+    .toBe(true);
+}
+
 // Enter a response on the current question through its rendered control.
 export async function answer(page, question, response) {
+  await scrollSettled(page);
   if (question.type === 'mc') {
     const choice = page.locator('button.choice').filter({ has: page.locator('.choice-key', { hasText: new RegExp(`^${response}$`) }) });
     await choice.click();
@@ -117,6 +136,7 @@ export async function shownResponse(page, question) {
 }
 
 export async function goToQuestion(page, number) {
+  await scrollSettled(page);
   await page.locator('#question-numbers').getByRole('button', { name: new RegExp(`^Question ${number},`) }).click();
   await expect(page.getByText(new RegExp(`^Question ${number} of \\d+$`))).toBeVisible();
 }
