@@ -12,9 +12,13 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: 0,
   timeout: 30_000,
-  reporter: process.env.CI
-    ? [['list'], ['github'], ['html', { open: 'never', outputFolder: 'playwright-report' }]]
-    : [['list'], ['html', { open: 'never', outputFolder: 'playwright-report' }]],
+  // results.json feeds scripts/acceptance-matrix.mjs.
+  reporter: [
+    ['list'],
+    ...(process.env.CI ? [['github']] : []),
+    ['html', { open: 'never', outputFolder: 'playwright-report' }],
+    ['json', { outputFile: 'test-results/results.json' }],
+  ],
   use: {
     baseURL: `http://127.0.0.1:${port}`,
     // Every test gets a fresh context, so localStorage starts empty. Service workers are
@@ -24,7 +28,14 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  // The learner journeys and the acceptance checks run in all three engines.
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    // Optional: the installed, branded Google Chrome (PW_CHROME=1), for the acceptance record.
+    ...(process.env.PW_CHROME === '1' ? [{ name: 'google-chrome', use: { ...devices['Desktop Chrome'], channel: 'chrome' } }] : []),
+  ],
   webServer: {
     // Build (tests + packaging) first, so the suite always exercises the current dist/.
     command: 'node scripts/build.mjs && node tests/browser/serve.mjs',

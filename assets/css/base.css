@@ -15,6 +15,8 @@
   --accent-soft: rgba(37, 99, 235, 0.1);
   --ok: #1a7f37;
   --ok-soft: rgba(26, 127, 55, 0.12);
+  /* Small text on --ok-soft: --ok there is about 4.3:1, below the 4.5:1 AA minimum. */
+  --ok-ink: #116329;
   --bad: #c62828;
   --bad-soft: rgba(198, 40, 40, 0.1);
   --warn: #b45309;
@@ -335,7 +337,7 @@ button {
 
 .chip-ok {
   background: var(--ok-soft);
-  color: var(--ok);
+  color: var(--ok-ink);
 }
 
 /* Question card: the same component shows a question in the hero and in the bank */

@@ -214,7 +214,7 @@
   border-radius: 6px;
 }
 .result-correct {
-  color: var(--ok);
+  color: var(--ok-ink);
   background: var(--ok-soft);
 }
 .result-review {

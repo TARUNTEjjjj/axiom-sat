@@ -19,12 +19,12 @@ The application separates question generation, practice-session state, learning 
 | Browser application | HTML, CSS, vanilla JavaScript ES modules and native Web APIs |
 | Local data | Browser `localStorage`, versioned JSON sessions and progress backups |
 | Tests and build | Node.js 20+, npm scripts, a custom JavaScript test harness and packaging script; CI uses Node.js 22 |
-| Browser regression checks | Playwright (development dependency only) driving Chromium against the packaged build |
+| Browser regression checks | Playwright and axe-core (development dependencies only) driving Chromium, Firefox and WebKit against the packaged build |
 | Local preview | Python 3 standard-library HTTP server |
 | Version control and CI | Git, GitHub and GitHub Actions |
 | Production hosting | Cloudflare Pages, serving the static `dist/` build |
 
-The application has no npm runtime dependencies, frontend frameworks, application servers, databases, or AI model services in the application. The only npm package is Playwright, a `devDependency` used by the browser regression suite; nothing from it is copied into `dist/`. JSON, YAML and Markdown provide data, workflow configuration and documentation. The `private: true` field in `package.json` prevents accidental npm-package publication; it does not control GitHub repository visibility.
+The application has no npm runtime dependencies, frontend frameworks, application servers, databases, or AI model services in the application. The only npm packages are Playwright and `@axe-core/playwright`, `devDependencies` used by the browser checks; nothing from them is copied into `dist/`. JSON, YAML and Markdown provide data, workflow configuration and documentation. The `private: true` field in `package.json` prevents accidental npm-package publication; it does not control GitHub repository visibility.
 
 Read the [engineering notes](docs/engineering.md) for architecture, design tradeoffs, regression examples and proposed next work.
 
@@ -68,20 +68,23 @@ Open `http://localhost:8787/`. To work directly on the source, use `npm run serv
 
 ```sh
 npm ci
-npx playwright install chromium   # once per machine
+npx playwright install chromium firefox webkit   # once per machine
 npm run test:browser
 ```
 
-`npm run test:browser` packages `dist/` with `scripts/build.mjs`, serves it on `127.0.0.1:4317` with a Node built-in server (`tests/browser/serve.mjs`), and drives Chromium through four learner journeys in [`tests/browser/`](tests/browser/):
+`npm run test:browser` packages `dist/` with `scripts/build.mjs`, serves it on `127.0.0.1:4317` with a Node built-in server (`tests/browser/serve.mjs`), and drives Chromium, Firefox and WebKit through four learner journeys and a set of acceptance checks in [`tests/browser/`](tests/browser/):
 
 - a timed session that is answered, flagged and reloaded keeps its question identities, answers, flags and original deadline, then expires at that deadline;
 - a finished session retries exactly its missed and skipped questions with cleared responses, and the first-attempt history keeps the original answers;
 - malformed backups chosen through the restore file input show an error and leave saved progress byte-for-byte unchanged;
-- cancelling the finish dialog, by button or Escape, leaves the session active.
+- cancelling the finish dialog, by button or Escape, leaves the session active;
+- acceptance checks (`acceptance-*.spec.mjs`): axe-core WCAG 2.2 A/AA rules on every page and practice state, keyboard-only operation with focus recovery and live-region text, reflow at 320 and 390 px, reduced motion, denied/full/corrupted storage, and a deadline that passes while the page is closed.
+
+Add `-- --project=chromium` to run one engine. `node scripts/acceptance-matrix.mjs` turns the last run into a dated Markdown matrix with exact engine versions; see the [acceptance record](docs/acceptance.md), which also holds the manual screen-reader protocol.
 
 Each test uses a new browser context, so storage starts empty. The page clock is installed and paused at a fixed time and moves only when a test advances it, so the expiry check takes milliseconds rather than ten minutes. The session seed is fixed so every run selects the same questions; answer keys come from the application's own question engine for the stored identities. Requests to any host other than the local server are blocked, and service workers are blocked so a cached shell cannot stand in for the build under test.
 
-A failure is reported under its journey and step name. Playwright keeps a trace, screenshot and video, and the suite attaches the browser console and `localStorage` contents, under `test-results/`, with an HTML report in `playwright-report/` (`npx playwright show-report`). The `browser` job in GitHub Actions runs the suite on every push and pull request and uploads those folders when it fails. The suite covers these journeys in Chromium only; it is not a cross-browser or assistive-technology certification.
+A failure is reported under its journey and step name. Playwright keeps a trace, screenshot and video, and the suite attaches the browser console and `localStorage` contents, under `test-results/`, with an HTML report in `playwright-report/` (`npx playwright show-report`). The `browser` job in GitHub Actions runs the suite on every push and pull request and uploads those folders when it fails. Playwright's engine builds stand in for, but are not identical to, branded Chrome, Firefox and Safari. Automated checks cannot hear a screen reader; those results are recorded separately and are not a certification.
 
 Cloudflare Pages project **axiom-sat** deploys `main` using:
 

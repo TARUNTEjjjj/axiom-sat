@@ -390,7 +390,7 @@
   background: var(--surface-2);
 }
 .review-status.is-correct {
-  color: var(--ok);
+  color: var(--ok-ink);
   background: var(--ok-soft);
 }
 .review-status.is-incorrect {
