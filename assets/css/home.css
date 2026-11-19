@@ -302,7 +302,7 @@
 }
 
 .fan-choices .is-correct b {
-  color: var(--ok);
+  color: var(--ok-ink);
 }
 
 /* Practice call to action */

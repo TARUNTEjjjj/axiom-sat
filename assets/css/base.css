@@ -337,7 +337,7 @@ button {
 
 .chip-ok {
   background: var(--ok-soft);
-  color: var(--ok);
+  color: var(--ok-ink);
 }
 
 /* Question card: the same component shows a question in the hero and in the bank */
