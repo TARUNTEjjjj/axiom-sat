@@ -181,8 +181,33 @@ export async function seedStorage(page, values) {
   }, values);
 }
 
-// Wait for entrance animations and transitions to end, so checks see the settled page.
+// Wait for entrance animations, transitions and smooth scrolling to end, so checks see
+// the settled page (mid-scroll, the sticky header briefly overlaps the question). The overview reveals blocks when an IntersectionObserver reports them, which can land
+// after load, so first wait until every on-screen block has been revealed. Polling runs
+// here in Node, not on the page's (possibly paused) clock.
 export async function settle(page) {
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        [...document.querySelectorAll('.js .reveal:not(.is-visible)')].filter((node) => {
+          const box = node.getBoundingClientRect();
+          return box.bottom > 0 && box.top < innerHeight;
+        }).length,
+      ),
+    )
+    .toBe(0);
+  let last = null;
+  await expect
+    .poll(
+      async () => {
+        const position = await page.evaluate(() => `${scrollX},${scrollY}`);
+        const still = position === last;
+        last = position;
+        return still;
+      },
+      { intervals: [100] },
+    )
+    .toBe(true);
   await page.evaluate(() =>
     Promise.allSettled(
       document.getAnimations().filter((a) => a.effect?.getTiming().iterations !== Infinity).map((a) => a.finished),

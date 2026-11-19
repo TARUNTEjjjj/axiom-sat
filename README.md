@@ -24,7 +24,7 @@ The application separates question generation, practice-session state, learning 
 | Version control and CI | Git, GitHub and GitHub Actions |
 | Production hosting | Cloudflare Pages, serving the static `dist/` build |
 
-The application has no npm runtime dependencies, frontend frameworks, application servers, databases, or AI model services in the application. The only npm packages are Playwright and `@axe-core/playwright`, `devDependencies` used by the browser checks; nothing from it is copied into `dist/`. JSON, YAML and Markdown provide data, workflow configuration and documentation. The `private: true` field in `package.json` prevents accidental npm-package publication; it does not control GitHub repository visibility.
+The application has no npm runtime dependencies, frontend frameworks, application servers, databases, or AI model services in the application. The only npm packages are Playwright and `@axe-core/playwright`, `devDependencies` used by the browser checks; nothing from them is copied into `dist/`. JSON, YAML and Markdown provide data, workflow configuration and documentation. The `private: true` field in `package.json` prevents accidental npm-package publication; it does not control GitHub repository visibility.
 
 Read the [engineering notes](docs/engineering.md) for architecture, design tradeoffs, regression examples and proposed next work.
 
