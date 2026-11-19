@@ -190,8 +190,15 @@ export async function settle(page) {
     .poll(() =>
       page.evaluate(() =>
         [...document.querySelectorAll('.js .reveal:not(.is-visible)')].filter((node) => {
+          // home.js reveals a block once 20% of it intersects the viewport (threshold 0.2).
+          // A block peeking in by less than that correctly stays hidden, so only wait for
+          // blocks the observer must reveal; 0.25 leaves margin for rounding at the edge.
           const box = node.getBoundingClientRect();
-          return box.bottom > 0 && box.top < innerHeight;
+          const area = box.width * box.height;
+          if (!area) return false;
+          const w = Math.min(box.right, innerWidth) - Math.max(box.left, 0);
+          const h = Math.min(box.bottom, innerHeight) - Math.max(box.top, 0);
+          return w > 0 && h > 0 && (w * h) / area >= 0.25;
         }).length,
       ),
     )
