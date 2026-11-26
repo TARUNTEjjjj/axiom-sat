@@ -1,6 +1,27 @@
 // Browser verification for the WebGL2 3D Geometry Studio, Canvas2D fallback,
 // 3D card perspective tilt + specular highlight, keyboard/pointer orbit, and reduced-motion pause.
-import { test, expect, settle } from './fixtures.mjs';
+import { test as base, expect } from '@playwright/test';
+
+const test = base.extend({
+  page: async ({ page }, use) => {
+    const pageErrors = [];
+    page.on('pageerror', (error) => pageErrors.push(error.message));
+    await page.route(/^(?!http:\/\/127\.0\.0\.1[:/])/, (route) => route.abort('blockedbyclient'));
+    await use(page);
+    expect(pageErrors, 'uncaught page errors').toEqual([]);
+  },
+});
+
+async function settleStudioReveal(page, locator) {
+  await locator.scrollIntoViewIfNeeded();
+  await expect(locator).toBeVisible();
+  await page.evaluate(() => {
+    for (const el of document.querySelectorAll('.reveal:not(.is-visible)')) {
+      const r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight && r.bottom > 0) el.classList.add('is-visible');
+    }
+  });
+}
 
 async function canvasSignature(page) {
   return page.evaluate(() => {
@@ -52,12 +73,9 @@ test.describe('3D Geometry Studio & Motion Choreography', () => {
     });
 
     await page.goto('/');
-    await page.clock.resume();
-    await settle(page);
 
     const studio = page.locator('#geometry-studio');
-    await studio.scrollIntoViewIfNeeded();
-    await settle(page);
+    await settleStudioReveal(page, page.locator('.studio-panel'));
 
     const viewport = page.locator('.studio-viewport-wrap');
     const renderer = await viewport.getAttribute('data-renderer');
@@ -139,8 +157,7 @@ test.describe('3D Geometry Studio & Motion Choreography', () => {
 
     // 3D perspective tilt + specular sheen on .domain-card (when hover is supported)
     const firstCard = page.locator('.domain-card').first();
-    await firstCard.scrollIntoViewIfNeeded();
-    await settle(page);
+    await settleStudioReveal(page, firstCard);
     const cardBox = await firstCard.boundingBox();
     await page.mouse.move(cardBox.x + cardBox.width * 0.15, cardBox.y + cardBox.height * 0.15);
     await expect
@@ -171,10 +188,8 @@ test.describe('3D Geometry Studio & Motion Choreography', () => {
     });
 
     await page.goto('/');
-    await page.clock.resume();
-    await settle(page);
 
-    await page.locator('#geometry-studio').scrollIntoViewIfNeeded();
+    await settleStudioReveal(page, page.locator('.studio-panel'));
     await expect(page.locator('.studio-viewport-wrap')).toHaveAttribute('data-renderer', 'canvas2d');
     await expect(page.locator('#studio-renderer-badge')).toHaveText('Canvas 2D');
 
@@ -194,11 +209,9 @@ test.describe('3D Geometry Studio: reduced motion', () => {
 
   test('pauses continuous 3D rotation and disables card perspective tilt', async ({ page }) => {
     await page.goto('/');
-    await page.clock.resume();
-    await settle(page);
 
     const studio = page.locator('#geometry-studio');
-    await studio.scrollIntoViewIfNeeded();
+    await settleStudioReveal(page, studio);
 
     const pauseBtn = page.locator('#studio-pause');
     await expect(pauseBtn).toHaveAttribute('aria-pressed', 'true');
