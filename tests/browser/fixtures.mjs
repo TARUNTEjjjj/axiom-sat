@@ -205,8 +205,11 @@ export async function settle(page) {
     .toBe(0);
   await scrollSettled(page);
   await page.evaluate(() =>
-    Promise.allSettled(
-      document.getAnimations().filter((a) => a.effect?.getTiming().iterations !== Infinity).map((a) => a.finished),
-    ),
+    Promise.race([
+      Promise.allSettled(
+        document.getAnimations().filter((a) => a.effect?.getTiming().iterations !== Infinity).map((a) => a.finished),
+      ),
+      new Promise((resolve) => setTimeout(resolve, 2500)),
+    ]),
   );
 }
