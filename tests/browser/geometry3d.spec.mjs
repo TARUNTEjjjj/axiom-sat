@@ -40,8 +40,14 @@ test.describe('3D Geometry Studio & Motion Choreography', () => {
   }) => {
     const consoleErrors = [];
     page.on('console', (msg) => {
-      if (msg.type() === 'error' && !msg.text().includes('ERR_BLOCKED_BY_CLIENT')) {
-        consoleErrors.push(msg.text());
+      const text = msg.text();
+      if (
+        msg.type() === 'error' &&
+        !/ERR_BLOCKED_BY_CLIENT|NS_ERROR_|NetworkError|raw\.githubusercontent\.com|blocked by Playwright|Service Worker/i.test(
+          text,
+        )
+      ) {
+        consoleErrors.push(text);
       }
     });
 

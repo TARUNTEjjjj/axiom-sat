@@ -787,16 +787,20 @@ export function mountGeometryStudio(root, options = {}) {
   }
 
   let rafId = 0;
+  let resizeRaf = 0;
   let lastTime = 0;
   let canvasWidth = 640;
   let canvasHeight = 400;
 
   function updateCanvasSize() {
     if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
+    const host = viewportWrap || canvas;
+    const rect = host.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const w = Math.max(240, Math.round((rect.width || 640) * dpr));
-    const h = Math.max(180, Math.round((rect.height || 400) * dpr));
+    const cssW = host.clientWidth || rect.width || 640;
+    const cssH = host.clientHeight || rect.height || 400;
+    const w = Math.max(240, Math.round(cssW * dpr));
+    const h = Math.max(180, Math.round(cssH * dpr));
     if (canvas.width !== w || canvas.height !== h) {
       canvas.width = w;
       canvas.height = h;
@@ -1151,11 +1155,15 @@ export function mountGeometryStudio(root, options = {}) {
   }
 
   let resizeObserver = null;
-  if (typeof ResizeObserver !== 'undefined' && canvas) {
+  if (typeof ResizeObserver !== 'undefined' && (viewportWrap || canvas)) {
     resizeObserver = new ResizeObserver(() => {
-      renderFrame();
+      if (resizeRaf) return;
+      resizeRaf = requestAnimationFrame(() => {
+        resizeRaf = 0;
+        renderFrame();
+      });
     });
-    resizeObserver.observe(canvas);
+    resizeObserver.observe(viewportWrap || canvas);
   }
 
   const onReduceChange = () => {
@@ -1202,6 +1210,10 @@ export function mountGeometryStudio(root, options = {}) {
     }),
     destroy() {
       stopLoop();
+      if (resizeRaf) {
+        cancelAnimationFrame(resizeRaf);
+        resizeRaf = 0;
+      }
       resizeObserver?.disconnect();
       reduceQuery.removeEventListener?.('change', onReduceChange);
       backend?.dispose();

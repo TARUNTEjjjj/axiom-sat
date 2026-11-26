@@ -29,24 +29,50 @@ import('../../src/questions/index.js')
   .catch((error) => console.warn('question engine unavailable', error));
 
 function revealOnScroll(blocks) {
+  const pending = new Set(blocks);
+  const revealBlock = (block, observer) => {
+    block.classList.add('is-visible');
+    pending.delete(block);
+    observer?.unobserve(block);
+  };
   const revealAll = () => {
-    for (const block of blocks) block.classList.add('is-visible');
+    for (const block of blocks) revealBlock(block, null);
   };
   if (!('IntersectionObserver' in window) || reduceMotion.matches) {
     revealAll();
     return;
   }
-  const observer = new IntersectionObserver(
+
+  let observer = null;
+  const checkViewport = () => {
+    if (!pending.size) return;
+    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    const vw = window.innerWidth || document.documentElement.clientWidth || 0;
+    for (const block of [...pending]) {
+      const box = block.getBoundingClientRect();
+      const area = box.width * box.height;
+      if (!area) continue;
+      const w = Math.min(box.right, vw) - Math.max(box.left, 0);
+      const h = Math.min(box.bottom, vh) - Math.max(box.top, 0);
+      if (w > 0 && h > 0 && (w * h) / area >= 0.08) {
+        revealBlock(block, observer);
+      }
+    }
+  };
+
+  observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
-        entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target);
+        revealBlock(entry.target, observer);
       }
     },
-    { threshold: 0.12 },
+    { threshold: 0.08, rootMargin: '48px 0px' },
   );
-  for (const block of blocks) observer.observe(block);
+  for (const block of pending) observer.observe(block);
+  checkViewport();
+  window.addEventListener('scroll', checkViewport, { passive: true });
+  window.addEventListener('resize', checkViewport, { passive: true });
   reduceMotion.addEventListener?.('change', () => {
     if (reduceMotion.matches) {
       observer.disconnect();
