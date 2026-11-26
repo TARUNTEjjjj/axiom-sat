@@ -1,12 +1,23 @@
-// Home page: reveals blocks as they scroll into view, tilts the hero product
-// toward the pointer, and asks the question engine for the live numbers and the
-// hero item so the page never drifts from what the bank actually generates.
+// Home page: reveals blocks as they scroll into view, tilts hero & overview cards
+// with a live specular sheen, mounts the WebGL2 3D Geometry Studio, and asks the
+// question engine for the live numbers and hero item so the page never drifts.
 
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const noHover = matchMedia('(hover: none)');
 
 revealOnScroll(document.querySelectorAll('.reveal'));
-tilt(document.querySelector('.tilt'), document.querySelector('.hero-card'));
+tilt(document.querySelector('.tilt'), document.querySelector('.hero-card'), { maxDeg: 8 });
+for (const stage of document.querySelectorAll('.card-stage')) {
+  const card = stage.querySelector('.card-3d');
+  if (card) tilt(stage, card, { maxDeg: 6 });
+}
+
+import('../../src/webgl/geometry3d.js')
+  .then(({ mountGeometryStudio }) => {
+    const studioRoot = document.getElementById('geometry-studio');
+    if (studioRoot) studioRoot.__geometryStudio = mountGeometryStudio(studioRoot);
+  })
+  .catch((error) => console.warn('3D geometry studio unavailable', error));
 
 // A dynamic import keeps a broken engine from taking the reveals down with it;
 // the static markup already shows the same item and numbers.
@@ -18,40 +29,96 @@ import('../../src/questions/index.js')
   .catch((error) => console.warn('question engine unavailable', error));
 
 function revealOnScroll(blocks) {
+  const pending = new Set(blocks);
+  const revealBlock = (block, observer) => {
+    block.classList.add('is-visible');
+    pending.delete(block);
+    observer?.unobserve(block);
+  };
+  const revealAll = () => {
+    for (const block of blocks) revealBlock(block, null);
+  };
   if (!('IntersectionObserver' in window) || reduceMotion.matches) {
-    for (const block of blocks) block.classList.add('is-visible');
+    revealAll();
     return;
   }
-  const observer = new IntersectionObserver((entries) => {
-    for (const entry of entries) {
-      if (!entry.isIntersecting) continue;
-      entry.target.classList.add('is-visible');
-      observer.unobserve(entry.target);
+
+  let observer = null;
+  const checkViewport = () => {
+    if (!pending.size) return;
+    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    const vw = window.innerWidth || document.documentElement.clientWidth || 0;
+    for (const block of [...pending]) {
+      const box = block.getBoundingClientRect();
+      const area = box.width * box.height;
+      if (!area) continue;
+      const w = Math.min(box.right, vw) - Math.max(box.left, 0);
+      const h = Math.min(box.bottom, vh) - Math.max(box.top, 0);
+      if (w > 0 && h > 0 && (w * h) / area >= 0.08) {
+        revealBlock(block, observer);
+      }
     }
-  }, { threshold: 0.2 });
-  for (const block of blocks) observer.observe(block);
+  };
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        revealBlock(entry.target, observer);
+      }
+    },
+    { threshold: 0.08, rootMargin: '48px 0px' },
+  );
+  for (const block of pending) observer.observe(block);
+  checkViewport();
+  window.addEventListener('scroll', checkViewport, { passive: true });
+  window.addEventListener('resize', checkViewport, { passive: true });
+  reduceMotion.addEventListener?.('change', () => {
+    if (reduceMotion.matches) {
+      observer.disconnect();
+      revealAll();
+    }
+  });
 }
 
-// The side of the card under the pointer lifts toward the viewer, within ±8°.
-// A rAF loop eases the angles toward the target and stops once it arrives, so
-// an idle card costs nothing. Touch devices float the card in CSS instead.
-function tilt(wrapper, card) {
-  if (!wrapper || !card || reduceMotion.matches || noHover.matches) return;
+// The side of the card under the pointer lifts toward the viewer within ±maxDeg,
+// while updating CSS custom properties (--mx, --my, --sheen) for specular light.
+// Gated strictly behind !reduceMotion && !noHover.
+function tilt(wrapper, card, { maxDeg = 8 } = {}) {
+  if (!wrapper || !card || noHover.matches) return;
 
-  const MAX_DEG = 8;
-  const EASE = 0.12;
+  const EASE = 0.14;
   let rect = null;
   let targetX = 0;
   let targetY = 0;
   let angleX = 0;
   let angleY = 0;
+  let hovering = false;
   let frame = 0;
+
+  const clearCard = () => {
+    if (frame) {
+      cancelAnimationFrame(frame);
+      frame = 0;
+    }
+    targetX = 0;
+    targetY = 0;
+    angleX = 0;
+    angleY = 0;
+    hovering = false;
+    card.style.transform = '';
+    card.style.removeProperty('--sheen');
+  };
 
   const measure = () => {
     rect = wrapper.getBoundingClientRect();
   };
 
   const step = () => {
+    if (reduceMotion.matches) {
+      clearCard();
+      return;
+    }
     angleX += (targetX - angleX) * EASE;
     angleY += (targetY - angleY) * EASE;
     const settled = Math.abs(targetX - angleX) < 0.02 && Math.abs(targetY - angleY) < 0.02;
@@ -63,38 +130,76 @@ function tilt(wrapper, card) {
       angleX === 0 && angleY === 0
         ? ''
         : `rotateX(${angleX.toFixed(2)}deg) rotateY(${angleY.toFixed(2)}deg)`;
+    card.style.setProperty('--sheen', hovering ? '0.85' : '0');
     frame = settled ? 0 : requestAnimationFrame(step);
   };
 
   const run = () => {
+    if (reduceMotion.matches) {
+      clearCard();
+      return;
+    }
     if (!frame) frame = requestAnimationFrame(step);
   };
 
   const clamp = (value) => Math.max(-0.5, Math.min(0.5, value));
 
-  wrapper.addEventListener('pointerenter', measure, { passive: true });
-  wrapper.addEventListener('pointermove', (event) => {
-    if (!rect) measure();
-    if (!rect.width || !rect.height) return;
-    const px = clamp((event.clientX - rect.left) / rect.width - 0.5);
-    const py = clamp((event.clientY - rect.top) / rect.height - 0.5);
-    targetX = py * 2 * MAX_DEG;
-    targetY = -px * 2 * MAX_DEG;
-    run();
-  }, { passive: true });
-  wrapper.addEventListener('pointerleave', () => {
-    targetX = 0;
-    targetY = 0;
-    run();
-  }, { passive: true });
+  wrapper.addEventListener(
+    'pointerenter',
+    () => {
+      if (reduceMotion.matches) return;
+      hovering = true;
+      measure();
+    },
+    { passive: true },
+  );
+  wrapper.addEventListener(
+    'pointermove',
+    (event) => {
+      if (reduceMotion.matches) return;
+      if (!rect) measure();
+      if (!rect.width || !rect.height) return;
+      const rx = (event.clientX - rect.left) / rect.width;
+      const ry = (event.clientY - rect.top) / rect.height;
+      const px = clamp(rx - 0.5);
+      const py = clamp(ry - 0.5);
+      targetX = py * 2 * maxDeg;
+      targetY = -px * 2 * maxDeg;
+      hovering = true;
+      card.style.setProperty('--mx', `${(clamp(rx - 0.5) + 0.5) * 100}%`);
+      card.style.setProperty('--my', `${(clamp(ry - 0.5) + 0.5) * 100}%`);
+      run();
+    },
+    { passive: true },
+  );
+  wrapper.addEventListener(
+    'pointerleave',
+    () => {
+      hovering = false;
+      targetX = 0;
+      targetY = 0;
+      run();
+    },
+    { passive: true },
+  );
 
-  // The cached rect goes stale when the page resizes or scrolls under the pointer.
-  window.addEventListener('resize', () => {
-    if (rect) measure();
-  }, { passive: true });
-  window.addEventListener('scroll', () => {
-    rect = null;
-  }, { passive: true });
+  window.addEventListener(
+    'resize',
+    () => {
+      if (rect) measure();
+    },
+    { passive: true },
+  );
+  window.addEventListener(
+    'scroll',
+    () => {
+      rect = null;
+    },
+    { passive: true },
+  );
+  reduceMotion.addEventListener?.('change', () => {
+    if (reduceMotion.matches) clearCard();
+  });
 }
 
 function fillStats({ listTemplates, totalSpace, DOMAINS }) {

@@ -1,7 +1,6 @@
-/* 3D page turns. Every page wraps its content in <main class="page">: it turns in
-   from the right on load, and transitions.js turns it away to the left before
-   following a link. perspective() lives inside the transform so no ancestor
-   needs a perspective of its own. */
+/* 3D page turns and GPU-composited card depth primitives.
+   Every page wraps its content in <main class="page">: it turns in from the
+   right on load, and transitions.js turns it away to the left before following a link. */
 
 .page {
   transform-origin: 50% 35%;
@@ -16,7 +15,7 @@ html.is-leaving .page {
 @keyframes page-enter {
   from {
     opacity: 0;
-    transform: perspective(1600px) rotateY(10deg) translateZ(-160px) translateX(40px);
+    transform: perspective(1600px) rotateY(10deg) translate3d(40px, 0, -160px);
   }
   to {
     opacity: 1;
@@ -27,13 +26,51 @@ html.is-leaving .page {
 @keyframes page-leave {
   to {
     opacity: 0;
-    transform: perspective(1600px) rotateY(-10deg) translateZ(-160px) translateX(-40px);
+    transform: perspective(1600px) rotateY(-10deg) translate3d(-40px, 0, -160px);
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
+/* Interactive 3D perspective card + specular highlight surface */
+.card-3d {
+  position: relative;
+  transform-style: preserve-3d;
+  transition:
+    box-shadow var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out);
+}
+
+.card-3d::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: var(--sheen, 0);
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.55),
+    rgba(37, 99, 235, 0.08) 42%,
+    transparent 70%
+  );
+  transition: opacity var(--dur-1) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce), print {
   .page,
   html.is-leaving .page {
-    animation: none;
+    animation: none !important;
+  }
+
+  .card-3d,
+  .card-3d::after,
+  .btn,
+  .study-card,
+  .glance-card {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .card-3d::after {
+    display: none;
   }
 }
