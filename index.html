@@ -171,6 +171,157 @@
               </div>
             </div>
           </div>
+
+          <div class="domain-grid-overview" aria-label="SAT Math domains">
+            <div class="card-stage reveal" style="--i: 0">
+              <a class="domain-card card-3d" href="bank.html?d=algebra">
+                <span class="domain-card-tag">01 · ALGEBRA</span>
+                <h3>Linear systems &amp; lines</h3>
+                <p>Slope, intercepts, one-variable equations, inequalities, and parametric systems.</p>
+                <span class="domain-card-cta">Explore Algebra <span aria-hidden="true">→</span></span>
+              </a>
+            </div>
+            <div class="card-stage reveal" style="--i: 1">
+              <a class="domain-card card-3d" href="bank.html?d=advanced">
+                <span class="domain-card-tag">02 · ADVANCED MATH</span>
+                <h3>Quadratics &amp; polynomials</h3>
+                <p>Discriminants, Vieta root relationships, rational equations, radicals, and exponentials.</p>
+                <span class="domain-card-cta">Explore Advanced Math <span aria-hidden="true">→</span></span>
+              </a>
+            </div>
+            <div class="card-stage reveal" style="--i: 2">
+              <a class="domain-card card-3d" href="bank.html?d=psda">
+                <span class="domain-card-tag">03 · DATA ANALYSIS</span>
+                <h3>Rates, percents &amp; probability</h3>
+                <p>Ratios, two-way conditional probability, linear scatter models, and center metrics.</p>
+                <span class="domain-card-cta">Explore Data Analysis <span aria-hidden="true">→</span></span>
+              </a>
+            </div>
+            <div class="card-stage reveal" style="--i: 3">
+              <a class="domain-card card-3d" href="bank.html?d=geometry">
+                <span class="domain-card-tag">04 · GEOMETRY &amp; TRIG</span>
+                <h3>Circles, triangles &amp; solids</h3>
+                <p>Circle tangency, similar solid scaling, right-triangle trig, and cross-sectional volume.</p>
+                <span class="domain-card-cta">Explore Geometry <span aria-hidden="true">→</span></span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section studio-section" id="geometry-studio" aria-labelledby="studio-title">
+        <div class="container stage">
+          <div class="section-head reveal">
+            <p class="eyebrow">Spatial intuition · 3D Geometry Studio</p>
+            <h2 class="title" id="studio-title">See the equations in three dimensions.</h2>
+            <p class="lead">
+              Tilt a plane through a double cone, inspect a coordinate sphere’s secant chord, or slice SAT
+              solids to watch area and volume ratios update live.
+            </p>
+          </div>
+
+          <div class="studio-shell">
+            <div class="studio-stage-col reveal" style="--i: 1">
+              <div class="studio-viewport-wrap" data-renderer="webgl2">
+                <canvas
+                  id="geometry-canvas"
+                  width="640"
+                  height="400"
+                  tabindex="0"
+                  role="application"
+                  aria-roledescription="Interactive 3D geometry canvas"
+                  aria-label="Interactive 3D SAT geometry studio. Drag or use arrow keys to orbit, plus or minus to zoom, R to reset, Space to pause."
+                ></canvas>
+                <div class="studio-hud-top" aria-hidden="true">
+                  <span class="studio-badge" id="studio-renderer-badge">WebGL2</span>
+                  <span class="studio-badge">Drag · Arrows · +/−</span>
+                </div>
+                <div class="studio-hud-hint" id="studio-hud" aria-hidden="true">Ellipse · e = 0.65</div>
+              </div>
+
+              <div class="studio-toolbar">
+                <div class="studio-modes" role="group" aria-label="3D geometry modes">
+                  <button type="button" class="studio-mode-btn" data-mode="conics" aria-pressed="true">
+                    Conic Slicer
+                  </button>
+                  <button type="button" class="studio-mode-btn" data-mode="sphere" aria-pressed="false">
+                    Coordinate Sphere
+                  </button>
+                  <button type="button" class="studio-mode-btn" data-mode="volume" aria-pressed="false">
+                    Volume Solid
+                  </button>
+                </div>
+
+                <div class="studio-actions" role="group" aria-label="3D camera controls">
+                  <button
+                    type="button"
+                    class="studio-action-btn is-icon"
+                    id="studio-zoom-out"
+                    aria-label="Zoom out 3D view"
+                  >
+                    −
+                  </button>
+                  <button
+                    type="button"
+                    class="studio-action-btn is-icon"
+                    id="studio-zoom-in"
+                    aria-label="Zoom in 3D view"
+                  >
+                    +
+                  </button>
+                  <button type="button" class="studio-action-btn" id="studio-reset">Reset</button>
+                  <button
+                    type="button"
+                    class="studio-action-btn"
+                    id="studio-pause"
+                    aria-pressed="false"
+                  >
+                    Pause 3D
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="studio-panel reveal" style="--i: 2">
+              <div class="studio-panel-head">
+                <div>
+                  <p class="eyebrow">Live analytical view</p>
+                  <h3 id="studio-shape-name">Ellipse</h3>
+                </div>
+              </div>
+
+              <div class="studio-control">
+                <div class="studio-control-head">
+                  <label for="studio-param" id="studio-param-label">Cutting plane tilt (θ)</label>
+                  <span class="studio-control-value" id="studio-param-value">34°</span>
+                </div>
+                <input
+                  class="studio-slider"
+                  id="studio-param"
+                  type="range"
+                  min="0"
+                  max="84"
+                  step="1"
+                  value="34"
+                />
+              </div>
+
+              <div class="studio-presets" id="studio-presets" role="group" aria-label="Geometry presets"></div>
+
+              <pre class="studio-equation" id="studio-equation" aria-label="Active equation">u²/0.34² + w²/0.41² = 1</pre>
+
+              <div class="studio-metrics" id="studio-metrics"></div>
+
+              <p class="studio-note" id="studio-note">
+                Tilted slice inside one nappe (0 &lt; e &lt; 1): stretched circle with major/minor axes.
+              </p>
+
+              <a class="studio-bank-link" id="studio-bank-link" href="bank.html?d=geometry"
+                >Practice Geometry &amp; Trig →</a
+              >
+              <p class="sr-only" id="studio-live" role="status" aria-live="polite"></p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -185,33 +336,38 @@
             </p>
           </div>
           <div class="study-grid">
-            <a class="study-card reveal" href="practice.html?mode=sprint">
-              <span class="study-index">01 / BUILD A HABIT</span>
-              <span class="study-number">16<span>min</span></span>
-              <h3>Daily sprint</h3>
-              <p>Ten questions across all four domains. A small session with a clear finish line.</p>
-              <span class="study-cta">Start a sprint <span aria-hidden="true">↗</span></span>
-            </a>
-            <a class="study-card study-card-featured reveal" href="practice.html?mode=module" style="--i: 1">
-              <span class="study-index">02 / FIND YOUR PACE</span>
-              <span class="study-number">35<span>min</span></span>
-              <h3>Module practice</h3>
-              <p>Twenty-two questions, a running clock, and room to revisit your work before you finish.</p>
-              <span class="study-cta">Practice a module <span aria-hidden="true">↗</span></span>
-            </a>
-            <a
-              class="study-card reveal"
-              href="practice.html?mode=custom&amp;domain=advanced&amp;difficulty=3&amp;count=10"
-              style="--i: 2"
-            >
-              <span class="study-index">03 / GO DEEPER</span>
-              <span class="study-number">3<span>of 3</span></span>
-              <h3>Advanced challenge</h3>
-              <p>
-                Quadratic parameters, rational equations, radicals, and nonlinear systems. Set your own pace.
-              </p>
-              <span class="study-cta">Build your challenge <span aria-hidden="true">↗</span></span>
-            </a>
+            <div class="card-stage reveal" style="--i: 0">
+              <a class="study-card card-3d" href="practice.html?mode=sprint">
+                <span class="study-index">01 / BUILD A HABIT</span>
+                <span class="study-number">16<span>min</span></span>
+                <h3>Daily sprint</h3>
+                <p>Ten questions across all four domains. A small session with a clear finish line.</p>
+                <span class="study-cta">Start a sprint <span aria-hidden="true">↗</span></span>
+              </a>
+            </div>
+            <div class="card-stage reveal" style="--i: 1">
+              <a class="study-card study-card-featured card-3d" href="practice.html?mode=module">
+                <span class="study-index">02 / FIND YOUR PACE</span>
+                <span class="study-number">35<span>min</span></span>
+                <h3>Module practice</h3>
+                <p>Twenty-two questions, a running clock, and room to revisit your work before you finish.</p>
+                <span class="study-cta">Practice a module <span aria-hidden="true">↗</span></span>
+              </a>
+            </div>
+            <div class="card-stage reveal" style="--i: 2">
+              <a
+                class="study-card card-3d"
+                href="practice.html?mode=custom&amp;domain=advanced&amp;difficulty=3&amp;count=10"
+              >
+                <span class="study-index">03 / GO DEEPER</span>
+                <span class="study-number">3<span>of 3</span></span>
+                <h3>Advanced challenge</h3>
+                <p>
+                  Quadratic parameters, rational equations, radicals, and nonlinear systems. Set your own pace.
+                </p>
+                <span class="study-cta">Build your challenge <span aria-hidden="true">↗</span></span>
+              </a>
+            </div>
           </div>
           <p class="section-note">
             Independent, non-adaptive practice with original questions. Results describe your work here; they

@@ -11,6 +11,7 @@ import './advanced-expansion.test.js';
 import './math-audit.test.js';
 import './psda.test.js';
 import './geometry.test.js';
+import './geometry3d.test.js';
 import './practice.test.js';
 import './practice-sync.test.js';
 import './progress.test.js';
