@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "project": "axiom-sat",
   "title": "Axiom SAT learning resources",
-  "fetchedAt": "2026-11-27T12:50:37.732Z",
-  "attemptedAt": "2026-11-27T12:50:22.405Z",
+  "fetchedAt": "2026-11-28T12:02:12.495Z",
+  "attemptedAt": "2026-11-28T12:01:58.162Z",
   "status": "live",
   "errors": [],
   "excludedSeeds": [],
@@ -44,12 +44,12 @@
         "visualization"
       ],
       "stars": 3360,
-      "forks": 1614,
-      "pushedAt": "2026-11-27T10:42:33.000Z",
+      "forks": 1617,
+      "pushedAt": "2026-11-28T10:37:00.000Z",
       "license": null,
       "category": "mathematics",
       "sourceQuery": "topic:mathematics",
-      "fetchedAt": "2026-11-27T12:50:25.698Z",
+      "fetchedAt": "2026-11-28T12:02:00.765Z",
       "provenance": "github",
       "stale": false,
       "sourceQueries": [
@@ -73,17 +73,17 @@
       ],
       "stars": 1509,
       "forks": 220,
-      "pushedAt": "2026-11-27T10:40:18.000Z",
+      "pushedAt": "2026-11-27T14:33:33.000Z",
       "license": "LGPL-3.0",
       "category": "mathematics",
       "sourceQuery": "topic:mathematics",
-      "fetchedAt": "2026-11-27T12:50:25.698Z",
+      "fetchedAt": "2026-11-28T12:02:00.765Z",
       "provenance": "github",
       "stale": false,
       "sourceQueries": [
         "topic:mathematics"
       ],
-      "score": 85.89,
+      "score": 85.87,
       "reason": "Mathematics and visualization resource; 1509 GitHub stars."
     },
     {
@@ -106,13 +106,13 @@
       "license": "MIT",
       "category": "mathematics",
       "sourceQuery": "topic:mathematics",
-      "fetchedAt": "2026-11-27T12:50:25.698Z",
+      "fetchedAt": "2026-11-28T12:02:00.765Z",
       "provenance": "github",
       "stale": false,
       "sourceQueries": [
         "topic:mathematics"
       ],
-      "score": 84.12,
+      "score": 84.11,
       "reason": "Mathematics and visualization resource; 1855 GitHub stars."
     },
     {
@@ -135,13 +135,13 @@
       "license": "Unlicense",
       "category": "mathematics",
       "sourceQuery": "topic:mathematics",
-      "fetchedAt": "2026-11-27T12:50:25.698Z",
+      "fetchedAt": "2026-11-28T12:02:00.765Z",
       "provenance": "github",
       "stale": false,
       "sourceQueries": [
         "topic:mathematics"
       ],
-      "score": 80.63,
+      "score": 80.62,
       "reason": "Mathematics and visualization resource; 504 GitHub stars."
     },
     {
@@ -177,13 +177,13 @@
       "license": "MIT",
       "category": "mathematics",
       "sourceQuery": "topic:mathematics",
-      "fetchedAt": "2026-11-27T12:50:25.698Z",
+      "fetchedAt": "2026-11-28T12:02:00.765Z",
       "provenance": "github",
       "stale": false,
       "sourceQueries": [
         "topic:mathematics"
       ],
-      "score": 80.16,
+      "score": 80.15,
       "reason": "Mathematics and visualization resource; 2579 GitHub stars."
     },
     {
@@ -209,20 +209,20 @@
         "search",
         "sort"
       ],
-      "stars": 34926,
-      "forks": 7911,
-      "pushedAt": "2026-11-27T12:38:52.000Z",
+      "stars": 34929,
+      "forks": 7914,
+      "pushedAt": "2026-11-28T03:36:22.000Z",
       "license": "MIT",
       "category": "mathematics",
       "sourceQuery": "topic:mathematics",
-      "fetchedAt": "2026-11-27T12:50:25.698Z",
+      "fetchedAt": "2026-11-28T12:02:00.765Z",
       "provenance": "github",
       "stale": false,
       "sourceQueries": [
         "topic:mathematics"
       ],
-      "score": 72.72,
-      "reason": "Mathematics and visualization resource; 34926 GitHub stars."
+      "score": 72.71,
+      "reason": "Mathematics and visualization resource; 34929 GitHub stars."
     },
     {
       "id": 85371262,
@@ -251,20 +251,61 @@
         "traveling-salesman",
         "tree-algorithms"
       ],
-      "stars": 18922,
+      "stars": 18921,
       "forks": 4517,
       "pushedAt": "2026-11-09T15:46:08.000Z",
       "license": "MIT",
       "category": "mathematics",
       "sourceQuery": "topic:mathematics",
-      "fetchedAt": "2026-11-27T12:50:25.698Z",
+      "fetchedAt": "2026-11-28T12:02:00.765Z",
       "provenance": "github",
       "stale": false,
       "sourceQueries": [
         "topic:mathematics"
       ],
-      "score": 70.92,
-      "reason": "Mathematics and visualization resource; 18922 GitHub stars."
+      "score": 70.89,
+      "reason": "Mathematics and visualization resource; 18921 GitHub stars."
+    },
+    {
+      "id": 1149023093,
+      "fullName": "HenryNdubuaku/cognition-compendium",
+      "url": "https://github.com/HenryNdubuaku/cognition-compendium",
+      "description": "Become a cracked researcher/engineer with this unconventional textbook covering maths, computing, cognition, ML and Neuro.",
+      "topics": [
+        "ai-textbook",
+        "algorithms",
+        "artificial-intelligence",
+        "computer-science",
+        "computer-vision",
+        "deep-learning",
+        "jax",
+        "linear-algebra",
+        "machine-learning",
+        "machine-learning-algorithms",
+        "math",
+        "mathematics",
+        "multimodal-learning",
+        "nlp",
+        "probability",
+        "python",
+        "reinforcement-learning",
+        "speech-processing",
+        "statistics"
+      ],
+      "stars": 7747,
+      "forks": 952,
+      "pushedAt": "2026-11-28T06:15:57.000Z",
+      "license": "Apache-2.0",
+      "category": "mathematics",
+      "sourceQuery": "topic:mathematics",
+      "fetchedAt": "2026-11-28T12:02:00.765Z",
+      "provenance": "github",
+      "stale": false,
+      "sourceQueries": [
+        "topic:mathematics"
+      ],
+      "score": 69.44,
+      "reason": "Mathematics and visualization resource; 7747 GitHub stars."
     },
     {
       "id": 68885535,
@@ -278,20 +319,20 @@
         "programming-language",
         "visualization"
       ],
-      "stars": 8020,
+      "stars": 8022,
       "forks": 363,
       "pushedAt": "2026-11-06T07:53:31.000Z",
       "license": "MIT",
       "category": "mathematics",
       "sourceQuery": "topic:mathematics",
-      "fetchedAt": "2026-11-27T12:50:25.698Z",
+      "fetchedAt": "2026-11-28T12:02:00.765Z",
       "provenance": "github",
       "stale": false,
       "sourceQueries": [
         "topic:mathematics"
       ],
-      "score": 68.97,
-      "reason": "Mathematics and visualization resource; 8020 GitHub stars."
+      "score": 68.95,
+      "reason": "Mathematics and visualization resource; 8022 GitHub stars."
     },
     {
       "id": 54614238,
@@ -321,18 +362,18 @@
         "utils"
       ],
       "stars": 6040,
-      "forks": 1371,
-      "pushedAt": "2026-11-27T12:21:49.000Z",
+      "forks": 1373,
+      "pushedAt": "2026-11-28T11:45:37.000Z",
       "license": "Apache-2.0",
       "category": "mathematics",
       "sourceQuery": "topic:mathematics",
-      "fetchedAt": "2026-11-27T12:50:25.698Z",
+      "fetchedAt": "2026-11-28T12:02:00.765Z",
       "provenance": "github",
       "stale": false,
       "sourceQueries": [
         "topic:mathematics"
       ],
-      "score": 68.9,
+      "score": 68.91,
       "reason": "Mathematics and visualization resource; 6040 GitHub stars."
     },
     {
@@ -356,20 +397,20 @@
         "sort",
         "sorting-algorithms"
       ],
-      "stars": 34267,
+      "stars": 34270,
       "forks": 5823,
       "pushedAt": "2026-03-07T14:45:13.000Z",
       "license": "GPL-3.0",
       "category": "mathematics",
       "sourceQuery": "topic:mathematics",
-      "fetchedAt": "2026-11-27T12:50:25.698Z",
+      "fetchedAt": "2026-11-28T12:02:00.765Z",
       "provenance": "github",
       "stale": false,
       "sourceQueries": [
         "topic:mathematics"
       ],
-      "score": 68.47,
-      "reason": "Mathematics and visualization resource; 34267 GitHub stars."
+      "score": 68.46,
+      "reason": "Mathematics and visualization resource; 34270 GitHub stars."
     },
     {
       "id": 847885,
@@ -395,56 +436,14 @@
       "license": "Apache-2.0",
       "category": "mathematics",
       "sourceQuery": "topic:mathematics",
-      "fetchedAt": "2026-11-27T12:50:25.698Z",
+      "fetchedAt": "2026-11-28T12:02:00.765Z",
       "provenance": "github",
       "stale": false,
       "sourceQueries": [
         "topic:mathematics"
       ],
-      "score": 67.33,
+      "score": 67.31,
       "reason": "Mathematics and visualization resource; 10954 GitHub stars."
-    },
-    {
-      "id": 6474647,
-      "fullName": "casadi/casadi",
-      "url": "https://github.com/casadi/casadi",
-      "description": "CasADi is a symbolic framework for numeric optimization implementing automatic differentiation in forward and reverse modes on sparse matrix-valued computational graphs. It supports self-contained C-code generation and interfaces state-of-the-art codes such as SUNDIALS, IPOPT etc. It can be used from C++, Python, Matlab/Octave, Julia or Javascript",
-      "topics": [
-        "academic-project",
-        "algorithmic-differentation",
-        "c-plus-plus",
-        "code-generation",
-        "derivatives",
-        "javascript",
-        "julia-package",
-        "library",
-        "mathematics",
-        "matlab",
-        "nonlinear",
-        "nonlinear-programming",
-        "numerical-calculations",
-        "octave",
-        "optimal-control",
-        "optimization",
-        "parameter-estimation",
-        "python",
-        "scientific-computing",
-        "symbolic-manipulation"
-      ],
-      "stars": 2338,
-      "forks": 471,
-      "pushedAt": "2026-11-27T12:31:58.000Z",
-      "license": "LGPL-3.0",
-      "category": "mathematics",
-      "sourceQuery": "topic:mathematics",
-      "fetchedAt": "2026-11-27T12:50:25.698Z",
-      "provenance": "github",
-      "stale": false,
-      "sourceQueries": [
-        "topic:mathematics"
-      ],
-      "score": 66.84,
-      "reason": "Mathematics and visualization resource; 2338 GitHub stars."
     },
     {
       "id": 63476337,
@@ -467,20 +466,20 @@
         "sorting-algorithms",
         "sorts"
       ],
-      "stars": 226499,
-      "forks": 51351,
+      "stars": 226524,
+      "forks": 51360,
       "pushedAt": "2026-11-13T04:28:36.000Z",
       "license": "MIT",
       "category": "practice",
       "sourceQuery": "repo:TheAlgorithms/Python",
-      "fetchedAt": "2026-11-27T12:50:37.732Z",
+      "fetchedAt": "2026-11-28T12:02:12.495Z",
       "provenance": "github",
       "stale": false,
       "sourceQueries": [
         "repo:TheAlgorithms/Python"
       ],
-      "score": 56.4,
-      "reason": "Practice and explanations resource; 226499 GitHub stars."
+      "score": 56.37,
+      "reason": "Practice and explanations resource; 226524 GitHub stars."
     },
     {
       "id": 32689863,
@@ -493,20 +492,20 @@
         "explanatory-math-videos",
         "python"
       ],
-      "stars": 97024,
-      "forks": 7949,
+      "stars": 97048,
+      "forks": 7948,
       "pushedAt": "2026-09-09T16:23:48.000Z",
       "license": "MIT",
       "category": "practice",
       "sourceQuery": "repo:3b1b/manim",
-      "fetchedAt": "2026-11-27T12:50:35.350Z",
+      "fetchedAt": "2026-11-28T12:02:10.135Z",
       "provenance": "github",
       "stale": false,
       "sourceQueries": [
         "repo:3b1b/manim"
       ],
-      "score": 33.16,
-      "reason": "Practice and explanations resource; 97024 GitHub stars."
+      "score": 33.14,
+      "reason": "Practice and explanations resource; 97048 GitHub stars."
     }
   ]
 }
